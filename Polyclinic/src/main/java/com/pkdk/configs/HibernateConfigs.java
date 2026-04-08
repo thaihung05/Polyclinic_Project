@@ -22,12 +22,14 @@ import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
  * @author Admin
  */
 @Configuration
-@PropertySource("classpath:database.proerties")
+@PropertySource("classpath:databases.properties")
 public class HibernateConfigs {
 
     @Autowired
     private Environment env;
+    
 
+    @Bean
     public LocalSessionFactoryBean getSessionFactory() {
         LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
         sessionFactory.setPackagesToScan(new String[]{"com.pkdk.pojo"});
