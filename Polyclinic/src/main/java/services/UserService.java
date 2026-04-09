@@ -6,13 +6,14 @@ package services;
 
 import com.pkdk.pojo.Users;
 import java.util.Map;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
  *
  * @author Admin
  */
-public interface UserService {
+public interface UserService extends UserDetailsService{
     Users getUserByUsername(String username);
     Users addUser(Map<String, String> info, MultipartFile avatar);
 }

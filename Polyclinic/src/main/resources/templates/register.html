@@ -1,1 +1,50 @@
-
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>Đăng ký</title>
+    <th:block th:replace="base :: resources"></th:block>
+    <link rel="stylesheet" th:href="@{/css/user.css}">
+</head>
+<body>
+    <div th:replace="base :: header"></div>
+    <main class="register-wrapper d-flex justify-content-center align-items-center">
+        <div class="register-card">
+            <h3 class="text-center fw-bold mb-4">Đăng ký tài khoản</h3>
+            <div th:if="${errMsg}" class="alert alert-danger text-center">
+                <span th:text="${errMsg}"></span>
+            </div>
+            <form id="registerForm" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label class="form-label">Họ và tên</label>
+                    <input type="text" name="name" class="form-control input-custom" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Số điện thoại</label>
+                    <input type="text" name="phone" class="form-control input-custom" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Tên đăng nhập</label>
+                    <input type="text" name="username" class="form-control input-custom" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Mật khẩu</label>
+                    <input type="password" name="password" class="form-control input-custom" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Ảnh đại diện</label>
+                    <input type="file" name="avatar" class="form-control input-custom">
+                </div>
+                <button type="submit" class="btn btn-register w-100">Đăng ký</button>
+            </form>
+            <p class="text-center mt-3">
+                Đã có tài khoản?
+                <a th:href="@{/login}" class="fw-bold text-decoration-none">
+                    Đăng nhập
+                </a>
+            </p>
+        </div>
+    </main>
+    <div th:replace="base :: footer"></div>
+    <script th:src="@{/js/scripts.js}"></script>
+</body>
+</html>
