@@ -22,12 +22,14 @@ import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
  * @author Admin
  */
 @Configuration
-@PropertySource("classpath:database.proerties")
+@PropertySource("classpath:databases.properties")
 public class HibernateConfigs {
 
     @Autowired
     private Environment env;
+    
 
+    @Bean
     public LocalSessionFactoryBean getSessionFactory() {
         LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
         sessionFactory.setPackagesToScan(new String[]{"com.pkdk.pojo"});
@@ -41,8 +43,8 @@ public class HibernateConfigs {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName(env.getProperty("hibernate.connection.driverClass"));
         dataSource.setUrl(env.getProperty("hibernate.connection.url"));
-        dataSource.setUsername(env.getProperty("hibernate.connection.username"));
-        dataSource.setPassword(env.getProperty("hibernate.connection.password"));
+        dataSource.setUsername("root");
+        dataSource.setPassword("Abc123");
         return dataSource;
     }
 

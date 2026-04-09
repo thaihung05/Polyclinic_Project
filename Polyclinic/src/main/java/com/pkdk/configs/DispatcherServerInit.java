@@ -4,6 +4,8 @@
  */
 package com.pkdk.configs;
 
+import jakarta.servlet.MultipartConfigElement;
+import jakarta.servlet.ServletRegistration;
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
 
 /**
@@ -16,7 +18,8 @@ public class DispatcherServerInit extends AbstractAnnotationConfigDispatcherServ
     protected Class<?>[] getRootConfigClasses() {
         return new Class[] {
             ThymeleafConfigs.class,
-            HibernateConfigs.class
+            HibernateConfigs.class,
+            SpringSecurityConfigs.class
         };
     }
 
@@ -30,6 +33,12 @@ public class DispatcherServerInit extends AbstractAnnotationConfigDispatcherServ
     @Override
     protected String[] getServletMappings() {
         return new String[] {"/"};
+    }
+    
+    @Override
+    protected void customizeRegistration(ServletRegistration.Dynamic registration) {
+        String tmpDir = System.getProperty("java.io.tmpdir");
+        registration.setMultipartConfig(new MultipartConfigElement(tmpDir, 5000000, 15000000, 0));
     }
     
 }
