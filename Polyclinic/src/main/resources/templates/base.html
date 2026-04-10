@@ -16,6 +16,7 @@
                 integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
         crossorigin="anonymous"></script>
         <link rel="stylesheet" th:href="@{/css/base.css}">
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     </th:block>
 </head>
 <body>
@@ -47,44 +48,30 @@
                             <a class="nav-link dropdown-toggle" href="#"
                                role="button" data-bs-toggle="dropdown">Chuyên Khoa</a>
                             <ul class="dropdown-menu">
-                                <li th:each="c: ${categories}">
+                                <li th:each="c: ${specialties}">
                                     <a class="dropdown-item"
                                        th:href="@{/chuyen-khoa/{id}(id=${c.id})}"
                                        th:text="${c.name}"></a>
                                 </li>
-                                <li th:if="${#lists.isEmpty(categories)}">
-                                    <span class="dropdown-item text-muted fst-italic">Đang cập nhật...</span>
-                                </li>
                             </ul>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" th:href="@{/dich-vu}"
-                               th:classappend="${activeMenu == 'service'} ? ' active'">Dịch Vụ</a>
-                        </li>
-                    </ul>
-                </div>
-                <button class="navbar-toggler ms-auto" type="button"
-                        data-bs-toggle="collapse" data-bs-target="#navRight">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navRight">
-                    <ul class="navbar-nav ms-auto">
-                        <li class="nav-item">
-                            <a class="nav-link" th:href="@{/gioi-thieu}"
-                               th:classappend="${activeMenu == 'about'} ? ' active'">Giới Thiệu</a>
+                            <a class="nav-link" th:href="@{/}">Dịch Vụ</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" th:href="@{/tin-tuc}"
-                               th:classappend="${activeMenu == 'news'} ? ' active'">Tin Tức</a>
+                            <a class="nav-link" th:href="@{/gioi-thieu}">Giới Thiệu</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/lien-he}">Liên Hệ</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" th:href="@{/tra-cuu-ket-qua}"
                                th:classappend="${activeMenu == 'result'} ? ' active'">Tra Cứu Kết Quả</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" th:href="@{/lien-he}"
-                               th:classappend="${activeMenu == 'contact'} ? ' active'">Liên Hệ</a>
-                        </li>
+                    </ul>
+                </div>
+                <div class="collapse navbar-collapse" id="navRight">
+                    <ul class="navbar-nav ms-auto">
                         <li class="nav-item" sec:authorize="!isAuthenticated()">
                             <a class="nav-link" th:href="@{/login}">
                                 <i class="bi bi-person-circle me-1"></i>Đăng Nhập
@@ -130,7 +117,7 @@
         <div class="container">
             <div class="row g-4">
                 <div class="col-xl-4 col-lg-4 col-md-6">
-                    <h6><i class="bi bi-hospital me-1"></i>Phòng Khám Quang Thành</h6>
+                    <h6><i class="bi bi-hospital me-1"></i>Phòng Khám TH & VL</h6>
                     <p class="mb-3">
                         Chuyên cung cấp dịch vụ khám chữa bệnh chất lượng cao với đội ngũ bác sĩ
                         giàu kinh nghiệm, trang thiết bị hiện đại, mang lại sức khỏe tốt nhất.
@@ -146,23 +133,22 @@
                     <h6>Liên Kết Nhanh</h6>
                     <ul class="list-unstyled mb-0">
                         <li><a th:href="@{/}"><i class="bi bi-chevron-right"></i>Trang Chủ</a></li>
-                        <li><a th:href="@{/gioi-thieu}"><i class="bi bi-chevron-right"></i>Giới Thiệu</a></li>
-                        <li><a th:href="@{/dich-vu}"><i class="bi bi-chevron-right"></i>Dịch Vụ</a></li>
-                        <li><a th:href="@{/tin-tuc}"><i class="bi bi-chevron-right"></i>Tin Tức</a></li>
-                        <li><a th:href="@{/tra-cuu-ket-qua}"><i class="bi bi-chevron-right"></i>Tra Cứu KQ</a></li>
-                        <li><a th:href="@{/lien-he}"><i class="bi bi-chevron-right"></i>Liên Hệ</a></li>
+                        <li><a th:href="@{/}"><i class="bi bi-chevron-right"></i>Giới Thiệu</a></li>
+                        <li><a th:href="@{/}"><i class="bi bi-chevron-right"></i>Dịch Vụ</a></li>
+                        <li><a th:href="@{/}"><i class="bi bi-chevron-right"></i>Tin Tức</a></li>
+                        <li><a th:href="@{/}"><i class="bi bi-chevron-right"></i>Tra Cứu KQ</a></li>
+                        <li><a th:href="@{/}"><i class="bi bi-chevron-right"></i>Liên Hệ</a></li>
                     </ul>
                 </div>
                 <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6">
                     <h6>Chuyên Khoa</h6>
                     <ul class="list-unstyled mb-0">
-                        <li th:each="c: ${categories}">
-                            <a th:href="@{/chuyen-khoa/{id}(id=${c.id})}">
+                        <li th:each="c, iterStat : ${specialties}" 
+                            th:if="${iterStat.index < 6}">
+                            <a th:href="@{/chuyen_khoa/{id}(id=${c.id})}">
                                 <i class="bi bi-chevron-right"></i><span th:text="${c.name}"></span>
                             </a>
                         </li>
-                        <li th:if="${#lists.isEmpty(categories)}"
-                            class="fst-italic" style="color:#5a7a92">Đang cập nhật...</li>
                     </ul>
                 </div>
                 <div class="col-xl-3 col-lg-3 col-md-6">
@@ -190,7 +176,7 @@
             </div>
             <div class="footer-divider">
                 &copy; 2026 Phòng Khám TH & VL &nbsp;|&nbsp;
-                Thiết kế bởi <span style="color:var(--accent)">e-web OKAY</span> &nbsp;|&nbsp;
+                Thiết kế bởi <span style="color:var(--accent)">Thái Hùng & Văn Long</span> &nbsp;|&nbsp;
                 All rights reserved.
             </div>
         </div>

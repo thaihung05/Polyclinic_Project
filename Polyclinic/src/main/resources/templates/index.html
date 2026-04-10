@@ -59,33 +59,15 @@
                 <p>Đội ngũ bác sĩ giỏi, trang thiết bị hiện đại — chúng tôi luôn sẵn sàng phục vụ sức khỏe của bạn.</p>
             </div>
             <div class="row g-4">
-                <div class="col-xl-2 col-lg-4 col-md-4 col-sm-6" th:each="c: ${categories}">
+                <div class="col-xl-2 col-lg-4 col-md-4 col-sm-6" 
+                     th:each="c, iterStat : ${specialties}" 
+                     th:if="${iterStat.index < 6}">
                     <div class="service-card">
-                        <div class="service-icon"><i class="bi bi-heart-pulse-fill"></i></div>
+                        <div class="service-icon"><i class="bi bi-hospital"></i></div>
                         <h5 th:text="${c.name}">Chuyên khoa</h5>
-                        <p>Khám và điều trị chuyên sâu bởi đội ngũ bác sĩ giàu kinh nghiệm.</p>
+                        <p th:text="${c.description}">Mô tả chuyên khoa</p>
                     </div>
                 </div>
-                <th:block th:if="${#lists.isEmpty(categories)}">
-                    <div class="col-xl-2 col-lg-4 col-md-4 col-sm-6">
-                        <div class="service-card"><div class="service-icon"><i class="bi bi-heart-pulse-fill"></i></div><h5>Tim Mạch</h5><p>Chẩn đoán và điều trị bệnh lý tim mạch hiện đại.</p></div>
-                    </div>
-                    <div class="col-xl-2 col-lg-4 col-md-4 col-sm-6">
-                        <div class="service-card"><div class="service-icon"><i class="bi bi-eye-fill"></i></div><h5>Nhãn Khoa</h5><p>Khám và điều trị các bệnh về mắt bằng thiết bị tiên tiến.</p></div>
-                    </div>
-                    <div class="col-xl-2 col-lg-4 col-md-4 col-sm-6">
-                        <div class="service-card"><div class="service-icon"><i class="bi bi-lungs-fill"></i></div><h5>Hô Hấp</h5><p>Điều trị bệnh phổi, hen suyễn và đường hô hấp.</p></div>
-                    </div>
-                    <div class="col-xl-2 col-lg-4 col-md-4 col-sm-6">
-                        <div class="service-card"><div class="service-icon"><i class="bi bi-bandaid-fill"></i></div><h5>Ngoại Khoa</h5><p>Phẫu thuật và thủ thuật ngoại khoa chuyên sâu.</p></div>
-                    </div>
-                    <div class="col-xl-2 col-lg-4 col-md-4 col-sm-6">
-                        <div class="service-card"><div class="service-icon"><i class="bi bi-person-heart"></i></div><h5>Nhi Khoa</h5><p>Chăm sóc sức khỏe toàn diện cho trẻ em.</p></div>
-                    </div>
-                    <div class="col-xl-2 col-lg-4 col-md-4 col-sm-6">
-                        <div class="service-card"><div class="service-icon"><i class="bi bi-activity"></i></div><h5>Xét Nghiệm</h5><p>Xét nghiệm máu, sinh hóa và các chỉ số đầy đủ.</p></div>
-                    </div>
-                </th:block>
             </div>
             <div class="text-center mt-4">
                 <a href="/chuyen-khoa" class="btn btn-outline-primary px-4 rounded-pill">
@@ -122,24 +104,7 @@
                 <h2>Tin Tức &amp; Sức Khỏe</h2>
                 <p>Cập nhật thông tin y tế mới nhất và lời khuyên sức khỏe từ đội ngũ bác sĩ chuyên khoa.</p>
             </div>
-            <div class="row g-4" th:if="${news != null and not #lists.isEmpty(news)}">
-                <div class="col-lg-4 col-md-6" th:each="n: ${news}">
-                    <div class="news-card">
-                        <div class="news-img"><i class="bi bi-newspaper"></i></div>
-                        <div class="news-body">
-                            <div class="news-meta">
-                                <i class="bi bi-calendar3 me-1"></i>
-                                <span th:text="${#dates.format(n.createdAt,'dd/MM/yyyy')}">01/01/2026</span>
-                            </div>
-                            <h6 th:text="${n.title}">Tiêu đề bài viết</h6>
-                            <a th:href="@{/tin-tuc/{id}(id=${n.id})}" class="read-more">
-                                Đọc thêm <i class="bi bi-arrow-right"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="row g-4" th:if="${news == null or #lists.isEmpty(news)}">
+            <div class="row g-4">
                 <div class="col-lg-4 col-md-6">
                     <div class="news-card">
                         <div class="news-img"><i class="bi bi-newspaper"></i></div>
@@ -172,7 +137,7 @@
                 </div>
             </div>
             <div class="text-center mt-4">
-                <a href="/tin-tuc" class="btn btn-outline-primary px-4 rounded-pill">
+                <a href="#" class="btn btn-outline-primary px-4 rounded-pill">
                     Xem tất cả tin tức <i class="bi bi-arrow-right ms-1"></i>
                 </a>
             </div>
