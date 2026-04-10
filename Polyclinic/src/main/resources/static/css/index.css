@@ -302,3 +302,8 @@
     color: #666;
     margin: 0;
 }
+
+.btn-register:disabled {
+    opacity: 0.8;
+    cursor: not-allowed;
+}

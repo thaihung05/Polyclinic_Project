@@ -5,14 +5,13 @@
 package repositories.impl;
 
 import com.pkdk.pojo.Users;
-
 import jakarta.persistence.Query;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-
+import repositories.UserRepository;
 
 /**
  *
@@ -31,7 +30,6 @@ public class UserRepositoryImpl implements UserRepository {
         Query query = s.createNamedQuery("Users.findByUsername", Users.class);
         query.setParameter("username", username);
         return (Users) query.getSingleResult();
-
     }
 
     @Override
@@ -40,7 +38,6 @@ public class UserRepositoryImpl implements UserRepository {
         s.persist(u);
         
         return u;
-
     }
     
 }
