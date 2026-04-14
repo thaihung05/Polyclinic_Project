@@ -1,11 +1,11 @@
 /* global Swal */
 
-document.getElementById("registerForm").addEventListener("submit", async function(e) {
+document.getElementById("registerForm").addEventListener("submit", async function (e) {
     e.preventDefault();
 
     const form = this;
     const formData = new FormData(form);
-    
+
     const submitBtn = document.getElementById("registerBtn");
     const spinner = document.getElementById("registerSpinner");
     const btnText = submitBtn.querySelector(".btn-text");
@@ -41,7 +41,7 @@ document.getElementById("registerForm").addEventListener("submit", async functio
             icon: "error"
         });
         console.error(error);
-    }finally {
+    } finally {
         submitBtn.disabled = false;
         spinner.classList.add("d-none");
         btnText.textContent = "Đăng ký";
