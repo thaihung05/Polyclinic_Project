@@ -7,7 +7,7 @@
 </head>
 <body>
 
-    <div th:replace="~{base :: header}"></div>
+    <div th:replace="base :: header"></div>
 
     <section class="hero">
         <div class="container py-5">
@@ -77,105 +77,7 @@
         </div>
     </section>
 
-    <section class="py-2">
-        <div class="container">
-            <div class="promo-banner">
-                <div class="row align-items-center g-3">
-                    <div class="col-md-8">
-                        <h3><i class="bi bi-shield-check me-2"></i>Khám Miễn Phí Cho Bệnh Nhân BHYT</h3>
-                        <p class="mb-0">Tưng bừng khai trương chi nhánh mới — ưu đãi 100% phí khám dành cho khách hàng có bảo hiểm y tế. Số lượng có hạn, đăng ký ngay!</p>
-                    </div>
-                    <div class="col-md-4 text-md-end">
-                        <a href="/appointment" class="btn-promo">
-                            <i class="bi bi-calendar2-check-fill"></i> Đặt Lịch Ngay
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+    <div th:replace="base :: footer"></div>
 
-    <section class="py-5">
-        <div class="container">
-            <div class="section-title">
-                <span class="badge-line"></span>
-                <span style="color:#1a8ccc;font-weight:700;font-size:.85rem;text-transform:uppercase;letter-spacing:.08em">Tin Tức</span>
-                <span class="badge-line"></span>
-                <h2>Tin Tức &amp; Sức Khỏe</h2>
-                <p>Cập nhật thông tin y tế mới nhất và lời khuyên sức khỏe từ đội ngũ bác sĩ chuyên khoa.</p>
-            </div>
-            <div class="row g-4">
-                <div class="col-lg-4 col-md-6">
-                    <div class="news-card">
-                        <div class="news-img"><i class="bi bi-newspaper"></i></div>
-                        <div class="news-body">
-                            <div class="news-meta"><i class="bi bi-calendar3 me-1"></i>09/04/2026</div>
-                            <h6>Lời khuyên từ bác sĩ tim mạch để bảo vệ sức khỏe tim mạch mỗi ngày</h6>
-                            <a href="/tin-tuc" class="read-more">Đọc thêm <i class="bi bi-arrow-right"></i></a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-6">
-                    <div class="news-card">
-                        <div class="news-img"><i class="bi bi-journal-medical"></i></div>
-                        <div class="news-body">
-                            <div class="news-meta"><i class="bi bi-calendar3 me-1"></i>07/04/2026</div>
-                            <h6>Chế độ dinh dưỡng hợp lý cho bệnh nhân tiểu đường type 2</h6>
-                            <a href="/tin-tuc" class="read-more">Đọc thêm <i class="bi bi-arrow-right"></i></a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-6">
-                    <div class="news-card">
-                        <div class="news-img"><i class="bi bi-activity"></i></div>
-                        <div class="news-body">
-                            <div class="news-meta"><i class="bi bi-calendar3 me-1"></i>05/04/2026</div>
-                            <h6>Tầm quan trọng của việc khám sức khỏe định kỳ 6 tháng một lần</h6>
-                            <a href="/tin-tuc" class="read-more">Đọc thêm <i class="bi bi-arrow-right"></i></a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="text-center mt-4">
-                <a href="#" class="btn btn-outline-primary px-4 rounded-pill">
-                    Xem tất cả tin tức <i class="bi bi-arrow-right ms-1"></i>
-                </a>
-            </div>
-        </div>
-    </section>
-    <div class="features-strip">
-        <div class="container">
-            <div class="row g-4">
-                <div class="col-md-3 col-sm-6">
-                    <div class="feature-item">
-                        <div class="fi-icon"><i class="bi bi-award-fill"></i></div>
-                        <div><h6>Đội Ngũ Chuyên Gia</h6><p>Bác sĩ đào tạo trong và ngoài nước, kinh nghiệm phong phú.</p></div>
-                    </div>
-                </div>
-                <div class="col-md-3 col-sm-6">
-                    <div class="feature-item">
-                        <div class="fi-icon"><i class="bi bi-gear-wide-connected"></i></div>
-                        <div><h6>Thiết Bị Hiện Đại</h6><p>Máy móc tiên tiến chuẩn quốc tế, chẩn đoán chính xác.</p></div>
-                    </div>
-                </div>
-                <div class="col-md-3 col-sm-6">
-                    <div class="feature-item">
-                        <div class="fi-icon"><i class="bi bi-shield-check"></i></div>
-                        <div><h6>Hỗ Trợ BHYT</h6><p>Liên kết bảo hiểm y tế, hỗ trợ thủ tục nhanh chóng.</p></div>
-                    </div>
-                </div>
-                <div class="col-md-3 col-sm-6">
-                    <div class="feature-item">
-                        <div class="fi-icon"><i class="bi bi-clock-history"></i></div>
-                        <div><h6>Đặt Lịch 24/7</h6><p>Đặt lịch trực tuyến, nhận xác nhận ngay qua điện thoại.</p></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div th:replace="~{base :: footer}"></div>
-
-    <script th:src="@{/js/script.js}"></script>
 </body>
 </html>
