@@ -1,49 +1,55 @@
-<!doctype html>
+<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-    <head>
-        <title>Đăng nhập</title>
-    <th:block th:replace="base :: resources"></th:block>
-    <link rel="stylesheet" th:href="@{/css/user.css}">
-</head>
-<body>
-    <div th:replace="base :: header"></div>
-    <main class="login-wrapper d-flex justify-content-center align-items-center">
-        <div class="login-card">
-            <h3 class="text-center fw-bold mb-4">Đăng nhập</h3>
-            <div th:if="${param.error}" class="alert alert-danger text-center">
-                Sai tài khoản hoặc mật khẩu!
-            </div>
-            <div th:if="${param.logout}" class="alert alert-success text-center">
-                Đăng xuất thành công!
-            </div>
-            <form method="post" th:action="@{/login}">
-                <div class="mb-3">
-                    <label class="form-label">Tên đăng nhập</label>
-                    <input type="text" name="username" class="form-control input-custom" placeholder="Nhập username">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Mật khẩu</label>
-                    <input type="password" name="password" class="form-control input-custom" placeholder="Nhập mật khẩu">
-                </div>
-                <div class="d-flex justify-content-between mb-3">
-                    <div class="form-check">
-                        <input type="checkbox" class="form-check-input">
-                        <label class="form-check-label">Ghi nhớ</label>
+
+    <head th:replace="base :: head('Đăng nhập', '/css/user.css')"></head>
+
+    <body>
+
+        <div th:replace="base :: siteHeader('login')"></div>
+
+        <main class="login-page">
+            <div class="container">
+                <div class="row justify-content-center align-items-center min-vh-80">
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card login-card border-0 shadow-sm">
+                            <div class="card-body p-4">
+                                <div class="text-center mb-4">
+                                    <h3 class="fw-bold mb-1">Đăng nhập hệ thống</h3>
+                                    <p class="text-muted mb-0">Trang quản trị phòng khám</p>
+                                </div>
+
+                                <div th:if="${param.error}" class="alert alert-danger">
+                                    Sai tên đăng nhập hoặc mật khẩu!
+                                </div>
+
+                                <div th:if="${param.logout}" class="alert alert-success">
+                                    Đăng xuất thành công.
+                                </div>
+
+                                <form th:action="@{/login}" method="post">
+                                    <div class="mb-3">
+                                        <label class="form-label">Tên đăng nhập</label>
+                                        <input type="text" name="username" class="form-control input-custom" required>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Mật khẩu</label>
+                                        <input type="password" name="password" class="form-control input-custom" required>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-login w-100">
+                                        Đăng nhập
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
                     </div>
-                    <a href="#" class="small">Quên mật khẩu?</a>
                 </div>
-                <button class="btn btn-login w-100">Đăng nhập
-                    <span class="spinner-border spinner-border-sm ms-2 d-none" id="registerSpinner" role="status" aria-hidden="true"></span>
-                </button>
-            </form>
-            <p class="text-center mt-3">
-                Chưa có tài khoản?
-                <a th:href="@{/register}" class="fw-bold text-decoration-none">
-                    Đăng ký ngay!!!
-                </a>
-            </p>
-        </div>
-    </main>
-    <div th:replace="base :: footer"></div>
-</body>
+            </div>
+        </main>
+
+        <div th:replace="base :: Footer"></div>
+        <div th:replace="base :: commonScripts"></div>
+
+    </body>
 </html>

@@ -21,8 +21,8 @@ import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Date;
-import java.util.Set;
 
 /**
  *
@@ -54,7 +54,7 @@ public class Patients implements Serializable {
     @Column(name = "address")
     private String address;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "patientId")
-    private Set<Appointments> appointmentsSet;
+    private Collection<Appointments> appointmentsCollection;
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     @OneToOne(optional = false)
     private Users userId;
@@ -98,12 +98,12 @@ public class Patients implements Serializable {
         this.address = address;
     }
 
-    public Set<Appointments> getAppointmentsSet() {
-        return appointmentsSet;
+    public Collection<Appointments> getAppointmentsCollection() {
+        return appointmentsCollection;
     }
 
-    public void setAppointmentsSet(Set<Appointments> appointmentsSet) {
-        this.appointmentsSet = appointmentsSet;
+    public void setAppointmentsCollection(Collection<Appointments> appointmentsCollection) {
+        this.appointmentsCollection = appointmentsCollection;
     }
 
     public Users getUserId() {

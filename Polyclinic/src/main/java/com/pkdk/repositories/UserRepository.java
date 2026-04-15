@@ -2,18 +2,20 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Interface.java to edit this template
  */
-package services;
+package com.pkdk.repositories;
 
 import com.pkdk.pojo.Users;
+import java.util.List;
 import java.util.Map;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.web.multipart.MultipartFile;
 
 /**
  *
  * @author Admin
  */
-public interface UserService extends UserDetailsService{
+public interface UserRepository {
+    List<Users> getUsers(Map<String, String> params);
+    Users getUserById(int id);
     Users getUserByUsername(String username);
-    Users addUser(Map<String, String> info, MultipartFile avatar);
+    void saveOrUpdate(Users u);
+    void deleteUser(int id);
 }

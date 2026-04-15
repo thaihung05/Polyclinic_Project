@@ -22,8 +22,8 @@ import jakarta.persistence.TemporalType;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Date;
-import java.util.Set;
 
 /**
  *
@@ -53,7 +53,7 @@ public class Prescriptions implements Serializable {
     @Column(name = "note")
     private String note;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "prescriptionId")
-    private Set<PrescriptionItems> prescriptionItemsSet;
+    private Collection<PrescriptionItems> prescriptionItemsCollection;
     @JoinColumn(name = "medical_record_id", referencedColumnName = "id")
     @ManyToOne(optional = false)
     private MedicalRecords medicalRecordId;
@@ -94,12 +94,12 @@ public class Prescriptions implements Serializable {
         this.note = note;
     }
 
-    public Set<PrescriptionItems> getPrescriptionItemsSet() {
-        return prescriptionItemsSet;
+    public Collection<PrescriptionItems> getPrescriptionItemsCollection() {
+        return prescriptionItemsCollection;
     }
 
-    public void setPrescriptionItemsSet(Set<PrescriptionItems> prescriptionItemsSet) {
-        this.prescriptionItemsSet = prescriptionItemsSet;
+    public void setPrescriptionItemsCollection(Collection<PrescriptionItems> prescriptionItemsCollection) {
+        this.prescriptionItemsCollection = prescriptionItemsCollection;
     }
 
     public MedicalRecords getMedicalRecordId() {

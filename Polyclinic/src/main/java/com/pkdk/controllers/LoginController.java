@@ -12,14 +12,10 @@ import org.springframework.web.bind.annotation.GetMapping;
  * @author Admin
  */
 @Controller
-public class UserController {
+public class LoginController {
+    
     @GetMapping("/login")
     public String loginView(){
         return "login";
-    }
-    
-    @GetMapping("/register")
-    public String registerView(){
-        return "register";
     }
 }

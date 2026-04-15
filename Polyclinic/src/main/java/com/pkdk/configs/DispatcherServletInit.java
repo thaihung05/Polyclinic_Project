@@ -8,15 +8,16 @@ import jakarta.servlet.MultipartConfigElement;
 import jakarta.servlet.ServletRegistration;
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
 
+
 /**
  *
  * @author Admin
  */
-public class DispatcherServerInit extends AbstractAnnotationConfigDispatcherServletInitializer{
+public class DispatcherServletInit extends AbstractAnnotationConfigDispatcherServletInitializer {
 
     @Override
     protected Class<?>[] getRootConfigClasses() {
-        return new Class[] {
+        return new Class[]{
             ThymeleafConfigs.class,
             HibernateConfigs.class,
             SpringSecurityConfigs.class
@@ -25,20 +26,25 @@ public class DispatcherServerInit extends AbstractAnnotationConfigDispatcherServ
 
     @Override
     protected Class<?>[] getServletConfigClasses() {
-        return new Class[] {
+        return new Class[]{
             WebAppContextConfigs.class
         };
     }
 
     @Override
     protected String[] getServletMappings() {
-        return new String[] {"/"};
+        return new String[]{"/"};
     }
-    
+
     @Override
     protected void customizeRegistration(ServletRegistration.Dynamic registration) {
-        String tmpDir = System.getProperty("java.io.tmpdir");
-        registration.setMultipartConfig(new MultipartConfigElement(tmpDir, 5000000, 15000000, 0));
+        String location = "/";
+        long maxFileSize = 5 * 1024 * 1024;
+        long maxRequestSize = 20 * 1024 * 1024;
+        int fileSizeThreshold = 0;
+
+        registration.setMultipartConfig(
+                new MultipartConfigElement(location, maxFileSize, maxRequestSize, fileSizeThreshold)
+        );
     }
-    
 }

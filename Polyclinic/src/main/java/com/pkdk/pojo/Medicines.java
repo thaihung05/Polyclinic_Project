@@ -21,8 +21,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.Collection;
 import java.util.Date;
-import java.util.Set;
 
 /**
  *
@@ -96,7 +96,7 @@ public class Medicines implements Serializable {
     @Column(name = "is_active")
     private boolean isActive;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "medicineId")
-    private Set<PrescriptionItems> prescriptionItemsSet;
+    private Collection<PrescriptionItems> prescriptionItemsCollection;
 
     public Medicines() {
     }
@@ -211,12 +211,12 @@ public class Medicines implements Serializable {
         this.isActive = isActive;
     }
 
-    public Set<PrescriptionItems> getPrescriptionItemsSet() {
-        return prescriptionItemsSet;
+    public Collection<PrescriptionItems> getPrescriptionItemsCollection() {
+        return prescriptionItemsCollection;
     }
 
-    public void setPrescriptionItemsSet(Set<PrescriptionItems> prescriptionItemsSet) {
-        this.prescriptionItemsSet = prescriptionItemsSet;
+    public void setPrescriptionItemsCollection(Collection<PrescriptionItems> prescriptionItemsCollection) {
+        this.prescriptionItemsCollection = prescriptionItemsCollection;
     }
 
     @Override

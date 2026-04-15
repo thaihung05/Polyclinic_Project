@@ -22,8 +22,8 @@ import jakarta.persistence.TemporalType;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Date;
-import java.util.Set;
 
 /**
  *
@@ -68,7 +68,7 @@ public class Appointments implements Serializable {
     @Size(max = 500)
     @Column(name = "cancel_reason")
     private String cancelReason;
-    @Size(max = 7)
+    @Size(max = 12)
     @Column(name = "cancelled_by")
     private String cancelledBy;
     @Basic(optional = false)
@@ -86,9 +86,9 @@ public class Appointments implements Serializable {
     @ManyToOne
     private Payments paymentId;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "appointmentId")
-    private Set<MedicalRecords> medicalRecordsSet;
+    private Collection<MedicalRecords> medicalRecordsCollection;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "appointmentId")
-    private Set<LabResults> labResultsSet;
+    private Collection<LabResults> labResultsCollection;
 
     public Appointments() {
     }
@@ -192,20 +192,20 @@ public class Appointments implements Serializable {
         this.paymentId = paymentId;
     }
 
-    public Set<MedicalRecords> getMedicalRecordsSet() {
-        return medicalRecordsSet;
+    public Collection<MedicalRecords> getMedicalRecordsCollection() {
+        return medicalRecordsCollection;
     }
 
-    public void setMedicalRecordsSet(Set<MedicalRecords> medicalRecordsSet) {
-        this.medicalRecordsSet = medicalRecordsSet;
+    public void setMedicalRecordsCollection(Collection<MedicalRecords> medicalRecordsCollection) {
+        this.medicalRecordsCollection = medicalRecordsCollection;
     }
 
-    public Set<LabResults> getLabResultsSet() {
-        return labResultsSet;
+    public Collection<LabResults> getLabResultsCollection() {
+        return labResultsCollection;
     }
 
-    public void setLabResultsSet(Set<LabResults> labResultsSet) {
-        this.labResultsSet = labResultsSet;
+    public void setLabResultsCollection(Collection<LabResults> labResultsCollection) {
+        this.labResultsCollection = labResultsCollection;
     }
 
     @Override

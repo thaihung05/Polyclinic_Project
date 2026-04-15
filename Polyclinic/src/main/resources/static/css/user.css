@@ -1,24 +1,19 @@
-.login-wrapper {
-    min-height: 80vh;
+.login-page {
+    min-height: calc(100vh - 130px);
     background: linear-gradient(to right, #e0f7fa, #ffffff);
 }
 
-.login-card {
-    width: 420px;
-    background: white;
-    padding: 30px;
-    border-radius: 15px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-    transition: 0.3s;
+.min-vh-80 {
+    min-height: 80vh;
 }
 
-.login-card:hover {
-    transform: translateY(-5px);
+.login-card {
+    border-radius: 18px;
 }
 
 .input-custom {
     border-radius: 10px;
-    padding: 10px;
+    padding: 10px 12px;
 }
 
 .btn-login {
@@ -27,33 +22,10 @@
     font-weight: bold;
     border-radius: 10px;
     padding: 10px;
+    border: none;
 }
 
 .btn-login:hover {
-    opacity: 0.9;
-}
-
-.register-wrapper {
-    min-height: 80vh;
-    background: linear-gradient(to right, #e0f7fa, #ffffff);
-}
-
-.register-card {
-    width: 450px;
-    background: white;
-    padding: 30px;
-    border-radius: 15px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-}
-
-.btn-register {
-    background: linear-gradient(to right, #1ba9d9, #2dc3c9);
+    opacity: 0.92;
     color: white;
-    font-weight: bold;
-    border-radius: 10px;
-    padding: 10px;
-}
-
-.btn-register:hover {
-    opacity: 0.9;
 }
