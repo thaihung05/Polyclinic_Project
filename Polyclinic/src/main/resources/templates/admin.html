@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+    <head th:replace="base :: head(${pageTitle}, null)"></head>
+
+    <body>
+
+        <div th:replace="base :: siteHeader(${activePage})"></div>
+
+        <main class="admin-page">
+            <div class="container py-4">
+
+                <div class="page-banner mb-4">
+                    <h2 class="mb-1 fw-bold" th:text="${pageTitle}">Dashboard</h2>
+                    <p class="mb-0 text-muted" th:text="${pageDescription}">Tổng quan hệ thống</p>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-md-6 col-xl-3">
+                        <div class="card stat-card border-0 shadow-sm h-100">
+                            <div class="card-body">
+                                <div class="stat-icon bg-primary-subtle text-primary mb-3">
+                                    <i class="bi bi-people-fill"></i>
+                                </div>
+                                <p class="text-muted mb-1">Tổng người dùng</p>
+                                <h3 class="fw-bold mb-0" th:text="${totalUsers}">0</h3>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 col-xl-3">
+                        <div class="card stat-card border-0 shadow-sm h-100">
+                            <div class="card-body">
+                                <div class="stat-icon bg-success-subtle text-success mb-3">
+                                    <i class="bi bi-calendar2-check-fill"></i>
+                                </div>
+                                <p class="text-muted mb-1">Tổng lịch hẹn</p>
+                                <h3 class="fw-bold mb-0" th:text="${totalAppointments}">0</h3>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 col-xl-3">
+                        <div class="card stat-card border-0 shadow-sm h-100">
+                            <div class="card-body">
+                                <div class="stat-icon bg-info-subtle text-info mb-3">
+                                    <i class="bi bi-heart-pulse-fill"></i>
+                                </div>
+                                <p class="text-muted mb-1">Tổng chuyên khoa</p>
+                                <h3 class="fw-bold mb-0" th:text="${totalSpecialties}">0</h3>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 col-xl-3">
+                        <div class="card stat-card border-0 shadow-sm h-100">
+                            <div class="card-body">
+                                <div class="stat-icon bg-warning-subtle text-warning mb-3">
+                                    <i class="bi bi-cash-stack"></i>
+                                </div>
+                                <p class="text-muted mb-1">Doanh thu</p>
+                                <h3 class="fw-bold mb-0" th:text="${totalRevenue}">0</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+        <div th:replace="base :: Footer"></div>
+        <div th:replace="base :: commonScripts"></div>
+
+    </body>
+</html>

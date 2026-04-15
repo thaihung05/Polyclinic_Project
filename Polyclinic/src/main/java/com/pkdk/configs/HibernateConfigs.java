@@ -27,7 +27,6 @@ public class HibernateConfigs {
 
     @Autowired
     private Environment env;
-    
 
     @Bean
     public LocalSessionFactoryBean getSessionFactory() {
@@ -43,8 +42,8 @@ public class HibernateConfigs {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName(env.getProperty("hibernate.connection.driverClass"));
         dataSource.setUrl(env.getProperty("hibernate.connection.url"));
-        dataSource.setUsername("root");
-        dataSource.setPassword("Abc123");
+        dataSource.setUsername(env.getProperty("hibernate.connection.username"));
+        dataSource.setPassword(env.getProperty("hibernate.connection.password"));
         return dataSource;
     }
 
@@ -61,5 +60,4 @@ public class HibernateConfigs {
         transactionManager.setSessionFactory(getSessionFactory().getObject());
         return transactionManager;
     }
-
 }

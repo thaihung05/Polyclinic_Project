@@ -4,7 +4,6 @@
  */
 package com.pkdk.pojo;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Basic;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -17,10 +16,12 @@ import jakarta.persistence.NamedQuery;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
-import java.util.Set;
+import java.util.Collection;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  *
@@ -38,9 +39,6 @@ import java.util.Set;
     @NamedQuery(name = "Users.findByIsActive", query = "SELECT u FROM Users u WHERE u.isActive = :isActive"),
     @NamedQuery(name = "Users.findByPhone", query = "SELECT u FROM Users u WHERE u.phone = :phone"),
     @NamedQuery(name = "Users.findByAvatar", query = "SELECT u FROM Users u WHERE u.avatar = :avatar")})
-@JsonIgnoreProperties(value = {
-    "password"
-})
 public class Users implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -66,7 +64,7 @@ public class Users implements Serializable {
     private String name;
     @Basic(optional = false)
     @NotNull
-    @Size(min = 1, max = 7)
+    @Size(min = 1, max = 12)
     @Column(name = "role")
     private String role;
     @Basic(optional = false)
@@ -87,7 +85,10 @@ public class Users implements Serializable {
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "userId")
     private Doctors doctors;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "userId")
-    private Set<Notifications> notificationsSet;
+    private Collection<Notifications> notificationsCollection;
+    
+    @Transient
+    private MultipartFile file;
 
     public Users() {
     }
@@ -186,12 +187,12 @@ public class Users implements Serializable {
         this.doctors = doctors;
     }
 
-    public Set<Notifications> getNotificationsSet() {
-        return notificationsSet;
+    public Collection<Notifications> getNotificationsCollection() {
+        return notificationsCollection;
     }
 
-    public void setNotificationsSet(Set<Notifications> notificationsSet) {
-        this.notificationsSet = notificationsSet;
+    public void setNotificationsCollection(Collection<Notifications> notificationsCollection) {
+        this.notificationsCollection = notificationsCollection;
     }
 
     @Override
@@ -217,6 +218,20 @@ public class Users implements Serializable {
     @Override
     public String toString() {
         return "com.pkdk.pojo.Users[ id=" + id + " ]";
+    }
+
+    /**
+     * @return the file
+     */
+    public MultipartFile getFile() {
+        return file;
+    }
+
+    /**
+     * @param file the file to set
+     */
+    public void setFile(MultipartFile file) {
+        this.file = file;
     }
     
 }

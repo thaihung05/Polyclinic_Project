@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+    <head th:replace="base :: head(${pageTitle}, null)"></head>
+
+    <body>
+
+        <div th:replace="base :: siteHeader(${activePage})"></div>
+
+        <main class="admin-page">
+            <div class="container py-4">
+
+                <div class="page-banner mb-4">
+                    <h2 class="mb-1 fw-bold" th:text="${pageTitle}">Thông tin chuyên khoa</h2>
+                    <p class="mb-0 text-muted" th:text="${pageDescription}">
+                        Nhập thông tin chuyên khoa
+                    </p>
+                </div>
+
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0 fw-bold">Thông tin chuyên khoa</h5>
+                    </div>
+
+                    <div class="card-body">
+                        <form th:action="@{/admin/specialties}"
+                              method="post"
+                              th:object="${specialty}">
+
+                            <input type="hidden" th:field="*{id}" />
+
+                            <div class="row g-3">
+
+                                <div class="col-md-6">
+                                    <label class="form-label">Tên chuyên khoa</label>
+                                    <input type="text"
+                                           class="form-control"
+                                           th:field="*{name}"
+                                           required />
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label d-block">Trạng thái</label>
+                                    <div class="form-check form-switch mt-2">
+                                        <input class="form-check-input"
+                                               type="checkbox"
+                                               th:field="*{isActive}" />
+                                        <label class="form-check-label">Hoạt động</label>
+                                    </div>
+                                </div>
+
+                                <div class="col-12">
+                                    <label class="form-label">Mô tả</label>
+                                    <textarea class="form-control"
+                                              th:field="*{description}"
+                                              rows="5"
+                                              placeholder="Nhập mô tả cho chuyên khoa"></textarea>
+                                </div>
+
+                            </div>
+
+                            <div class="mt-4 d-flex gap-2">
+                                <button type="submit" class="btn btn-primary">Lưu</button>
+                                <a th:href="@{/admin/specialties}" class="btn btn-secondary">Quay lại</a>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+        <div th:replace="base :: Footer"></div>
+        <div th:replace="base :: commonScripts"></div>
+
+    </body>
+</html>

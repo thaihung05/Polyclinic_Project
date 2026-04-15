@@ -20,8 +20,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.Collection;
 import java.util.Date;
-import java.util.Set;
 
 /**
  *
@@ -73,7 +73,7 @@ public class Payments implements Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     private Date ngayTao;
     @OneToMany(mappedBy = "paymentId")
-    private Set<Appointments> appointmentsSet;
+    private Collection<Appointments> appointmentsCollection;
 
     public Payments() {
     }
@@ -146,12 +146,12 @@ public class Payments implements Serializable {
         this.ngayTao = ngayTao;
     }
 
-    public Set<Appointments> getAppointmentsSet() {
-        return appointmentsSet;
+    public Collection<Appointments> getAppointmentsCollection() {
+        return appointmentsCollection;
     }
 
-    public void setAppointmentsSet(Set<Appointments> appointmentsSet) {
-        this.appointmentsSet = appointmentsSet;
+    public void setAppointmentsCollection(Collection<Appointments> appointmentsCollection) {
+        this.appointmentsCollection = appointmentsCollection;
     }
 
     @Override

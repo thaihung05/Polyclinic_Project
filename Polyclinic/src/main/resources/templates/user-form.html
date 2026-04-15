@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+    <head th:replace="base :: head(${pageTitle}, null)"></head>
+
+    <body>
+
+        <div th:replace="base :: siteHeader(${activePage})"></div>
+
+        <main class="admin-page">
+            <div class="container py-4">
+
+                <div class="page-banner mb-4">
+                    <h2 class="mb-1 fw-bold" th:text="${pageTitle}">Thông tin người dùng</h2>
+                    <p class="mb-0 text-muted" th:text="${pageDescription}">Nhập dữ liệu người dùng</p>
+                </div>
+
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0 fw-bold">Thông tin người dùng</h5>
+                    </div>
+
+                    <div class="card-body">
+                        <form th:action="@{/admin/users}"
+                              method="post"
+                              th:object="${user}"
+                              enctype="multipart/form-data">
+
+                            <input type="hidden" th:field="*{id}" />
+
+                            <div class="row g-3">
+
+                                <div class="col-md-6">
+                                    <label class="form-label">Tên đăng nhập</label>
+                                    <input type="text" class="form-control" th:field="*{username}" required />
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label">Mật khẩu mới</label>
+                                    <input type="password"
+                                           class="form-control"
+                                           name="rawPassword"
+                                           placeholder="Để trống nếu không đổi mật khẩu" />
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label">Họ tên</label>
+                                    <input type="text" class="form-control" th:field="*{name}" required />
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label">Số điện thoại</label>
+                                    <input type="text" class="form-control" th:field="*{phone}" required />
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label">Vai trò</label>
+                                    <select class="form-select" th:field="*{role}" id="roleSelect">
+                                        <option value="ROLE_ADMIN">ROLE_ADMIN</option>
+                                        <option value="ROLE_DOCTOR">ROLE_DOCTOR</option>
+                                        <option value="ROLE_PATIENT">ROLE_PATIENT</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-6" id="specialtyBlock">
+                                    <label class="form-label">Chuyên khoa</label>
+                                    <select class="form-select" name="specialtyId">
+                                        <option value="">-- Chọn chuyên khoa --</option>
+                                        <option th:each="s : ${specialties}"
+                                                th:value="${s.id}"
+                                                th:text="${s.name}"
+                                                th:selected="${specialtyId != null and s.id.equals(specialtyId)}">
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label">Ảnh đại diện</label>
+                                    <input type="file" class="form-control" th:field="*{file}" accept="image/*" />
+                                </div>
+
+                                <div class="col-md-6"
+                                     th:if="${user.avatar != null and !#strings.isEmpty(user.avatar)}">
+                                    <label class="form-label d-block">Ảnh hiện tại</label>
+                                    <img th:src="${user.avatar}" alt="avatar" class="img-thumbnail" style="max-width: 150px;">
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label d-block">Trạng thái</label>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" th:field="*{isActive}" />
+                                        <label class="form-check-label">Hoạt động</label>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div class="mt-4 d-flex gap-2">
+                                <button type="submit" class="btn btn-primary">Lưu</button>
+                                <a th:href="@{/admin/users}" class="btn btn-secondary">Quay lại</a>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+        <div th:replace="base :: Footer"></div>
+        <div th:replace="base :: commonScripts"></div>
+        <script th:src="@{/js/scripts.js}"></script>
+
+    </body>
+</html>

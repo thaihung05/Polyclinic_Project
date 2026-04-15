@@ -22,7 +22,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.Set;
+import java.util.Collection;
 
 /**
  *
@@ -60,9 +60,9 @@ public class Doctors implements Serializable {
     @Column(name = "rating")
     private BigDecimal rating;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "doctorId")
-    private Set<Appointments> appointmentsSet;
+    private Collection<Appointments> appointmentsCollection;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "doctorId")
-    private Set<DoctorSchedules> doctorSchedulesSet;
+    private Collection<DoctorSchedules> doctorSchedulesCollection;
     @JoinColumn(name = "specialty_id", referencedColumnName = "id")
     @ManyToOne(optional = false)
     private Specialties specialtyId;
@@ -123,20 +123,20 @@ public class Doctors implements Serializable {
         this.rating = rating;
     }
 
-    public Set<Appointments> getAppointmentsSet() {
-        return appointmentsSet;
+    public Collection<Appointments> getAppointmentsCollection() {
+        return appointmentsCollection;
     }
 
-    public void setAppointmentsSet(Set<Appointments> appointmentsSet) {
-        this.appointmentsSet = appointmentsSet;
+    public void setAppointmentsCollection(Collection<Appointments> appointmentsCollection) {
+        this.appointmentsCollection = appointmentsCollection;
     }
 
-    public Set<DoctorSchedules> getDoctorSchedulesSet() {
-        return doctorSchedulesSet;
+    public Collection<DoctorSchedules> getDoctorSchedulesCollection() {
+        return doctorSchedulesCollection;
     }
 
-    public void setDoctorSchedulesSet(Set<DoctorSchedules> doctorSchedulesSet) {
-        this.doctorSchedulesSet = doctorSchedulesSet;
+    public void setDoctorSchedulesCollection(Collection<DoctorSchedules> doctorSchedulesCollection) {
+        this.doctorSchedulesCollection = doctorSchedulesCollection;
     }
 
     public Specialties getSpecialtyId() {

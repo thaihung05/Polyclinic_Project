@@ -8,6 +8,7 @@ import jakarta.persistence.Basic;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -19,7 +20,7 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
-import java.util.Set;
+import java.util.Collection;
 
 /**
  *
@@ -53,8 +54,8 @@ public class Specialties implements Serializable {
     @NotNull
     @Column(name = "is_active")
     private boolean isActive;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "specialtyId")
-    private Set<Doctors> doctorsSet;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "specialtyId", fetch = FetchType.EAGER)
+    private Collection<Doctors> doctorsCollection;
 
     public Specialties() {
     }
@@ -101,12 +102,12 @@ public class Specialties implements Serializable {
         this.isActive = isActive;
     }
 
-    public Set<Doctors> getDoctorsSet() {
-        return doctorsSet;
+    public Collection<Doctors> getDoctorsCollection() {
+        return doctorsCollection;
     }
 
-    public void setDoctorsSet(Set<Doctors> doctorsSet) {
-        this.doctorsSet = doctorsSet;
+    public void setDoctorsCollection(Collection<Doctors> doctorsCollection) {
+        this.doctorsCollection = doctorsCollection;
     }
 
     @Override

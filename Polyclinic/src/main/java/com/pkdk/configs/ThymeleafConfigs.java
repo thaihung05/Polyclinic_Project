@@ -26,6 +26,7 @@ public class ThymeleafConfigs {
         templateResolver.setSuffix(".html");
         templateResolver.setTemplateMode("HTML");
         templateResolver.setCharacterEncoding("UTF-8");
+        
         return templateResolver;
     }
 
@@ -34,6 +35,7 @@ public class ThymeleafConfigs {
         SpringTemplateEngine templateEngine = new SpringTemplateEngine();
         templateEngine.setTemplateResolver(templateResolver());
         templateEngine.addDialect(new SpringSecurityDialect());
+        
         return templateEngine;
     }
 
@@ -42,7 +44,7 @@ public class ThymeleafConfigs {
         ThymeleafViewResolver viewResolver = new ThymeleafViewResolver();
         viewResolver.setTemplateEngine(templateEngine());
         viewResolver.setCharacterEncoding("UTF-8");
+        
         return viewResolver;
     }
-
 }
