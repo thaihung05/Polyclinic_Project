@@ -63,6 +63,7 @@ public class SpringSecurityConfigs {
                 .authorizeHttpRequests((requests) -> requests
                 .requestMatchers("/login").permitAll()
                 .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
+                .requestMatchers("api/**").permitAll()
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
                 )
