@@ -4,7 +4,6 @@
     <head th:replace="base :: head('Thống kê và báo cáo', null)"></head>
 
     <body>
-
         <div th:replace="base :: siteHeader(${activePage})"></div>
 
         <main class="admin-page">
@@ -25,145 +24,250 @@
                                 <label class="form-label">Đến ngày</label>
                                 <input type="date" name="toDate" class="form-control" th:value="${toDate}">
                             </div>
-                            <div class="col-md-4 d-flex align-items-end">
+                            <div class="col-md-4 d-flex align-items-end gap-2">
                                 <button type="submit" class="btn btn-primary">Lọc báo cáo</button>
+                                <a class="btn btn-outline-secondary" th:href="@{/admin/stats}">Xóa lọc</a>
                             </div>
                         </form>
                     </div>
                 </div>
 
-                <div class="card shadow-sm border-0 mb-4">
-                    <div class="card-header bg-white">
-                        <h5 class="mb-0">1. Bệnh nhân theo độ tuổi, giới tính, chuyên khoa</h5>
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-white pb-0">
+                        <ul class="nav nav-tabs card-header-tabs" id="statsTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active"
+                                        id="patient-tab"
+                                        data-bs-toggle="tab"
+                                        data-bs-target="#patient-pane"
+                                        type="button"
+                                        role="tab">
+                                    Bệnh nhân
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link"
+                                        id="service-tab"
+                                        data-bs-toggle="tab"
+                                        data-bs-target="#service-pane"
+                                        type="button"
+                                        role="tab">
+                                    Dịch vụ
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link"
+                                        id="disease-tab"
+                                        data-bs-toggle="tab"
+                                        data-bs-target="#disease-pane"
+                                        type="button"
+                                        role="tab">
+                                    Bệnh phổ biến
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link"
+                                        id="revenue-summary-tab"
+                                        data-bs-toggle="tab"
+                                        data-bs-target="#revenue-summary-pane"
+                                        type="button"
+                                        role="tab">
+                                    Doanh thu tổng
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link"
+                                        id="revenue-detail-tab"
+                                        data-bs-toggle="tab"
+                                        data-bs-target="#revenue-detail-pane"
+                                        type="button"
+                                        role="tab">
+                                    Doanh thu chi tiết
+                                </button>
+                            </li>
+                        </ul>
                     </div>
-                    <div class="card-body table-responsive">
-                        <table class="table table-bordered">
-                            <thead>
-                                <tr>
-                                    <th>Nhóm tuổi</th>
-                                    <th>Giới tính</th>
-                                    <th>Chuyên khoa</th>
-                                    <th>Số lượng</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr th:each="r : ${patientStats}">
-                                    <td th:text="${r[0]}"></td>
-                                    <td th:text="${r[1]}"></td>
-                                    <td th:text="${r[2]}"></td>
-                                    <td th:text="${r[3]}"></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
 
-                <div class="card shadow-sm border-0 mb-4">
-                    <div class="card-header bg-white">
-                        <h5 class="mb-0">2. Số lượng dịch vụ y tế được sử dụng</h5>
-                    </div>
-                    <div class="card-body table-responsive">
-                        <table class="table table-bordered">
-                            <thead>
-                                <tr>
-                                    <th>Dịch vụ</th>
-                                    <th>Số lượt</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr th:each="r : ${serviceUsageStats}">
-                                    <td th:text="${r[0]}"></td>
-                                    <td th:text="${r[1]}"></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                    <div class="card-body">
+                        <div class="tab-content" id="statsTabsContent">
 
-                <div class="card shadow-sm border-0 mb-4">
-                    <div class="card-header bg-white">
-                        <h5 class="mb-0">3. Bệnh phổ biến</h5>
-                    </div>
-                    <div class="card-body table-responsive">
-                        <table class="table table-bordered">
-                            <thead>
-                                <tr>
-                                    <th>Chẩn đoán</th>
-                                    <th>Số ca</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr th:each="r : ${commonDiseaseStats}">
-                                    <td th:text="${r[0]}"></td>
-                                    <td th:text="${r[1]}"></td>
-                                </tr>
-                                <tr th:if="${#lists.isEmpty(commonDiseaseStats)}">
-                                    <td colspan="2">Chưa có dữ liệu</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                            <!-- BỆNH NHÂN -->
+                            <div class="tab-pane fade show active"
+                                 id="patient-pane"
+                                 role="tabpanel"
+                                 aria-labelledby="patient-tab">
+                                <h5 class="mb-3">1. Bệnh nhân theo độ tuổi, giới tính, chuyên khoa</h5>
 
-                <div class="card shadow-sm border-0 mb-4">
-                    <div class="card-header bg-white">
-                        <h5 class="mb-0">4. Doanh thu tổng hợp</h5>
-                    </div>
-                    <div class="card-body table-responsive">
-                        <table class="table table-bordered">
-                            <thead>
-                                <tr>
-                                    <th>Kỳ</th>
-                                    <th>Phương thức</th>
-                                    <th>Số giao dịch</th>
-                                    <th>Tổng tiền</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr th:each="r : ${revenueSummaryStats}">
-                                    <td th:text="${r[0]}"></td>
-                                    <td th:text="${r[1]}"></td>
-                                    <td th:text="${r[2]}"></td>
-                                    <td th:text="${r[3]}"></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                                <div class="mb-4">
+                                    <canvas id="patientChart" height="90"></canvas>
+                                </div>
 
-                <div class="card shadow-sm border-0 mb-4">
-                    <div class="card-header bg-white">
-                        <h5 class="mb-0">5. Doanh thu chi tiết</h5>
-                    </div>
-                    <div class="card-body table-responsive">
-                        <table class="table table-bordered">
-                            <thead>
-                                <tr>
-                                    <th>Mã thanh toán</th>
-                                    <th>Ngày tạo</th>
-                                    <th>Mã lịch hẹn</th>
-                                    <th>Bệnh nhân</th>
-                                    <th>Bác sĩ</th>
-                                    <th>Chuyên khoa</th>
-                                    <th>Phương thức</th>
-                                    <th>Trạng thái</th>
-                                    <th>Số tiền</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr th:each="r : ${revenueDetailStats}">
-                                    <td th:text="${r[0]}"></td>
-                                    <td th:text="${r[1]}"></td>
-                                    <td th:text="${r[2]}"></td>
-                                    <td th:text="${r[3]}"></td>
-                                    <td th:text="${r[4]}"></td>
-                                    <td th:text="${r[5]}"></td>
-                                    <td th:text="${r[6]}"></td>
-                                    <td th:text="${r[7]}"></td>
-                                    <td th:text="${r[8]}"></td>
-                                </tr>
-                            </tbody>
-                        </table>
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-hover align-middle">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Nhóm tuổi</th>
+                                                <th>Giới tính</th>
+                                                <th>Chuyên khoa</th>
+                                                <th>Số lượng</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr th:each="r : ${patientStats}">
+                                                <td th:text="${r[0]}"></td>
+                                                <td th:text="${r[1]}"></td>
+                                                <td th:text="${r[2]}"></td>
+                                                <td th:text="${r[3]}"></td>
+                                            </tr>
+                                            <tr th:if="${#lists.isEmpty(patientStats)}">
+                                                <td colspan="4" class="text-center text-muted">Chưa có dữ liệu</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- DỊCH VỤ -->
+                            <div class="tab-pane fade"
+                                 id="service-pane"
+                                 role="tabpanel"
+                                 aria-labelledby="service-tab">
+                                <h5 class="mb-3">2. Số lượng dịch vụ y tế được sử dụng</h5>
+
+                                <div class="mb-4">
+                                    <canvas id="serviceChart" height="90"></canvas>
+                                </div>
+
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-hover align-middle">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Dịch vụ</th>
+                                                <th>Số lượt</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr th:each="r : ${serviceUsageStats}">
+                                                <td th:text="${r[0]}"></td>
+                                                <td th:text="${r[1]}"></td>
+                                            </tr>
+                                            <tr th:if="${#lists.isEmpty(serviceUsageStats)}">
+                                                <td colspan="2" class="text-center text-muted">Chưa có dữ liệu</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- BỆNH PHỔ BIẾN -->
+                            <div class="tab-pane fade"
+                                 id="disease-pane"
+                                 role="tabpanel"
+                                 aria-labelledby="disease-tab">
+                                <h5 class="mb-3">3. Bệnh phổ biến</h5>
+
+                                <div class="mb-4">
+                                    <canvas id="diseaseChart" height="90"></canvas>
+                                </div>
+
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-hover align-middle">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Chẩn đoán</th>
+                                                <th>Số ca</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr th:each="r : ${commonDiseaseStats}">
+                                                <td th:text="${r[0]}"></td>
+                                                <td th:text="${r[1]}"></td>
+                                            </tr>
+                                            <tr th:if="${#lists.isEmpty(commonDiseaseStats)}">
+                                                <td colspan="2" class="text-center text-muted">Chưa có dữ liệu</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- DOANH THU TỔNG -->
+                            <div class="tab-pane fade"
+                                 id="revenue-summary-pane"
+                                 role="tabpanel"
+                                 aria-labelledby="revenue-summary-tab">
+                                <h5 class="mb-3">4. Doanh thu tổng hợp</h5>
+
+                                <div class="mb-4">
+                                    <canvas id="revenueSummaryChart" height="90"></canvas>
+                                </div>
+
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-hover align-middle">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Phương thức</th>
+                                                <th>Số giao dịch</th>
+                                                <th>Tổng tiền</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr th:each="r : ${revenueSummaryStats}">
+                                                <td th:text="${r[0]}"></td>
+                                                <td th:text="${r[1]}"></td>
+                                                <td th:text="${#numbers.formatDecimal(r[2], 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></td>
+                                            </tr>
+                                            <tr th:if="${#lists.isEmpty(revenueSummaryStats)}">
+                                                <td colspan="3" class="text-center text-muted">Chưa có dữ liệu</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- DOANH THU CHI TIẾT -->
+                            <div class="tab-pane fade"
+                                 id="revenue-detail-pane"
+                                 role="tabpanel"
+                                 aria-labelledby="revenue-detail-tab">
+                                <h5 class="mb-3">5. Doanh thu chi tiết</h5>
+
+                                <div class="mb-4">
+                                    <canvas id="revenueDetailChart" height="90"></canvas>
+                                </div>
+
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-hover align-middle">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Mã thanh toán</th>
+                                                <th>Ngày tạo</th>
+                                                <th>Bệnh nhân</th>
+                                                <th>Bác sĩ</th>
+                                                <th>Chuyên khoa</th>
+                                                <th>Phương thức</th>
+                                                <th>Số tiền</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr th:each="r : ${revenueDetailStats}">
+                                                <td th:text="${r[0]}"></td>
+                                                <td th:text="${#dates.format(r[1], 'dd/MM/yyyy HH:mm')}"></td>
+                                                <td th:text="${r[2]}"></td>
+                                                <td th:text="${r[3]}"></td>
+                                                <td th:text="${r[4]}"></td>
+                                                <td th:text="${r[5]}"></td>
+                                                <td th:text="${#numbers.formatDecimal(r[6], 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></td>
+                                            </tr>
+                                            <tr th:if="${#lists.isEmpty(revenueDetailStats)}">
+                                                <td colspan="7" class="text-center text-muted">Chưa có dữ liệu</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                        </div>
                     </div>
                 </div>
             </div>
@@ -171,5 +275,19 @@
 
         <div th:replace="base :: Footer"></div>
         <div th:replace="base :: commonScripts"></div>
+
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+        <script th:inline="javascript">
+            window.statsData = {
+                patientStats: /*[[${patientStats}]]*/ [],
+                serviceUsageStats: /*[[${serviceUsageStats}]]*/ [],
+                commonDiseaseStats: /*[[${commonDiseaseStats}]]*/ [],
+                revenueSummaryStats: /*[[${revenueSummaryStats}]]*/ [],
+                revenueDetailStats: /*[[${revenueDetailStats}]]*/ []
+            };
+        </script>
+
+        <script th:src="@{/js/admin-stats.js}"></script>
     </body>
 </html>

@@ -32,7 +32,7 @@ CREATE TABLE `appointments` (
   `symptoms` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL COMMENT 'Triệu chứng bệnh nhân mô tả',
   `meeting_url` varchar(500) DEFAULT NULL COMMENT 'Link video call (Zoom, Google Meet...)',
   `cancel_reason` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
-  `cancelled_by` enum('PATIENT','DOCTOR','ADMIN') DEFAULT NULL,
+  `cancelled_by` enum('ROLE_PATIENT','ROLE_DOCTOR','ROLE_ADMIN') DEFAULT NULL,
   `ngay_tao` datetime NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_appt_patient` (`patient_id`),
@@ -50,7 +50,32 @@ CREATE TABLE `appointments` (
 
 LOCK TABLES `appointments` WRITE;
 /*!40000 ALTER TABLE `appointments` DISABLE KEYS */;
-INSERT INTO `appointments` VALUES (1,1,1,1,'2026-04-06 08:30:00','CONFIRMED','Sốt, ho, đau họng nhẹ','https://meet.google.com/abc-defg-hij',NULL,NULL,'2026-04-01 09:30:00'),(2,2,1,2,'2026-04-08 14:00:00','PENDING','Đau đầu, mệt mỏi, mất ngủ','https://meet.google.com/klm-nopq-rst',NULL,NULL,'2026-04-01 09:35:00'),(3,1,1,NULL,'2026-04-10 09:00:00','COMPLETED','Ho kéo dài, sốt nhẹ',NULL,NULL,NULL,'2026-04-01 09:45:00');
+INSERT INTO `appointments` VALUES (1,1,1,1,'2026-04-06 08:30:00','CONFIRMED','Sốt, ho, đau họng nhẹ','https://meet.google.com/abc-defg-hij',NULL,NULL,'2026-04-01 09:30:00'),(2,2,1,2,'2026-04-08 14:00:00','PENDING','Đau đầu, mệt mỏi, mất ngủ','https://meet.google.com/klm-nopq-rst',NULL,NULL,'2026-04-01 09:35:00'),(3,1,1,NULL,'2026-04-10 09:00:00','COMPLETED','Ho kéo dài, sốt nhẹ',NULL,NULL,NULL,'2026-04-01 09:45:00'),
+(4, 3, 4, 3, '2026-04-11 08:30:00', 'COMPLETED',
+ 'Khó thở nhẹ, hồi hộp, tăng huyết áp', NULL, NULL, NULL, '2026-04-10 07:45:00'),
+
+(5, 5, 6, 4, '2026-04-12 09:00:00', 'COMPLETED',
+ 'Đau bụng kinh, rối loạn kinh nguyệt', NULL, NULL, NULL, '2026-04-11 08:20:00'),
+
+(6, 4, 8, 5, '2026-04-13 14:00:00', 'COMPLETED',
+ 'Đau đầu, chóng mặt, khó ngủ', NULL, NULL, NULL, '2026-04-12 09:30:00'),
+
+(7, 6, 10, 6, '2026-04-14 10:00:00', 'CONFIRMED',
+ 'Mờ mắt khi làm việc lâu với máy tính', 'https://meet.google.com/eye-2026-demo', NULL, NULL, '2026-04-13 09:40:00'),
+
+(8, 7, 15, 7, '2026-04-15 15:30:00', 'COMPLETED',
+ 'Ngứa da, nổi mẩn đỏ kéo dài', NULL, NULL, NULL, '2026-04-14 10:15:00'),
+
+(9, 8, 21, 8, '2026-04-16 08:00:00', 'PENDING',
+ 'Khám phụ khoa định kỳ', 'https://meet.google.com/obgyn-2026-demo', NULL, NULL, '2026-04-15 11:10:00'),
+
+(10, 4, 27, 9, '2026-04-17 16:00:00', 'COMPLETED',
+ 'Đau bụng, đầy hơi, khó tiêu sau ăn', NULL, NULL, NULL, '2026-04-16 12:20:00'),
+
+(11, 3, 19, NULL, '2026-04-18 09:30:00', 'CANCELLED',
+ 'Nghẹt mũi, đau họng, hắt hơi', NULL, 'Bệnh nhân bận việc đột xuất', 'PATIENT', '2026-04-17 13:10:00');
+
+;
 /*!40000 ALTER TABLE `appointments` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -176,7 +201,30 @@ CREATE TABLE `medical_records` (
 
 LOCK TABLES `medical_records` WRITE;
 /*!40000 ALTER TABLE `medical_records` DISABLE KEYS */;
-INSERT INTO `medical_records` VALUES (1,3,'Ho kéo dài kèm sốt nhẹ','Viêm họng cấp','Uống thuốc theo đơn, nghỉ ngơi, uống nhiều nước ấm','2026-04-17 09:00:00','Nếu sốt cao hơn hoặc khó thở thì tái khám sớm');
+INSERT INTO `medical_records` VALUES (1,3,'Ho kéo dài kèm sốt nhẹ','Viêm họng cấp','Uống thuốc theo đơn, nghỉ ngơi, uống nhiều nước ấm','2026-04-17 09:00:00','Nếu sốt cao hơn hoặc khó thở thì tái khám sớm'),
+(2, 4, 'Khó thở nhẹ và hồi hộp', 'Tăng huyết áp độ 1',
+ 'Theo dõi huyết áp tại nhà, giảm muối, dùng thuốc theo đơn', '2026-04-25 08:30:00',
+ 'Nếu huyết áp > 140/90 liên tục thì tái khám sớm'),
+
+(3, 5, 'Đau bụng kinh và kinh nguyệt không đều', 'Rối loạn kinh nguyệt',
+ 'Điều chỉnh nội tiết, nghỉ ngơi, tái khám theo lịch', '2026-04-26 09:00:00',
+ 'Theo dõi thêm trong 2 chu kỳ tiếp theo'),
+
+(4, 6, 'Đau đầu chóng mặt kéo dài', 'Rối loạn tiền đình',
+ 'Uống thuốc, ngủ đủ giấc, hạn chế căng thẳng', '2026-04-27 14:00:00',
+ 'Tránh thay đổi tư thế quá nhanh'),
+
+(5, 8, 'Ngứa da, nổi mẩn đỏ', 'Viêm da dị ứng',
+ 'Dùng thuốc chống dị ứng, dưỡng ẩm da, tránh tác nhân kích ứng', '2026-04-29 15:30:00',
+ 'Không tự ý dùng mỹ phẩm lạ'),
+
+(6, 10, 'Đau bụng và khó tiêu', 'Rối loạn tiêu hóa',
+ 'Ăn chín uống sôi, tránh đồ cay nóng, dùng thuốc theo toa', '2026-04-30 16:00:00',
+ 'Tái khám nếu còn đau bụng sau 3 ngày'),
+
+(7, 7, 'Mắt mờ khi làm việc máy tính', 'Khô mắt',
+ 'Nhỏ mắt nhân tạo, nghỉ mắt định kỳ, giảm thời gian nhìn màn hình', '2026-04-28 10:00:00',
+ 'Nếu mờ mắt tăng thì khám lại');
 /*!40000 ALTER TABLE `medical_records` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -270,7 +318,13 @@ CREATE TABLE `patients` (
 
 LOCK TABLES `patients` WRITE;
 /*!40000 ALTER TABLE `patients` DISABLE KEYS */;
-INSERT INTO `patients` VALUES (1,3,'2005-08-15 00:00:00','MALE','TP. Hồ Chí Minh'),(2,4,'2004-05-20 00:00:00','MALE','Bến Tre');
+INSERT INTO `patients` VALUES (1,3,'2005-08-15 00:00:00','MALE','TP. Hồ Chí Minh'),(2,4,'2004-05-20 00:00:00','MALE','Bến Tre'),
+(3, 34, '2012-09-10 00:00:00', 'FEMALE', 'Quận 7, TP. Hồ Chí Minh'),
+(4, 35, '1998-03-21 00:00:00', 'MALE', 'Thủ Đức, TP. Hồ Chí Minh'),
+(5, 36, '1987-11-05 00:00:00', 'FEMALE', 'Biên Hòa, Đồng Nai'),
+(6, 37, '1974-01-15 00:00:00', 'MALE', 'Mỹ Tho, Tiền Giang'),
+(7, 38, '1962-07-30 00:00:00', 'FEMALE', 'Bến Lức, Long An'),
+(8, 39, '2001-12-02 00:00:00', 'OTHER', 'Ninh Kiều, Cần Thơ');
 /*!40000 ALTER TABLE `patients` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -299,7 +353,17 @@ CREATE TABLE `payments` (
 
 LOCK TABLES `payments` WRITE;
 /*!40000 ALTER TABLE `payments` DISABLE KEYS */;
-INSERT INTO `payments` VALUES (1,200000.00,'MOMO','COMPLETED','MOMO_TXN_0001','Thanh toán lịch khám nội tổng quát','2026-04-01 09:00:00'),(2,200000.00,'BANKING','PENDING','BANK_TXN_0002','Thanh toán lịch khám nội tổng quát','2026-04-01 09:10:00');
+INSERT INTO `payments` VALUES (1,200000.00,'MOMO','COMPLETED','MOMO_TXN_0001','Thanh toán lịch khám nội tổng quát','2026-04-01 09:00:00'),(2,200000.00,'BANKING','PENDING','BANK_TXN_0002','Thanh toán lịch khám nội tổng quát','2026-04-01 09:10:00'),
+(3, 250000.00, 'BANKING', 'COMPLETED', 'BANK_TXN_0003', 'Thanh toán khám Tim mạch', '2026-04-10 08:00:00'),
+(4, 260000.00, 'MOMO',    'COMPLETED', 'MOMO_TXN_0004', 'Thanh toán khám Sản phụ khoa', '2026-04-11 09:00:00'),
+(5, 230000.00, 'BANKING', 'COMPLETED', 'BANK_TXN_0005', 'Thanh toán khám Thần kinh', '2026-04-12 10:00:00'),
+(6, 235000.00, 'MOMO',    'COMPLETED', 'MOMO_TXN_0006', 'Thanh toán khám Nhãn khoa', '2026-04-13 10:30:00'),
+(7, 220000.00, 'MOMO',    'COMPLETED', 'MOMO_TXN_0007', 'Thanh toán khám Da liễu', '2026-04-14 11:00:00'),
+(8, 265000.00, 'BANKING', 'PENDING',   'BANK_TXN_0008', 'Thanh toán khám Sản phụ khoa', '2026-04-15 12:00:00'),
+(9, 230000.00, 'BANKING', 'COMPLETED', 'BANK_TXN_0009', 'Thanh toán khám Tiêu hóa', '2026-04-16 13:00:00'),
+(10, 205000.00, 'MOMO',   'FAILED',    'MOMO_TXN_0010', 'Thanh toán khám Tai mũi họng', '2026-04-17 14:00:00');
+
+;
 /*!40000 ALTER TABLE `payments` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -333,7 +397,11 @@ CREATE TABLE `prescription_items` (
 
 LOCK TABLES `prescription_items` WRITE;
 /*!40000 ALTER TABLE `prescription_items` DISABLE KEYS */;
-INSERT INTO `prescription_items` VALUES (1,1,1,10,'1 viên/lần',5,'Ngày uống 2 lần sau ăn',1500.00),(2,1,3,14,'1 viên/lần',7,'Ngày uống 2 lần sau ăn',3000.00);
+INSERT INTO `prescription_items` VALUES (1,1,1,10,'1 viên/lần',5,'Ngày uống 2 lần sau ăn',1500.00),(2,1,3,14,'1 viên/lần',7,'Ngày uống 2 lần sau ăn',3000.00),
+(3, 2, 1, 10, '1 viên/lần', 5, 'Ngày 2 lần sau ăn', 1500.00),
+(4, 3, 1, 8,  '1 viên/lần', 4, 'Uống khi đau đầu', 1500.00),
+(5, 4, 2, 10, '1 viên/lần', 5, 'Ngày 1 lần buổi tối', 2500.00),
+(6, 5, 1, 6,  '1 viên/lần', 3, 'Uống sau ăn sáng và tối', 1500.00);
 /*!40000 ALTER TABLE `prescription_items` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -361,7 +429,11 @@ CREATE TABLE `prescriptions` (
 
 LOCK TABLES `prescriptions` WRITE;
 /*!40000 ALTER TABLE `prescriptions` DISABLE KEYS */;
-INSERT INTO `prescriptions` VALUES (1,1,'2026-04-10 09:30:00','Uống thuốc đúng giờ, tái khám nếu không cải thiện');
+INSERT INTO `prescriptions` VALUES (1,1,'2026-04-10 09:30:00','Uống thuốc đúng giờ, tái khám nếu không cải thiện'),
+(2, 2, '2026-04-11 09:00:00', 'Uống thuốc đều và đo huyết áp mỗi ngày'),
+(3, 4, '2026-04-13 14:30:00', 'Tránh thức khuya, hạn chế caffeine'),
+(4, 5, '2026-04-15 16:00:00', 'Không gãi mạnh vùng da tổn thương'),
+(5, 6, '2026-04-17 16:30:00', 'Ăn nhẹ, chia nhỏ bữa ăn');
 /*!40000 ALTER TABLE `prescriptions` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -403,7 +475,7 @@ CREATE TABLE `users` (
   `username` varchar(255) NOT NULL,
   `password` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   `name` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  `role` enum('PATIENT','DOCTOR','ADMIN') NOT NULL DEFAULT 'PATIENT',
+  `role` enum('ROLE_PATIENT','ROLE_DOCTOR','ROLE_ADMIN') NOT NULL DEFAULT 'ROLE_PATIENT',
   `is_active` tinyint(1) NOT NULL DEFAULT '1',
   `phone` varchar(20) NOT NULL DEFAULT '0123456789',
   `avatar` varchar(255) DEFAULT 'https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg',
@@ -418,7 +490,15 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'admin','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Quản trị viên hệ thống','ADMIN',1,'0123456789','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),(2,'doctor_cuong','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Bác sĩ Lê Minh Cường','DOCTOR',1,'0901000001','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),(3,'doctor_ha','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Bác sĩ Nguyễn Thu Hà','DOCTOR',1,'0901000002','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),(4,'doctor_quan','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Bác sĩ Trần Minh Quân','DOCTOR',1,'0901000003','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),(5,'doctor_lan','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Bác sĩ Phạm Ngọc Lan','DOCTOR',1,'0901000004','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),(6,'doctor_hung','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Bác sĩ Võ Gia Hùng','DOCTOR',1,'0901000005','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),(7,'doctor_tram','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Bác sĩ Lý Thanh Trâm','DOCTOR',1,'0901000006','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),(8,'doctor_phuc','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Bác sĩ Đặng Minh Phúc','DOCTOR',1,'0901000007','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),(9,'doctor_yen','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Bác sĩ Hoàng Bảo Yến','DOCTOR',1,'0901000008','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),(10,'doctor_khanh','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Bác sĩ Nguyễn Quốc Khánh','DOCTOR',1,'0901000009','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),(11,'doctor_tam','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Bác sĩ Phan Đức Tâm','DOCTOR',1,'0901000010','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),(12,'long01','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Tất Văn Long','PATIENT',1,'0912000001','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),(13,'hung01','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Thái Lê Hùng','PATIENT',1,'0912000002','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),(14,'doctor_an','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Bác sĩ Nguyễn Hoài An','DOCTOR',1,'0902000001','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),(15,'doctor_binh','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Bác sĩ Trần Gia Bình','DOCTOR',1,'0902000002','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),(16,'doctor_chau','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Bác sĩ Lê Minh Châu','DOCTOR',1,'0902000003','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),(17,'doctor_duy','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Bác sĩ Phạm Anh Duy','DOCTOR',1,'0902000004','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),(18,'doctor_giang','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Bác sĩ Võ Hà Giang','DOCTOR',1,'0902000005','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),(19,'doctor_hai','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Bác sĩ Đỗ Thanh Hải','DOCTOR',1,'0902000006','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),(20,'doctor_kim','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Bác sĩ Nguyễn Bảo Kim','DOCTOR',1,'0902000007','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),(21,'doctor_linh','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Bác sĩ Trịnh Mỹ Linh','DOCTOR',1,'0902000008','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),(22,'doctor_minh','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Bác sĩ Nguyễn Hoàng Minh','DOCTOR',1,'0902000009','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),(23,'doctor_nam','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Bác sĩ Lê Quốc Nam','DOCTOR',1,'0902000010','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),(24,'doctor_phuong','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Bác sĩ Phạm Ngọc Phương','DOCTOR',1,'0902000011','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),(25,'doctor_quynh','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Bác sĩ Hồ Như Quỳnh','DOCTOR',1,'0902000012','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),(26,'doctor_son','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Bác sĩ Trương Đức Sơn','DOCTOR',1,'0902000013','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),(27,'doctor_thao','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Bác sĩ Nguyễn Thu Thảo','DOCTOR',1,'0902000014','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),(28,'doctor_tri','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Bác sĩ Đỗ Minh Trí','DOCTOR',1,'0902000015','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),(29,'doctor_van','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Bác sĩ Lê Khánh Vân','DOCTOR',1,'0902000016','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),(30,'doctor_viet','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Bác sĩ Phan Quốc Việt','DOCTOR',1,'0902000017','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),(31,'doctor_xuan','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Bác sĩ Trần Minh Xuân','DOCTOR',1,'0902000018','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),(32,'doctor_yuri','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Bác sĩ Võ Thanh Yuri','DOCTOR',1,'0902000019','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),(33,'doctor_zinh','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Bác sĩ Nguyễn Gia Zinh','DOCTOR',1,'0902000020','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg');
+INSERT INTO `users` VALUES (1,'admin','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Quản trị viên hệ thống','ROLE_ADMIN',1,'0123456789','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),(2,'doctor_cuong','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Bác sĩ Lê Minh Cường','ROLE_DOCTOR',1,'0901000001','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),(3,'doctor_ha','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Bác sĩ Nguyễn Thu Hà','ROLE_DOCTOR',1,'0901000002','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),(4,'doctor_quan','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Bác sĩ Trần Minh Quân','ROLE_DOCTOR',1,'0901000003','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),(5,'doctor_lan','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Bác sĩ Phạm Ngọc Lan','ROLE_DOCTOR',1,'0901000004','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),(6,'doctor_hung','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Bác sĩ Võ Gia Hùng','ROLE_DOCTOR',1,'0901000005','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),(7,'doctor_tram','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Bác sĩ Lý Thanh Trâm','ROLE_DOCTOR',1,'0901000006','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),(8,'doctor_phuc','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Bác sĩ Đặng Minh Phúc','ROLE_DOCTOR',1,'0901000007','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),(9,'doctor_yen','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Bác sĩ Hoàng Bảo Yến','ROLE_DOCTOR',1,'0901000008','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),(10,'doctor_khanh','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Bác sĩ Nguyễn Quốc Khánh','ROLE_DOCTOR',1,'0901000009','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),(11,'doctor_tam','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Bác sĩ Phan Đức Tâm','ROLE_DOCTOR',1,'0901000010','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),(12,'long01','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Tất Văn Long','ROLE_PATIENT',1,'0912000001','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),(13,'hung01','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Thái Lê Hùng','ROLE_PATIENT',1,'0912000002','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),(14,'doctor_an','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Bác sĩ Nguyễn Hoài An','ROLE_DOCTOR',1,'0902000001','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),(15,'doctor_binh','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Bác sĩ Trần Gia Bình','ROLE_DOCTOR',1,'0902000002','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),(16,'doctor_chau','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Bác sĩ Lê Minh Châu','ROLE_DOCTOR',1,'0902000003','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),(17,'doctor_duy','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Bác sĩ Phạm Anh Duy','ROLE_DOCTOR',1,'0902000004','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),(18,'doctor_giang','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Bác sĩ Võ Hà Giang','ROLE_DOCTOR',1,'0902000005','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),(19,'doctor_hai','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Bác sĩ Đỗ Thanh Hải','ROLE_DOCTOR',1,'0902000006','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),(20,'doctor_kim','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Bác sĩ Nguyễn Bảo Kim','ROLE_DOCTOR',1,'0902000007','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),(21,'doctor_linh','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Bác sĩ Trịnh Mỹ Linh','ROLE_DOCTOR',1,'0902000008','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),(22,'doctor_minh','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Bác sĩ Nguyễn Hoàng Minh','ROLE_DOCTOR',1,'0902000009','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),(23,'doctor_nam','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Bác sĩ Lê Quốc Nam','ROLE_DOCTOR',1,'0902000010','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),(24,'doctor_phuong','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Bác sĩ Phạm Ngọc Phương','ROLE_DOCTOR',1,'0902000011','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),(25,'doctor_quynh','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Bác sĩ Hồ Như Quỳnh','ROLE_DOCTOR',1,'0902000012','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),(26,'doctor_son','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Bác sĩ Trương Đức Sơn','ROLE_DOCTOR',1,'0902000013','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),(27,'doctor_thao','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Bác sĩ Nguyễn Thu Thảo','ROLE_DOCTOR',1,'0902000014','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),(28,'doctor_tri','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Bác sĩ Đỗ Minh Trí','ROLE_DOCTOR',1,'0902000015','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),(29,'doctor_van','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Bác sĩ Lê Khánh Vân','ROLE_DOCTOR',1,'0902000016','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),(30,'doctor_viet','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Bác sĩ Phan Quốc Việt','ROLE_DOCTOR',1,'0902000017','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),(31,'doctor_xuan','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Bác sĩ Trần Minh Xuân','ROLE_DOCTOR',1,'0902000018','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),(32,'doctor_yuri','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Bác sĩ Võ Thanh Yuri','ROLE_DOCTOR',1,'0902000019','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),(33,'doctor_zinh','$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.','Bác sĩ Nguyễn Gia Zinh','ROLE_DOCTOR',1,'0902000020','https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),
+(34, 'patient_anhthu', '$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.', 'Nguyễn Anh Thư', 'ROLE_PATIENT', 1, '0912000003', 'https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),
+(35, 'patient_minhkhoa', '$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.', 'Trần Minh Khoa', 'ROLE_PATIENT', 1, '0912000004', 'https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),
+(36, 'patient_thaovy', '$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.', 'Lê Thảo Vy', 'ROLE_PATIENT', 1, '0912000005', 'https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),
+(37, 'patient_quocbao', '$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.', 'Phạm Quốc Bảo', 'ROLE_PATIENT', 1, '0912000006', 'https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),
+(38, 'patient_tuyetmai', '$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.', 'Võ Tuyết Mai', 'ROLE_PATIENT', 1, '0912000007', 'https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg'),
+(39, 'patient_hoangson', '$2a$10$cbuUDx4BGEs6GiGjM.VMVuoT2t.UYp1akYZyN42If8P8OKLRM2FU.', 'Đỗ Hoàng Sơn', 'ROLE_PATIENT', 1, '0912000008', 'https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg');
+
+;
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
