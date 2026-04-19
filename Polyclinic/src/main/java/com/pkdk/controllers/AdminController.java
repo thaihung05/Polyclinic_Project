@@ -4,8 +4,9 @@
  */
 package com.pkdk.controllers;
 
-import com.pkdk.services.SpecialtyService;
-import com.pkdk.services.UserService;
+import com.pkdk.service.SpecialtyService;
+import com.pkdk.service.StatsService;
+import com.pkdk.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -26,16 +27,17 @@ public class AdminController {
     @Autowired
     private SpecialtyService specialtyService;
     
+    @Autowired
+    private StatsService statsService;
+    
     @GetMapping
     public String adminHome(Model model) {
-        model.addAttribute("pageTitle", "Dashboard");
-        model.addAttribute("pageDescription", "Tổng quan hệ thống phòng khám");
         model.addAttribute("activePage", "dashboard");
 
         model.addAttribute("totalUsers", this.userService.getUsers(null).size());
-        model.addAttribute("totalAppointments", 0);
+        model.addAttribute("totalAppointments", this.statsService.countAppointments());
         model.addAttribute("totalSpecialties", this.specialtyService.getSpecs().size());
-        model.addAttribute("totalRevenue", 0);
+        model.addAttribute("totalRevenue", this.statsService.totalRevenue());
         
         return "admin";
     }

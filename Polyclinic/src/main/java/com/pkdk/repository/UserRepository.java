@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Interface.java to edit this template
  */
-package com.pkdk.repositories;
+package com.pkdk.repository;
 
 import com.pkdk.pojo.Users;
 import java.util.List;

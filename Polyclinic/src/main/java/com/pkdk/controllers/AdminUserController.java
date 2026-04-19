@@ -6,14 +6,14 @@ package com.pkdk.controllers;
 
 import com.pkdk.pojo.Doctors;
 import com.pkdk.pojo.Users;
-import com.pkdk.services.DoctorService;
-import com.pkdk.services.UserService;
+import com.pkdk.service.DoctorService;
+import com.pkdk.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import com.pkdk.services.SpecialtyService;
+import com.pkdk.service.SpecialtyService;
 import java.util.List;
 import java.util.Map;
 import org.springframework.context.annotation.PropertySource;
@@ -55,8 +55,6 @@ public class AdminUserController {
         model.addAttribute("users", users);
         model.addAttribute("currentPage", currentPage);
         model.addAttribute("totalPages", totalPages);
-        model.addAttribute("pageTitle", "Quản lý người dùng");
-        model.addAttribute("pageDescription", "Danh sách tài khoản trong hệ thống!");
         model.addAttribute("activePage", "users");
         return "users";
     }
@@ -65,8 +63,6 @@ public class AdminUserController {
     public String addView(Model model) {
         model.addAttribute("user", new Users());
         model.addAttribute("specialties", this.specialtyService.getSpecs());
-        model.addAttribute("pageTitle", "Thêm người dùng");
-        model.addAttribute("pageDescription", "Tạo mới tài khoản hệ thống");
         model.addAttribute("activePage", "users");
         return "user-form";
     }
@@ -85,8 +81,6 @@ public class AdminUserController {
 
         model.addAttribute("user", u);
         model.addAttribute("specialties", this.specialtyService.getSpecs());
-        model.addAttribute("pageTitle", "Cập nhật người dùng");
-        model.addAttribute("pageDescription", "Chỉnh sửa thông tin tài khoản");
         model.addAttribute("activePage", "users");
 
         if ("ROLE_DOCTOR".equals(u.getRole())) {

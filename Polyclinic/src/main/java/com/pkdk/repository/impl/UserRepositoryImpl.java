@@ -2,10 +2,10 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package com.pkdk.repositories.impl;
+package com.pkdk.repository.impl;
 
 import com.pkdk.pojo.Users;
-import com.pkdk.repositories.UserRepository;
+import com.pkdk.repository.UserRepository;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
@@ -18,6 +18,7 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
@@ -25,6 +26,7 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 @PropertySource("classpath:configs.properties")
+@Transactional
 public class UserRepositoryImpl implements UserRepository {
 
     @Autowired
@@ -35,21 +37,18 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public List<Users> getUsers(Map<String, String> params) {
-        Session session = this.factory.getObject().getCurrentSession();
-        CriteriaBuilder b = session.getCriteriaBuilder();
-        CriteriaQuery<Users> q = b.createQuery(Users.class);
-        Root<Users> root = q.from(Users.class);
-        q.select(root);
-        q.orderBy(b.desc(root.get("id")));
-        Query query = session.createQuery(q);
+        Session s = this.factory.getObject().getCurrentSession();
+        Query q = s.createQuery("FROM Users u ORDER BY u.id DESC", Users.class);
+
         if (params != null) {
             int pageSize = this.env.getProperty("PAGE_SIZE", Integer.class);
             int page = Integer.parseInt(params.getOrDefault("page", "1"));
             int start = (page - 1) * pageSize;
-            query.setMaxResults(pageSize);
-            query.setFirstResult(start);
+            q.setMaxResults(pageSize);
+            q.setFirstResult(start);
         }
-        return query.getResultList();
+
+        return q.getResultList();
     }
 
     @Override

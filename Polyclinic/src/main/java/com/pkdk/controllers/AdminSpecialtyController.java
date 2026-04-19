@@ -6,8 +6,8 @@ package com.pkdk.controllers;
 
 import com.pkdk.pojo.Doctors;
 import com.pkdk.pojo.Specialties;
-import com.pkdk.services.DoctorService;
-import com.pkdk.services.SpecialtyService;
+import com.pkdk.service.DoctorService;
+import com.pkdk.service.SpecialtyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -35,17 +35,13 @@ public class AdminSpecialtyController {
     @GetMapping
     public String list(Model model) {
         model.addAttribute("specialties", this.specialtyService.getSpecs());
-        model.addAttribute("pageTitle", "Quản lý chuyên khoa");
-        model.addAttribute("pageDescription", "Danh sách chuyên khoa trong hệ thống");
         model.addAttribute("activePage", "specialties");
         return "specialties";
     }
 
-    @GetMapping("add")
+    @GetMapping("/add")
     public String addView(Model model) {
         model.addAttribute("specialty", new Specialties());
-        model.addAttribute("pageTitle", "Thêm chuyên khoa");
-        model.addAttribute("pageDescription", "Nhập thông tin chuyên khoa mới");
         model.addAttribute("activePage", "specialties");
         return "specialty-form";
     }
@@ -53,8 +49,6 @@ public class AdminSpecialtyController {
     @GetMapping("/{id}")
     public String updateView(Model model, @PathVariable(value = "id") int id) {
         model.addAttribute("specialty", this.specialtyService.getSpecialtyById(id));
-        model.addAttribute("pageTitle", "Cập nhật chuyên khoa");
-        model.addAttribute("pageDescription", "Chỉnh sửa thông tin chuyên khoa");
         model.addAttribute("activePage", "specialties");
         return "specialty-form";
     }
@@ -83,12 +77,6 @@ public class AdminSpecialtyController {
 
         model.addAttribute("allSpecialties",
                 this.specialtyService.getSpecs());
-
-        model.addAttribute("pageTitle",
-                "Danh sách bác sĩ theo chuyên khoa");
-
-        model.addAttribute("pageDescription",
-                "Các bác sĩ thuộc chuyên khoa");
 
         model.addAttribute("activePage",
                 "specialties");

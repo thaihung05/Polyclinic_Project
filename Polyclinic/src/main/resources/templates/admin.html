@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 
-    <head th:replace="base :: head(${pageTitle}, null)"></head>
-
+    <head th:replace="base :: head('Dashboard', null)"></head>
     <body>
 
         <div th:replace="base :: siteHeader(${activePage})"></div>
@@ -11,8 +10,8 @@
             <div class="container py-4">
 
                 <div class="page-banner mb-4">
-                    <h2 class="mb-1 fw-bold" th:text="${pageTitle}">Dashboard</h2>
-                    <p class="mb-0 text-muted" th:text="${pageDescription}">Tổng quan hệ thống</p>
+                    <h2 class="mb-1 fw-bold">Dashboard</h2>
+                    <p class="mb-0 text-muted">Tổng quan hệ thống</p>
                 </div>
 
                 <div class="row g-4">

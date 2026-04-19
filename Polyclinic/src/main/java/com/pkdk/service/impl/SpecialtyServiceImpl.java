@@ -2,22 +2,20 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package com.pkdk.services.impl;
+package com.pkdk.service.impl;
 
 import com.pkdk.pojo.Specialties;
-import com.pkdk.repositories.SpecialtyRepository;
+import com.pkdk.repository.SpecialtyRepository;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.pkdk.services.SpecialtyService;
-import org.springframework.transaction.annotation.Transactional;
+import com.pkdk.service.SpecialtyService;
 
 /**
  *
  * @author Admin
  */
 @Service
-@Transactional
 public class SpecialtyServiceImpl implements SpecialtyService {
 
     @Autowired
