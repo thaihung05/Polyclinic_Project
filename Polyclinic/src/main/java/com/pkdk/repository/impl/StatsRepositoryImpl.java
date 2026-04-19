@@ -3,6 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package com.pkdk.repository.impl;
+
 import com.pkdk.repository.StatsRepository;
 import java.math.BigDecimal;
 import java.text.ParseException;
@@ -40,11 +41,19 @@ public class StatsRepositoryImpl implements StatsRepository {
     public List<Object[]> patientStats(Map<String, String> params) {
         Session s = this.factory.getObject().getCurrentSession();
 
-        String hql = "SELECT p.gender, d.specialtyId.name, COUNT(a.id) "
+        String hql = "SELECT "
+                + "CASE "
+                + "WHEN function('timestampdiff', YEAR, p.dateOfBirth, current_date()) < 18 THEN 'Dưới 18' "
+                + "WHEN function('timestampdiff', YEAR, p.dateOfBirth, current_date()) BETWEEN 18 AND 30 THEN '18 - 30' "
+                + "WHEN function('timestampdiff', YEAR, p.dateOfBirth, current_date()) BETWEEN 31 AND 45 THEN '31 - 45' "
+                + "WHEN function('timestampdiff', YEAR, p.dateOfBirth, current_date()) BETWEEN 46 AND 60 THEN '46 - 60' "
+                + "ELSE 'Trên 60' "
+                + "END, "
+                + "p.gender, d.specialtyId.name, COUNT(a.id) "
                 + "FROM Appointments a "
                 + "JOIN a.patientId p "
                 + "JOIN a.doctorId d "
-                + "WHERE 1=1 ";
+                + "WHERE p.dateOfBirth IS NOT NULL ";
 
         if (params != null) {
             if (params.get("fromDate") != null && !params.get("fromDate").isEmpty()) {
@@ -55,8 +64,16 @@ public class StatsRepositoryImpl implements StatsRepository {
             }
         }
 
-        hql += "GROUP BY p.gender, d.specialtyId.name "
-             + "ORDER BY COUNT(a.id) DESC";
+        hql += "GROUP BY "
+                + "CASE "
+                + "WHEN function('timestampdiff', YEAR, p.dateOfBirth, current_date()) < 18 THEN 'Dưới 18' "
+                + "WHEN function('timestampdiff', YEAR, p.dateOfBirth, current_date()) BETWEEN 18 AND 30 THEN '18 - 30' "
+                + "WHEN function('timestampdiff', YEAR, p.dateOfBirth, current_date()) BETWEEN 31 AND 45 THEN '31 - 45' "
+                + "WHEN function('timestampdiff', YEAR, p.dateOfBirth, current_date()) BETWEEN 46 AND 60 THEN '46 - 60' "
+                + "ELSE 'Trên 60' "
+                + "END, "
+                + "p.gender, d.specialtyId.name "
+                + "ORDER BY COUNT(a.id) DESC";
 
         Query<Object[]> q = s.createQuery(hql, Object[].class);
 
@@ -91,7 +108,7 @@ public class StatsRepositoryImpl implements StatsRepository {
         }
 
         hql += "GROUP BY d.specialtyId.name "
-             + "ORDER BY COUNT(a.id) DESC";
+                + "ORDER BY COUNT(a.id) DESC";
 
         Query<Object[]> q = s.createQuery(hql, Object[].class);
 
@@ -127,7 +144,7 @@ public class StatsRepositoryImpl implements StatsRepository {
         }
 
         hql += "GROUP BY m.diagnosis "
-             + "ORDER BY COUNT(m.id) DESC";
+                + "ORDER BY COUNT(m.id) DESC";
 
         Query<Object[]> q = s.createQuery(hql, Object[].class);
 
@@ -161,7 +178,7 @@ public class StatsRepositoryImpl implements StatsRepository {
         }
 
         hql += "GROUP BY p.method "
-             + "ORDER BY SUM(p.amount) DESC";
+                + "ORDER BY SUM(p.amount) DESC";
 
         Query<Object[]> q = s.createQuery(hql, Object[].class);
 
