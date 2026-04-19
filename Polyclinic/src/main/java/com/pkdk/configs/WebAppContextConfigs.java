@@ -4,11 +4,13 @@
  */
 package com.pkdk.configs;
 
+import com.pkdk.formatters.SpecialtyFormatter;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 import org.springframework.context.annotation.Bean;
+import org.springframework.format.FormatterRegistry;
 import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -22,8 +24,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @ComponentScan(
         basePackages = {
             "com.pkdk.controllers",
-            "com.pkdk.repositories",
-            "com.pkdk.services"
+            "com.pkdk.repository",
+            "com.pkdk.service"
         }
 )
 @EnableWebMvc
@@ -38,6 +40,16 @@ public class WebAppContextConfigs implements WebMvcConfigurer {
     @Bean
     public StandardServletMultipartResolver multipartResolver() {
         return new StandardServletMultipartResolver();
+    }
+
+    @Bean
+    public SpecialtyFormatter specialtyFormatter() {
+        return new SpecialtyFormatter();
+    }
+
+    @Override
+    public void addFormatters(FormatterRegistry registry) {
+        registry.addFormatter(this.specialtyFormatter());
     }
 
     @Override

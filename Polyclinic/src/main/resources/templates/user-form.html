@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 
-    <head th:replace="base :: head(${pageTitle}, null)"></head>
+    <head th:replace="base :: head('Thông tin người dùng', null)"></head>
 
     <body>
 
@@ -11,8 +11,8 @@
             <div class="container py-4">
 
                 <div class="page-banner mb-4">
-                    <h2 class="mb-1 fw-bold" th:text="${pageTitle}">Thông tin người dùng</h2>
-                    <p class="mb-0 text-muted" th:text="${pageDescription}">Nhập dữ liệu người dùng</p>
+                    <h2 class="mb-1 fw-bold">Thông tin người dùng</h2>
+                    <p class="mb-0 text-muted">Nhập dữ liệu người dùng</p>
                 </div>
 
                 <div class="card border-0 shadow-sm">

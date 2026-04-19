@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -32,11 +34,15 @@ import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 @ComponentScan(
         basePackages = {
             "com.pkdk.controllers",
-            "com.pkdk.repositories",
-            "com.pkdk.services"
+            "com.pkdk.repository",
+            "com.pkdk.service"
         }
 )
+@PropertySource("classpath:configs.properties")
 public class SpringSecurityConfigs {
+    
+    @Autowired
+    private Environment env;
 
     @Autowired
     private UserDetailsService userDetailsService;
@@ -67,6 +73,7 @@ public class SpringSecurityConfigs {
                 .failureUrl("/login?error=true")
                 .permitAll()
                 )
+                .userDetailsService(userDetailsService)
                 .logout((logout) -> logout
                 .logoutSuccessUrl("/login")
                 .permitAll()
@@ -79,9 +86,9 @@ public class SpringSecurityConfigs {
     public Cloudinary cloudinary() {
         Cloudinary cloudinary
                 = new Cloudinary(ObjectUtils.asMap(
-                        "cloud_name", "dx4i4a03w",
-                        "api_key", "182786111431744",
-                        "api_secret", "XZdGAV7Kc6Fgu8AKSn-5X1miR1U",
+                        "cloud_name", env.getProperty("cloudinary.cloud_name"),
+                        "api_key", env.getProperty("cloudinary.api_key"),
+                        "api_secret", env.getProperty("cloudinary.api_secret"),
                         "secure", true));
         return cloudinary;
     }

@@ -2,16 +2,18 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package com.pkdk.repositories.impl;
+package com.pkdk.repository.impl;
 
 import com.pkdk.pojo.Patients;
-import com.pkdk.repositories.PatientRepository;
+import com.pkdk.repository.PatientRepository;
 import java.util.List;
 import org.hibernate.Session;
+import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+
 /**
  *
  * @author Admin
@@ -26,11 +28,9 @@ public class PatientRepositoryImpl implements PatientRepository {
     @Override
     public Patients getPatientByUserId(int userId) {
         Session s = this.factory.getObject().getCurrentSession();
-
-        List<Patients> patients = s.createQuery(
-                "FROM Patients p WHERE p.userId.id = :uid", Patients.class)
-                .setParameter("uid", userId)
-                .getResultList();
+        Query q = s.createQuery("FROM Patients p WHERE p.userId.id = :uid", Patients.class);
+        q.setParameter("uid", userId);
+        List<Patients> patients = q.getResultList();
 
         return patients.isEmpty() ? null : patients.get(0);
     }
@@ -49,9 +49,15 @@ public class PatientRepositoryImpl implements PatientRepository {
     @Override
     public void deleteByUserId(int userId) {
         Session s = this.factory.getObject().getCurrentSession();
+        Patients p = this.getPatientByUserId(userId);
+        if (p != null) {
+            s.remove(p);
+        }
+    }
 
-        s.createQuery("DELETE FROM Patients p WHERE p.userId.id = :uid")
-                .setParameter("uid", userId)
-                .executeUpdate();
+    @Override
+    public Patients getPatientById(int id) {
+        Session s = this.factory.getObject().getCurrentSession();
+        return s.get(Patients.class, id);
     }
 }

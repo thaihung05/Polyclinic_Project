@@ -2,11 +2,11 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package com.pkdk.services.impl;
+package com.pkdk.service.impl;
 
 import com.pkdk.pojo.Patients;
-import com.pkdk.repositories.PatientRepository;
-import com.pkdk.services.PatientService;
+import com.pkdk.repository.PatientRepository;
+import com.pkdk.service.PatientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
