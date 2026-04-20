@@ -67,7 +67,6 @@ public class Users implements Serializable {
     @Size(min = 1, max = 255)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Column(name = "password")
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
     @Basic(optional = false)
     @NotNull
