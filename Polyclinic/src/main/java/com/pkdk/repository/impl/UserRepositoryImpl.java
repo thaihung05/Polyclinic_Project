@@ -6,9 +6,6 @@ package com.pkdk.repository.impl;
 
 import com.pkdk.pojo.Users;
 import com.pkdk.repository.UserRepository;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Root;
 import java.util.List;
 import java.util.Map;
 import org.hibernate.Session;
@@ -17,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +32,9 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Autowired
     private LocalSessionFactoryBean factory;
+
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
 
     @Override
     public List<Users> getUsers(Map<String, String> params) {
@@ -84,6 +85,19 @@ public class UserRepositoryImpl implements UserRepository {
         if (u != null) {
             s.remove(u);
         }
+    }
+    
+    @Override
+    public Users addUser(Users u){
+        Session s = this.factory.getObject().getCurrentSession();
+        s.persist(u);
+        return u;
+    }
+
+    @Override
+    public boolean authenticate(String username, String password) {
+        Users u = this.getUserByUsername(username);
+        return this.passwordEncoder.matches(password, u.getPassword());
     }
 
 }

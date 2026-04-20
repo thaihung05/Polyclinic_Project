@@ -4,6 +4,7 @@
  */
 package com.pkdk.pojo;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Basic;
@@ -41,6 +42,13 @@ import org.springframework.web.multipart.MultipartFile;
     @NamedQuery(name = "Users.findByIsActive", query = "SELECT u FROM Users u WHERE u.isActive = :isActive"),
     @NamedQuery(name = "Users.findByPhone", query = "SELECT u FROM Users u WHERE u.phone = :phone"),
     @NamedQuery(name = "Users.findByAvatar", query = "SELECT u FROM Users u WHERE u.avatar = :avatar")})
+
+@JsonIgnoreProperties(value = {
+    "patients",
+    "doctors",
+    "notificationsCollection",
+    "file"
+})
 public class Users implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -59,6 +67,7 @@ public class Users implements Serializable {
     @Size(min = 1, max = 255)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Column(name = "password")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
     @Basic(optional = false)
     @NotNull
@@ -92,7 +101,7 @@ public class Users implements Serializable {
     @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "userId")
     private Collection<Notifications> notificationsCollection;
-    
+
     @Transient
     private MultipartFile file;
 
@@ -239,5 +248,5 @@ public class Users implements Serializable {
     public void setFile(MultipartFile file) {
         this.file = file;
     }
-    
+
 }
