@@ -4,6 +4,7 @@
  */
 package com.pkdk.pojo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -45,11 +46,13 @@ public class DoctorSchedules implements Serializable {
     @NotNull
     @Column(name = "start_time")
     @Temporal(TemporalType.TIMESTAMP)
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="Asia/Ho_Chi_Minh")
     private Date startTime;
     @Basic(optional = false)
     @NotNull
     @Column(name = "end_time")
     @Temporal(TemporalType.TIMESTAMP)
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="Asia/Ho_Chi_Minh")
     private Date endTime;
     @Basic(optional = false)
     @NotNull
