@@ -8,6 +8,7 @@ import com.pkdk.pojo.Users;
 import java.util.List;
 import java.util.Map;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  *
@@ -18,4 +19,7 @@ public interface UserService extends UserDetailsService {
     Users getUserById(int id);
     void deleteUser(int id);
     void addOrUpdate(Users u, String rawPassword, Integer specialtyId);
+    Users addUser(Map<String, String> info, MultipartFile avatar);
+    Users getUserByUserName(String username);
+    boolean authenticate(String username, String password);
 }
