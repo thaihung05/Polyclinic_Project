@@ -28,6 +28,7 @@ import java.math.BigDecimal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  *
@@ -160,6 +161,43 @@ public class UserServiceImpl implements UserService {
                 u.getPassword(),
                 authorities
         );
+    }
+
+    @Override
+    public Users getUserByUserName(String username) {
+        return this.userRepo.getUserByUsername(username);
+    }
+
+    @Override
+    public Users addUser(Map<String, String> info, MultipartFile avatar) {
+        Users u = new Users();
+        u.setName(info.get("name"));
+        u.setIsActive(true);
+        u.setPhone(info.get("phone"));
+        u.setUsername(info.get("username"));
+        u.setRole("ROLE_PATIENT");
+        u.setPassword(this.passwordEncoder.encode(info.get("password")));
+        if (avatar != null && !avatar.isEmpty()) {
+            try {
+                Map res = cloudinary.uploader().upload(
+                        avatar.getBytes(),
+                        ObjectUtils.asMap("resource_type", "auto")
+                );
+                u.setAvatar(res.get("secure_url").toString());
+            } catch (IOException ex) {
+                throw new RuntimeException("Upload avatar failed!");
+            }
+        }
+        else{
+            u.setAvatar("https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg");
+        }
+
+        return this.userRepo.addUser(u);
+    }
+
+    @Override
+    public boolean authenticate(String username, String password) {
+        return this.userRepo.authenticate(username, password);
     }
 
 }
