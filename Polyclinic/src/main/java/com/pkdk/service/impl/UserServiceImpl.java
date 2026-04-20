@@ -25,6 +25,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import com.pkdk.service.SpecialtyService;
 import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -187,12 +190,13 @@ public class UserServiceImpl implements UserService {
             } catch (IOException ex) {
                 throw new RuntimeException("Upload avatar failed!");
             }
-        }
-        else{
+        } else {
             u.setAvatar("https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg");
         }
 
-        return this.userRepo.addUser(u);
+        this.userRepo.addUser(u);
+        this.createNewPatient(u, info);
+        return u;
     }
 
     @Override
@@ -200,4 +204,112 @@ public class UserServiceImpl implements UserService {
         return this.userRepo.authenticate(username, password);
     }
 
+    @Override
+    public Users updateProfile(String username, Map<String, String> info, MultipartFile avatar) {
+        Users u = this.userRepo.getUserByUsername(username);
+        if (u == null) {
+            throw new UsernameNotFoundException("Người dùng không tồn tại");
+        }
+
+        String name = info.get("name");
+        String phone = info.get("phone");
+        if (name != null && !name.isEmpty()) {
+            u.setName(name);
+        }
+        if (phone != null && !phone.isEmpty()) {
+            u.setPhone(phone);
+        }
+        if (avatar != null && !avatar.isEmpty()) {
+            try {
+                Map res = cloudinary.uploader().upload(
+                        avatar.getBytes(),
+                        ObjectUtils.asMap("resource_type", "auto")
+                );
+                u.setAvatar(res.get("secure_url").toString());
+            } catch (IOException ex) {
+                throw new RuntimeException("Upload avatar failed!");
+            }
+        }
+
+        this.userRepo.updateUser(u);
+
+        if ("ROLE_PATIENT".equals(u.getRole())) {
+            Patients p = this.patientService.getPatientByUserId(u.getId());
+            if (p == null) {
+                p = new Patients();
+                p.setUserId(u);
+            }
+
+            String dateOfBirthStr = info.get("dateOfBirth");
+            if (dateOfBirthStr != null && !dateOfBirthStr.isEmpty()) {
+                try {
+                    SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+                    p.setDateOfBirth(sdf.parse(dateOfBirthStr));
+                } catch (ParseException e) {
+                    throw new RuntimeException("Sai định dạng ngày sinh (dd-MM-yyyy)");
+                }
+            }
+
+            String gender = info.get("gender");
+            if (gender != null && !gender.isEmpty()) {
+                p.setGender(gender);
+            }
+
+            String address = info.get("address");
+            if (address != null) {
+                p.setAddress(address);
+            }
+
+            this.patientService.addOrUpdate(p);
+        }
+
+        return u;
+
+    }
+
+    @Override
+    public boolean changePassword(String username, String oldPassword, String newPassword) {
+        Users u = this.userRepo.getUserByUsername(username);
+        if (u == null) {
+            return false;
+        }
+
+        // Kiểm tra mật khẩu cũ
+        if (!this.passwordEncoder.matches(oldPassword, u.getPassword())) {
+            return false;
+        }
+
+        u.setPassword(this.passwordEncoder.encode(newPassword));
+        this.userRepo.updateUser(u);
+        return true;
+    }
+    
+    
+    private void createNewPatient(Users u, Map<String, String> info){
+        Patients p = new Patients();
+        p.setUserId(u);
+
+        String dateOfBirthStr = info.get("dateOfBirth");
+        if (dateOfBirthStr != null && !dateOfBirthStr.isEmpty()) {
+            try {
+                SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+                p.setDateOfBirth(sdf.parse(dateOfBirthStr.trim()));
+            } catch (ParseException e) {
+                throw new RuntimeException("Sai định dạng ngày sinh (dd-MM-yyyy)");
+            }
+        }
+
+        String gender = info.get("gender");
+        if (gender != null && !gender.isEmpty()) {
+            p.setGender(gender);
+        }
+
+        String address = info.get("address");
+        if (address != null && !address.isEmpty()) {
+            p.setAddress(address);
+        }
+
+        this.patientService.addOrUpdate(p);
+    }
+    
 }
