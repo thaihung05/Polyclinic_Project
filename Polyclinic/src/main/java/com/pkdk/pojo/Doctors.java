@@ -4,6 +4,7 @@
  */
 package com.pkdk.pojo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Basic;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -59,8 +60,10 @@ public class Doctors implements Serializable {
     private boolean availableOnline;
     @Column(name = "rating")
     private BigDecimal rating;
+    @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "doctorId")
     private Collection<Appointments> appointmentsCollection;
+    @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "doctorId")
     private Collection<DoctorSchedules> doctorSchedulesCollection;
     @JoinColumn(name = "specialty_id", referencedColumnName = "id")

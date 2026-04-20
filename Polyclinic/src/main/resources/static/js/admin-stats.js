@@ -11,11 +11,6 @@ function toNumber(value) {
 
 document.addEventListener('DOMContentLoaded', function () {
     const stats = window.statsData || {};
-
-    // =========================
-    // 1. Patient Stats
-    // [0] ageGroup, [1] gender, [2] specialty, [3] count
-    // =========================
     const patientStats = stats.patientStats || [];
     const patientLabels = patientStats.map(item => `${item[0]} | ${item[1]} | ${item[2]}`);
     const patientData = patientStats.map(item => toNumber(item[3]));
@@ -49,10 +44,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // =========================
-    // 2. Service Usage Stats
-    // [0] serviceName, [1] count
-    // =========================
     const serviceUsageStats = stats.serviceUsageStats || [];
     const serviceLabels = serviceUsageStats.map(item => item[0]);
     const serviceData = serviceUsageStats.map(item => toNumber(item[1]));
@@ -73,10 +64,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // =========================
-    // 3. Common Disease Stats
-    // [0] diagnosis, [1] count
-    // =========================
     const commonDiseaseStats = stats.commonDiseaseStats || [];
     const diseaseLabels = commonDiseaseStats.map(item => item[0]);
     const diseaseData = commonDiseaseStats.map(item => toNumber(item[1]));
@@ -97,10 +84,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // =========================
-    // 4. Revenue Summary Stats
-    // [0] method, [1] count, [2] totalAmount
-    // =========================
     const revenueSummaryStats = stats.revenueSummaryStats || [];
     const revenueSummaryLabels = revenueSummaryStats.map(item => item[0]);
     const revenueSummaryData = revenueSummaryStats.map(item => toNumber(item[2]));
@@ -130,11 +113,6 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
     });
-
-    // =========================
-    // 5. Revenue Detail Stats
-    // [0] paymentId, [1] date, [2] patient, [3] doctor, [4] specialty, [5] method, [6] amount
-    // =========================
     const revenueDetailStats = stats.revenueDetailStats || [];
     const revenueDetailLabels = revenueDetailStats.map(item => `Pay-${item[0]}`);
     const revenueDetailData = revenueDetailStats.map(item => toNumber(item[6]));

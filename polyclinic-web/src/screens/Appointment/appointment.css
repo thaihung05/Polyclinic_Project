@@ -1,0 +1,93 @@
+.appt-main {
+    background: #f6fbff;
+    min-height: 80vh;
+}
+
+.booking-card,
+.summary-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.specialty-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 16px;
+}
+
+.specialty-tile,
+.doctor-card {
+    border: 1px solid #dbe8f3;
+    border-radius: 14px;
+    padding: 16px;
+    cursor: pointer;
+    transition: 0.2s;
+    background: #fff;
+}
+
+.specialty-tile:hover,
+.doctor-card:hover,
+.specialty-tile.selected,
+.doctor-card.selected {
+    border-color: #1a8ccc;
+    box-shadow: 0 8px 24px rgba(26, 140, 204, 0.15);
+}
+
+.sp-icon {
+    font-size: 28px;
+    color: #1a8ccc;
+    margin-bottom: 10px;
+}
+
+.sp-name,
+.dc-name {
+    font-weight: 700;
+    color: #1a2a3a;
+}
+
+.sp-desc,
+.dc-title {
+    font-size: 14px;
+    color: #6b7280;
+}
+
+.doctor-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.doctor-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.dc-avatar img {
+    width: 64px;
+    height: 64px;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.sc-header {
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: #1a2a3a;
+}
+
+.sc-row {
+    margin-bottom: 14px;
+}
+
+.sc-label {
+    font-size: 14px;
+    color: #6b7280;
+}
+
+.sc-value {
+    font-weight: 700;
+    color: #1a2a3a;
+}

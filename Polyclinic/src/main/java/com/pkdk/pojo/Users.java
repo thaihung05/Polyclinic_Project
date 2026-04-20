@@ -5,6 +5,7 @@
 package com.pkdk.pojo;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Basic;
 import jakarta.persistence.CascadeType;
@@ -64,6 +65,7 @@ public class Users implements Serializable {
     @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 255)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Column(name = "password")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
@@ -90,10 +92,13 @@ public class Users implements Serializable {
     @Size(max = 255)
     @Column(name = "avatar")
     private String avatar;
+    @JsonIgnore
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "userId")
     private Patients patients;
+    @JsonIgnore
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "userId")
     private Doctors doctors;
+    @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "userId")
     private Collection<Notifications> notificationsCollection;
 
