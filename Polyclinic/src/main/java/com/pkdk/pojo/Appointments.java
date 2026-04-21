@@ -4,6 +4,9 @@
  */
 package com.pkdk.pojo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Basic;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -53,6 +56,7 @@ public class Appointments implements Serializable {
     @NotNull
     @Column(name = "scheduled_at")
     @Temporal(TemporalType.TIMESTAMP)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Ho_Chi_Minh")
     private Date scheduledAt;
     @Basic(optional = false)
     @NotNull
@@ -75,18 +79,24 @@ public class Appointments implements Serializable {
     @NotNull
     @Column(name = "ngay_tao")
     @Temporal(TemporalType.TIMESTAMP)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Ho_Chi_Minh")
     private Date ngayTao;
+    @JsonIgnoreProperties({"specialtyId", "userId", "doctorSchedulesCollection", "appointmentsCollection"})
     @JoinColumn(name = "doctor_id", referencedColumnName = "id")
     @ManyToOne(optional = false)
     private Doctors doctorId;
+    @JsonIgnoreProperties({"appointmentsCollection", "userId"})
     @JoinColumn(name = "patient_id", referencedColumnName = "id")
     @ManyToOne(optional = false)
     private Patients patientId;
+    @JsonIgnoreProperties({"appointmentsCollection"})
     @JoinColumn(name = "payment_id", referencedColumnName = "id")
     @ManyToOne
     private Payments paymentId;
+    @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "appointmentId")
     private Collection<MedicalRecords> medicalRecordsCollection;
+    @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "appointmentId")
     private Collection<LabResults> labResultsCollection;
 

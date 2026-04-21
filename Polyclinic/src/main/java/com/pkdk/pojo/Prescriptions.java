@@ -4,10 +4,13 @@
  */
 package com.pkdk.pojo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Basic;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -48,11 +51,13 @@ public class Prescriptions implements Serializable {
     @NotNull
     @Column(name = "ngay_tao")
     @Temporal(TemporalType.TIMESTAMP)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Ho_Chi_Minh")
     private Date ngayTao;
     @Size(max = 250)
     @Column(name = "note")
     private String note;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "prescriptionId")
+    @JsonIgnoreProperties({"prescriptionId"})
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "prescriptionId", fetch = FetchType.EAGER)
     private Collection<PrescriptionItems> prescriptionItemsCollection;
     @JoinColumn(name = "medical_record_id", referencedColumnName = "id")
     @ManyToOne(optional = false)

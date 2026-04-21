@@ -25,7 +25,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
         basePackages = {
             "com.pkdk.controllers",
             "com.pkdk.repository",
-            "com.pkdk.service"
+            "com.pkdk.service",
+            "com.pkdk.configs"
         }
 )
 @EnableWebMvc
