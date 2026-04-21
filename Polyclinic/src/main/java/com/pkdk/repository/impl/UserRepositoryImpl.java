@@ -100,4 +100,10 @@ public class UserRepositoryImpl implements UserRepository {
         return this.passwordEncoder.matches(password, u.getPassword());
     }
 
+    @Override
+    public Users updateUser(Users u) {
+        Session s = this.factory.getObject().getCurrentSession();
+        return s.merge(u);
+    }
+
 }
