@@ -4,6 +4,8 @@
  */
 package com.pkdk.pojo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Basic;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -60,6 +62,7 @@ public class MedicalRecords implements Serializable {
     private String treatmentPlan;
     @Column(name = "follow_up_date")
     @Temporal(TemporalType.TIMESTAMP)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Ho_Chi_Minh")
     private Date followUpDate;
     @Size(max = 200)
     @Column(name = "notes")
@@ -67,6 +70,7 @@ public class MedicalRecords implements Serializable {
     @JoinColumn(name = "appointment_id", referencedColumnName = "id")
     @ManyToOne(optional = false)
     private Appointments appointmentId;
+    @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "medicalRecordId")
     private Collection<Prescriptions> prescriptionsCollection;
 
