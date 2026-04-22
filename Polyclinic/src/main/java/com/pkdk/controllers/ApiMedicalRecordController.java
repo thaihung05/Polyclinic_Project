@@ -45,7 +45,7 @@ public class ApiMedicalRecordController {
         return new ResponseEntity<>(m, HttpStatus.OK);
     }
     
-    @PostMapping("/api/appointments/{appointmentId}/medical-record")
+    @PostMapping("/api/secure/appointments/{appointmentId}/medical-record")
     public ResponseEntity<?> createRecord(@PathVariable("appointmentId") int appointmentId
             ,@RequestBody MedicalRecords record){
         
@@ -59,14 +59,14 @@ public class ApiMedicalRecordController {
         record.setId(null);
         record.setAppointmentId(a);
         this.medicalRecordService.save(record);
-        return new ResponseEntity<>(m, HttpStatus.CREATED);
+        return new ResponseEntity<>(record, HttpStatus.CREATED);
     }
     
-    @PutMapping("/api/medical-record/{id}")
+    @PutMapping("/api/secure/medical-records/{id}")
     public ResponseEntity<?> updateRecord(@PathVariable("id")int id,
             @RequestBody MedicalRecords record){
         
-        MedicalRecords m = this.medicalRecordService.getByAppointmentId(id);
+        MedicalRecords m = this.medicalRecordService.getById(id);
         if (m==null)
             return new ResponseEntity<>("Không tìm thấy hồ sơ bệnh án",HttpStatus.BAD_REQUEST);
         

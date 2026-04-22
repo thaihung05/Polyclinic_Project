@@ -30,5 +30,30 @@ public class MedicineServiceImpl implements MedicineService{
     public Medicines getById(int id) {
         return this.medicineRepo.getById(id);
     }
+
+    @Override
+    public void save(Medicines medicine) {
+        this.medicineRepo.save(medicine);
+    }
+
+    @Override
+    public void delete(int id) {
+        this.medicineRepo.delete(id);
+    }
+
+    @Override
+    public List<Medicines> getLowStock(int threshold) {
+        return this.medicineRepo.getLowStock(threshold);
+    }
+
+    @Override
+    public List<Medicines> getNearExiry(int days) {
+        return this.medicineRepo.getNearExiry(days);
+    }
+
+    @Override
+    public void deductStock(int medicineId, int quantity) {
+        this.medicineRepo.deductStock(medicineId, quantity);
+    }
     
 }

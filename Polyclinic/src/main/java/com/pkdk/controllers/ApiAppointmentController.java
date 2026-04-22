@@ -33,7 +33,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @CrossOrigin
-@RequestMapping("api/appointments")
+@RequestMapping("/api/secure/appointments")
 public class ApiAppointmentController {
 
     @Autowired
@@ -48,7 +48,7 @@ public class ApiAppointmentController {
     @Autowired
     private GoogleMeetingService googleMeetingService;
 
-    @GetMapping
+    @GetMapping("/api/appointments")
     public ResponseEntity<?> getAppointments(@RequestParam(name = "doctorId", required = false) Integer doctorId,
             @RequestParam(name = "patientId", required = false) Integer patientId) {
         if (doctorId != null) {

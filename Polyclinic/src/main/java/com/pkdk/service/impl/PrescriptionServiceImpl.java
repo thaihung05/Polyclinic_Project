@@ -4,8 +4,10 @@
  */
 package com.pkdk.service.impl;
 
+import com.pkdk.pojo.PrescriptionItems;
 import com.pkdk.pojo.Prescriptions;
 import com.pkdk.repository.PrescriptionRepository;
+import com.pkdk.service.MedicineService;
 import com.pkdk.service.PrescriptionService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +22,9 @@ public class PrescriptionServiceImpl implements PrescriptionService{
     
     @Autowired
     private PrescriptionRepository prescriptionRepo;
+    
+    @Autowired
+    private MedicineService medicineService;
 
     @Override
     public List<Prescriptions> getByMedicalRecordId(int medicalRecordId) {
@@ -34,6 +39,9 @@ public class PrescriptionServiceImpl implements PrescriptionService{
     @Override
     public void save(Prescriptions prescription) {
         this.prescriptionRepo.save(prescription);
+        for (PrescriptionItems item : prescription.getPrescriptionItemsCollection()){
+            this.medicineService.deductStock(item.getMedicineId().getId(), item.getQuantity());
+        };
     }
     
 }
