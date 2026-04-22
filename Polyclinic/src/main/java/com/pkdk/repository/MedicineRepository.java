@@ -14,4 +14,10 @@ import java.util.List;
 public interface MedicineRepository {
     List<Medicines> getAll();
     Medicines getById(int id);
+    void save(Medicines medicine);
+    void delete(int id);
+    List<Medicines> getLowStock(int threshold);
+    List<Medicines> getNearExiry(int days);
+    void deductStock(int medicineId, int quantity);
+    
 }

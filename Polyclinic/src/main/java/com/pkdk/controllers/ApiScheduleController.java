@@ -28,7 +28,6 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @CrossOrigin
-@RequestMapping("/api/doctors/{doctorId}/schedules")
 public class ApiScheduleController {
     
     @Autowired
@@ -37,7 +36,7 @@ public class ApiScheduleController {
     @Autowired
     private DoctorService doctorService;
     
-    @GetMapping
+    @GetMapping("/api/doctors/{doctorId}/schedules")
     public ResponseEntity<?> getSchedules(@PathVariable("doctorId") int doctorId){
         Doctors d = this.doctorService.getDoctorById(doctorId);
         if (d == null)
@@ -47,7 +46,7 @@ public class ApiScheduleController {
         return new ResponseEntity<>(s,HttpStatus.OK);
     }
     
-    @PostMapping
+    @PostMapping("/api/secure/doctors/{doctorId}/schedules")
     public ResponseEntity<?> addSchedule(@PathVariable("doctorId") int doctorId, @RequestBody DoctorSchedules s){
         Doctors d = this.doctorService.getDoctorById(doctorId);
         if (d == null)
@@ -58,7 +57,7 @@ public class ApiScheduleController {
         return new ResponseEntity<>(s, HttpStatus.CREATED);
     }
     
-    @PutMapping("/{scheduleId}")
+    @PutMapping("/api/secure/doctors/{doctorId}/schedules/{scheduleId}")
     public ResponseEntity<?> updateSchedules(@PathVariable("doctorId") int doctorId,
             @PathVariable("scheduleId") int scheduleId, @RequestBody DoctorSchedules s){
         DoctorSchedules schedules = this.scheduleService.getById(scheduleId);
@@ -72,7 +71,7 @@ public class ApiScheduleController {
         return new ResponseEntity<>(schedules, HttpStatus.OK);
     }
     
-    @DeleteMapping("/{scheduleId}")
+    @DeleteMapping("/api/secure/doctors/{doctorId}/schedules/{scheduleId}")
     public ResponseEntity<?> deleteSchedules(@PathVariable("doctorId") int doctorId,
             @PathVariable("scheduleId") int scheduleId){
         DoctorSchedules schedules = this.scheduleService.getById(scheduleId);

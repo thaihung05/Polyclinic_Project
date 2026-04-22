@@ -74,11 +74,11 @@
 
                                         <!-- Status -->
                                         <td>
-                                            <span th:if="${s.isActive}" class="badge bg-success">
+                                            <span th:if="${s.getIsActive}" class="badge bg-success">
                                                 Hoạt động
                                             </span>
 
-                                            <span th:unless="${s.isActive}" class="badge bg-secondary">
+                                            <span th:unless="${s.getIsActive}" class="badge bg-secondary">
                                                 Tạm ẩn
                                             </span>
                                         </td>

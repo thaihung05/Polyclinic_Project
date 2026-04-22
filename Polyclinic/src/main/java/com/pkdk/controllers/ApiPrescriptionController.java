@@ -52,7 +52,7 @@ public class ApiPrescriptionController {
         return new ResponseEntity<>(p, HttpStatus.OK);
     }
     
-    @PostMapping("/api/medical-records/{recordId}/prescriptions")
+    @PostMapping("/api/secure/medical-records/{recordId}/prescriptions")
     public ResponseEntity<?> createPrescription(@PathVariable("recordId") int recordId,
             @RequestBody Prescriptions prescription ){
         

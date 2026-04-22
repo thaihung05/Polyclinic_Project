@@ -89,7 +89,6 @@
             <version>1.46.0</version>
             <scope>compile</scope>
         </dependency>
-        
         <dependency>
             <groupId>com.google.oauth-client</groupId>
             <artifactId>google-oauth-client-jetty</artifactId>

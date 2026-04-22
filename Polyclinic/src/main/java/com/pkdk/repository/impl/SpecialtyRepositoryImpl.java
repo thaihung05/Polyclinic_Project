@@ -28,7 +28,7 @@ public class SpecialtyRepositoryImpl implements SpecialtyRepository {
     @Override
     public List<Specialties> getSpecs() {
         Session s = this.factory.getObject().getCurrentSession();
-        Query q = s.createQuery("FROM Specialties", Specialties.class);
+        Query q = s.createQuery("SELECT DISTINCT sp FROM Specialties sp LEFT JOIN FETCH sp.doctorsCollection", Specialties.class);
         return q.getResultList();
     }
 

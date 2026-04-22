@@ -6,6 +6,8 @@ package com.pkdk.repository.impl;
 
 import com.pkdk.pojo.Medicines;
 import com.pkdk.repository.MedicineRepository;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
@@ -28,7 +30,7 @@ public class MedicineRepositoryImpl implements MedicineRepository{
     @Override
     public List<Medicines> getAll() {
         Session s = this.factory.getObject().getCurrentSession();
-        Query q = s.createQuery("FROM Medicines m WHERE m.isActive == True",Medicines.class);
+        Query q = s.createQuery("FROM Medicines m WHERE m.isActive = True",Medicines.class);
         return q.getResultList();
     }
 
@@ -36,6 +38,57 @@ public class MedicineRepositoryImpl implements MedicineRepository{
     public Medicines getById(int id) {
         Session s = this.factory.getObject().getCurrentSession();
         return s.get(Medicines.class, id);
+    }
+
+    @Override
+    public void save(Medicines medicine) {
+        Session s = this.factory.getObject().getCurrentSession();
+        if (medicine.getId()==null)
+            s.persist(medicine);
+        else
+            s.merge(medicine);
+    }
+
+    @Override
+    public void delete(int id) {
+        Session s = this.factory.getObject().getCurrentSession();
+        Medicines m = s.get(Medicines.class, id);
+        if (m!=null){
+            m.setIsActive(false);
+            s.merge(m);
+        }
+    }
+
+    @Override
+    public List<Medicines> getLowStock(int threshold) {
+        Session s = this.factory.getObject().getCurrentSession();
+        Query q = s.createQuery("FROM Medicines m WHERE m.isActive=true AND m.stockQuantity <= :threshold", Medicines.class)
+                .setParameter("threshold", threshold);
+        return q.getResultList();
+    }
+
+    @Override
+    public List<Medicines> getNearExiry(int days) {
+        Session s = this.factory.getObject().getCurrentSession();
+        Calendar cal = Calendar.getInstance();
+        Date now = cal.getTime();
+        cal.add(Calendar.DAY_OF_YEAR, days);
+        Date dl = cal.getTime();
+        Query q = s.createQuery("FROM Medicines m WHERE m.isActive=true AND m.expiryDate is not null AND m.expiryDate BETWEEN :now and :dl",Medicines.class)
+                .setParameter("now", now)
+                .setParameter("dl", dl);
+        return q.getResultList();
+    }
+
+    @Override
+    public void deductStock(int medicineId, int quantity) {
+        Session s = this.factory.getObject().getCurrentSession();
+        Medicines m = s.get(Medicines.class, medicineId);
+        if (m!=null){
+            int newQuatity = m.getStockQuantity() - quantity;
+            m.setStockQuantity(Math.max(newQuatity, 0));
+            s.merge(m);
+        }
     }
     
 }
