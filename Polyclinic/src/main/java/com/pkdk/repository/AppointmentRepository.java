@@ -16,4 +16,5 @@ public interface AppointmentRepository {
     List<Appointments> getPatientId(int patientId);
     Appointments getById(int id);
     void save(Appointments appointment);
+    void delete(int id);
 }

@@ -179,6 +179,7 @@ public class UserServiceImpl implements UserService {
         u.setPhone(info.get("phone"));
         u.setUsername(info.get("username"));
         u.setRole("ROLE_PATIENT");
+        u.setEmail(info.get("email"));
         u.setPassword(this.passwordEncoder.encode(info.get("password")));
         if (avatar != null && !avatar.isEmpty()) {
             try {

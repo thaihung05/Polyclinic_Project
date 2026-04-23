@@ -12,6 +12,7 @@ import com.pkdk.pojo.Patients;
  */
 public interface PatientService {
     Patients getPatientByUserId(int userId);
+    Patients getPatientById(int id);
     void addOrUpdate(Patients p);
     void deleteByUserId(int userId);
 }

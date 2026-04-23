@@ -26,7 +26,7 @@ public class AppointmentRepositoryImpl implements AppointmentRepository{
     private LocalSessionFactoryBean factory;
 
     @Override
-    public List<Appointments> getDoctorId(int doctorId) {
+    public List<Appointments> getByDoctorId(int doctorId) {
         Session s = this.factory.getObject().getCurrentSession();
         Query q = s.createQuery("FROM Appointments a Where a.doctorId.id = :doctorId", Appointments.class)
                 .setParameter("doctorId", doctorId);
@@ -34,7 +34,7 @@ public class AppointmentRepositoryImpl implements AppointmentRepository{
     }
 
     @Override
-    public List<Appointments> getPatientId(int patientId) {
+    public List<Appointments> getByPatientId(int patientId) {
         Session s = this.factory.getObject().getCurrentSession();
         Query q = s.createQuery("From Appointments a Where a.patientId.id = :patientId", Appointments.class)
                 .setParameter("patientId", patientId);
@@ -54,6 +54,15 @@ public class AppointmentRepositoryImpl implements AppointmentRepository{
             s.persist(appointment);
         else
             s.merge(appointment);
+    }
+  
+    @Override
+    public void delete(int id) {
+        Session s = this.factory.getObject().getCurrentSession();
+        Appointments appointment = s.get(Appointments.class, id);
+        if (appointment != null) {
+            s.remove(appointment);
+        }
     }
     
 }

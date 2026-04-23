@@ -37,7 +37,7 @@ public class ApiUserController {
     @Autowired
     private UserService userService;
 
-    @PostMapping("/users")
+    @PostMapping("/register")
     public ResponseEntity<?> create(@RequestParam Map<String, String> info,
             @RequestParam(value = "avatar", required = false) MultipartFile avatar) {
 
@@ -45,6 +45,7 @@ public class ApiUserController {
         String password = info.get("password");
         String name = info.get("name");
         String phone = info.get("phone");
+        String email = info.get("email");
         String confirmPassword = info.get("confirmPassword");
 
         String dateOfBirth = info.get("dateOfBirth");
@@ -55,6 +56,7 @@ public class ApiUserController {
         password = password != null ? password.trim() : null;
         name = name != null ? name.trim() : null;
         phone = phone != null ? phone.trim() : null;
+        email = email != null ? email.trim() : null;
         confirmPassword = confirmPassword != null ? confirmPassword.trim() : null;
         dateOfBirth = dateOfBirth != null ? dateOfBirth.trim() : null;
         gender = gender != null ? gender.trim() : null;
@@ -93,6 +95,13 @@ public class ApiUserController {
             return new ResponseEntity<>("Số điện thoại phải có 10 số", HttpStatus.BAD_REQUEST);
         }
 
+        if (email == null || email.isEmpty()) {
+            return new ResponseEntity<>("Email không được để trống", HttpStatus.BAD_REQUEST);
+        }
+        if (!email.matches("^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,}$")) {
+            return new ResponseEntity<>("Email không hợp lệ", HttpStatus.BAD_REQUEST);
+        }
+
         if (dateOfBirth != null && !dateOfBirth.isEmpty()) {
             try {
                 SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
@@ -120,6 +129,7 @@ public class ApiUserController {
         info.put("password", password);
         info.put("name", name);
         info.put("phone", phone);
+        info.put("email", email);
         info.put("dateOfBirth", dateOfBirth);
         info.put("gender", gender);
         info.put("address", address);
