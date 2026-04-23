@@ -38,7 +38,7 @@ public class ApiUserController {
     private UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> create(@RequestParam Map<String, String> info,
+    public ResponseEntity<?> register(@RequestParam Map<String, String> info,
             @RequestParam(value = "avatar", required = false) MultipartFile avatar) {
 
         String username = info.get("username");
@@ -111,7 +111,7 @@ public class ApiUserController {
                     return new ResponseEntity<>("Ngày sinh không hợp lệ", HttpStatus.BAD_REQUEST);
                 }
             } catch (ParseException e) {
-                return new ResponseEntity<>("Định dạng ngày sinh không hợp lệ (dd-MM-yyyy)", HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>("Lỗi: "+ e.getMessage(), HttpStatus.BAD_REQUEST);
             }
         }
 
@@ -177,23 +177,23 @@ public class ApiUserController {
 
         if (phone != null && !phone.trim().isEmpty()) {
             if (!phone.matches("^\\d{10}$")) {
-                return ResponseEntity.badRequest().body("Số điện thoại phải có 10 số");
+                return new ResponseEntity<>("Số điện thoại phải có 10 số", HttpStatus.BAD_REQUEST);
             }
             info.put("phone", phone);
         }
 
         if (name != null) {
             if (name.isEmpty()) {
-                return ResponseEntity.badRequest().body("Họ và tên không được để trống");
+                return new ResponseEntity<>("Họ và tên không được để trống", HttpStatus.BAD_REQUEST);
             }
             info.put("name", name);
         }
 
         try {
             Users updated = this.userService.updateProfile(principal.getName(), info, avatar);
-            return ResponseEntity.ok(updated);
+            return new ResponseEntity<>(updated, HttpStatus.OK);
         } catch (RuntimeException ex) {
-            return ResponseEntity.badRequest().body(ex.getMessage());
+            return new ResponseEntity<>("Lỗi: " + ex.getMessage(), HttpStatus.BAD_REQUEST);
         }
 
     }
@@ -207,35 +207,38 @@ public class ApiUserController {
         String newPassword = body.get("newPassword");
         String confirmNewPassword = body.get("confirmNewPassword");
 
-        // Validate
-        if (oldPassword == null || oldPassword.trim().isEmpty()) {
-            return ResponseEntity.badRequest().body("Mật khẩu cũ không được để trống");
+        oldPassword=oldPassword!=null?oldPassword.trim():null;
+        newPassword=newPassword!=null?newPassword.trim():null;
+        confirmNewPassword=confirmNewPassword!=null?confirmNewPassword.trim():null;
+        
+        if (oldPassword == null || oldPassword.isEmpty()) {
+            return new ResponseEntity<>("Mật khẩu cũ không được để trống", HttpStatus.BAD_REQUEST);
         }
-        if (newPassword == null || newPassword.trim().isEmpty()) {
-            return ResponseEntity.badRequest().body("Mật khẩu mới không được để trống");
+        if (newPassword == null || newPassword.isEmpty()) {
+            return new ResponseEntity<>("Mật khẩu mới không được để trống", HttpStatus.BAD_REQUEST);
         }
-        if (newPassword.trim().length() < 6) {
-            return ResponseEntity.badRequest().body("Mật khẩu mới phải có ít nhất 6 ký tự");
+        if (newPassword.length() < 6) {
+            return new ResponseEntity<>("Mật khẩu mới phải có ít nhất 6 ký tự", HttpStatus.BAD_REQUEST);
         }
-        if (newPassword.trim().length() > 20) {
-            return ResponseEntity.badRequest().body("Mật khẩu mới không dài quá 20 ký tự");
+        if (newPassword.length() > 20) {
+            return new ResponseEntity<>("Mật khẩu mới không dài quá 20 ký tự", HttpStatus.BAD_REQUEST);
         }
         if (confirmNewPassword == null || confirmNewPassword.trim().isEmpty()) {
-            return ResponseEntity.badRequest().body("Xác nhận mật khẩu mới không được để trống");
+            return new ResponseEntity<>("Mật khẩu xác nhận không được để trống", HttpStatus.BAD_REQUEST);
         }
-        if (!newPassword.trim().equals(confirmNewPassword.trim())) {
-            return ResponseEntity.badRequest().body("Xác nhận mật khẩu mới không khớp");
+        if (!newPassword.equals(confirmNewPassword)) {
+            return new ResponseEntity<>("Mật khẩu xác nhận không khớp", HttpStatus.BAD_REQUEST);
         }
-        if (oldPassword.trim().equals(newPassword.trim())) {
-            return ResponseEntity.badRequest().body("Mật khẩu mới phải khác mật khẩu cũ");
+        if (oldPassword.equals(newPassword.trim())) {
+            return new ResponseEntity<>("Mật khẩu mới phải khác mật khẩu cũ", HttpStatus.BAD_REQUEST);
         }
 
-        boolean success = this.userService.changePassword(principal.getName(), oldPassword.trim(), newPassword.trim());
+        boolean success = this.userService.changePassword(principal.getName(), oldPassword, newPassword);
 
         if (!success) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Mật khẩu cũ không đúng");
+            return new ResponseEntity<>("Mật khẩu cũ không đúng", HttpStatus.UNAUTHORIZED);
         }
 
-        return ResponseEntity.ok("Đổi mật khẩu thành công");
+        return new ResponseEntity<>("Đổi mật khẩu thành công", HttpStatus.OK);
     }
 }

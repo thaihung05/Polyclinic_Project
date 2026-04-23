@@ -87,12 +87,12 @@ public class UserRepositoryImpl implements UserRepository {
         }
     }
     
-    @Override
-    public Users addUser(Users u){
-        Session s = this.factory.getObject().getCurrentSession();
-        s.persist(u);
-        return u;
-    }
+//    @Override
+//    public Users addUser(Users u){
+//        Session s = this.factory.getObject().getCurrentSession();
+//        s.persist(u);
+//        return u;
+//    }
 
     @Override
     public boolean authenticate(String username, String password) {
@@ -100,10 +100,10 @@ public class UserRepositoryImpl implements UserRepository {
         return this.passwordEncoder.matches(password, u.getPassword());
     }
 
-    @Override
-    public Users updateUser(Users u) {
-        Session s = this.factory.getObject().getCurrentSession();
-        return s.merge(u);
-    }
+//    @Override
+//    public Users updateUser(Users u) {
+//        Session s = this.factory.getObject().getCurrentSession();
+//        return s.merge(u);
+//    }
 
 }
