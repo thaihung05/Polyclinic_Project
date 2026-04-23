@@ -4,6 +4,7 @@
  */
 package com.pkdk.pojo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Basic;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -52,6 +53,7 @@ public class Prescriptions implements Serializable {
     @Size(max = 250)
     @Column(name = "note")
     private String note;
+    @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "prescriptionId")
     private Collection<PrescriptionItems> prescriptionItemsCollection;
     @JoinColumn(name = "medical_record_id", referencedColumnName = "id")

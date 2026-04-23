@@ -34,5 +34,10 @@ public class PatientServiceImpl implements PatientService{
     public void deleteByUserId(int userId) {
         this.patientRepo.deleteByUserId(userId);
     }
+
+    @Override
+    public Patients getPatientById(int id) {
+        return this.patientRepo.getPatientById(id);
+    }
     
 }

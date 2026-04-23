@@ -4,6 +4,7 @@
  */
 package com.pkdk.pojo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Basic;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -36,6 +37,8 @@ import java.util.Date;
     @NamedQuery(name = "Patients.findByDateOfBirth", query = "SELECT p FROM Patients p WHERE p.dateOfBirth = :dateOfBirth"),
     @NamedQuery(name = "Patients.findByGender", query = "SELECT p FROM Patients p WHERE p.gender = :gender"),
     @NamedQuery(name = "Patients.findByAddress", query = "SELECT p FROM Patients p WHERE p.address = :address")})
+
+
 public class Patients implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -53,6 +56,7 @@ public class Patients implements Serializable {
     @Size(max = 500)
     @Column(name = "address")
     private String address;
+    @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "patientId")
     private Collection<Appointments> appointmentsCollection;
     @JoinColumn(name = "user_id", referencedColumnName = "id")
