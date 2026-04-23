@@ -83,7 +83,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointment.setSymptoms(symptoms);
         appointment.setStatus("PENDING");
         appointment.setNgayTao(new Date());
-        appointmentRepo.save(appointment);
+        this.save(appointment);
 
         schedule.setIsActive(false);
         scheduleService.save(schedule);

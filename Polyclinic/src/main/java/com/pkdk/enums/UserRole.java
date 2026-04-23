@@ -11,5 +11,5 @@ package com.pkdk.enums;
 public enum UserRole {
     ROLE_ADMIN,
     ROLE_DOCTOR,
-    ROLD_PATIENT
+    ROLE_PATIENT
 }

@@ -6,6 +6,7 @@ package com.pkdk.service.impl;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import com.pkdk.enums.UserRole;
 import com.pkdk.pojo.Doctors;
 import com.pkdk.pojo.Patients;
 import com.pkdk.pojo.Specialties;
@@ -178,7 +179,7 @@ public class UserServiceImpl implements UserService {
         u.setIsActive(true);
         u.setPhone(info.get("phone"));
         u.setUsername(info.get("username"));
-        u.setRole("ROLE_PATIENT");
+        u.setRole(UserRole.ROLE_PATIENT.toString());
         u.setEmail(info.get("email"));
         u.setPassword(this.passwordEncoder.encode(info.get("password")));
         if (avatar != null && !avatar.isEmpty()) {
@@ -195,7 +196,7 @@ public class UserServiceImpl implements UserService {
             u.setAvatar("https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg");
         }
 
-        this.userRepo.addUser(u);
+        this.saveOrUpdate(u);
         this.createNewPatient(u, info);
         return u;
     }
@@ -232,9 +233,9 @@ public class UserServiceImpl implements UserService {
             }
         }
 
-        this.userRepo.updateUser(u);
+        this.saveOrUpdate(u);
 
-        if ("ROLE_PATIENT".equals(u.getRole())) {
+        if (UserRole.ROLE_PATIENT.toString().equals(u.getRole())) {
             Patients p = this.patientService.getPatientByUserId(u.getId());
             if (p == null) {
                 p = new Patients();
@@ -281,12 +282,11 @@ public class UserServiceImpl implements UserService {
         }
 
         u.setPassword(this.passwordEncoder.encode(newPassword));
-        this.userRepo.updateUser(u);
+        this.saveOrUpdate(u);
         return true;
     }
-    
-    
-    private void createNewPatient(Users u, Map<String, String> info){
+
+    private void createNewPatient(Users u, Map<String, String> info) {
         Patients p = new Patients();
         p.setUserId(u);
 
@@ -312,5 +312,10 @@ public class UserServiceImpl implements UserService {
 
         this.patientService.addOrUpdate(p);
     }
-    
+
+    @Override
+    public void saveOrUpdate(Users u) {
+        this.userRepo.saveOrUpdate(u);
+    }
+
 }

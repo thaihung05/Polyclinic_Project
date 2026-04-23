@@ -18,7 +18,7 @@ public interface UserRepository {
     Users getUserByUsername(String username);
     void saveOrUpdate(Users u);
     void deleteUser(int id);
-    Users addUser(Users u);
+//    Users addUser(Users u);
     boolean authenticate(String username, String password);
-    Users updateUser(Users u);
+//    Users updateUser(Users u);
 }
