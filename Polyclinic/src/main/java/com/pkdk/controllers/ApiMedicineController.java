@@ -4,8 +4,12 @@
  */
 package com.pkdk.controllers;
 
+import com.pkdk.enums.UserRole;
 import com.pkdk.pojo.Medicines;
+import com.pkdk.pojo.Users;
 import com.pkdk.service.MedicineService;
+import com.pkdk.service.UserService;
+import java.security.Principal;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,7 +21,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -31,6 +34,9 @@ public class ApiMedicineController {
     
     @Autowired
     private MedicineService medicineService;
+    
+    @Autowired
+    private UserService userService;
     
     @GetMapping("/api/medicines")
     public ResponseEntity<?> getAll(){
@@ -48,7 +54,11 @@ public class ApiMedicineController {
     }
     
     @PostMapping("/api/secure/medicines")
-    public ResponseEntity<?> create(@RequestBody Medicines medicine){
+    public ResponseEntity<?> create(@RequestBody Medicines medicine, Principal principal){
+        
+        if (!isDoctorOrAdmin(principal))
+            return new ResponseEntity<>("Không có quyền tạo thuốc",HttpStatus.FORBIDDEN);
+            
         if (medicine.getName() == null)
             return new ResponseEntity<>("Tên thuốc không được trống", HttpStatus.BAD_REQUEST);
         if (medicine.getCode()== null)
@@ -61,7 +71,10 @@ public class ApiMedicineController {
     
     @PutMapping("/api/secure/medicines/{id}")
     public ResponseEntity<?> update(@PathVariable("id") int id,
-            @RequestBody Medicines medicine){
+            @RequestBody Medicines medicine, Principal principal){
+        
+        if (!isDoctorOrAdmin(principal))
+            return new ResponseEntity<>("Không có quyền cập nhật thuốc", HttpStatus.FORBIDDEN);
         
         Medicines m = this.medicineService.getById(id);
         if (m==null)
@@ -83,7 +96,11 @@ public class ApiMedicineController {
     }
     
     @DeleteMapping("/api/secure/medicines/{id}")
-    public ResponseEntity<?> delete(@PathVariable("id") int id){
+    public ResponseEntity<?> delete(@PathVariable("id") int id, Principal principal){
+        
+        if (!isDoctorOrAdmin(principal))
+            return new ResponseEntity<>("Không có quyền xóa thuốc", HttpStatus.FORBIDDEN);
+        
         Medicines m = this.medicineService.getById(id);
         if (m==null)
             return new ResponseEntity<>("Không tìm thấy thuốc hợp lệ", HttpStatus.NOT_FOUND);
@@ -93,15 +110,31 @@ public class ApiMedicineController {
     }
     
     @GetMapping("/api/secure/medicines/alerts/low-stock")
-    public ResponseEntity<?> lowStockAlert(@RequestParam(name = "threshold", defaultValue = "10") int threshold){
+    public ResponseEntity<?> lowStockAlert(@RequestParam(name = "threshold", defaultValue = "10") int threshold,
+            Principal principal){
+        
+        if (!isDoctorOrAdmin(principal))
+            return new ResponseEntity<>("Không có quyền xem cảnh báo tồn kho",HttpStatus.FORBIDDEN);
+        
         List<Medicines> list = this.medicineService.getLowStock(threshold);
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
     
     @GetMapping("/api/secure/medicines/alerts/near-expiry")
-    public ResponseEntity<?> nearExpiryAlert(@RequestParam(name = "days", defaultValue = "30") int days){
+    public ResponseEntity<?> nearExpiryAlert(@RequestParam(name = "days", defaultValue = "30") int days,
+            Principal principal){
+        
+        if (!isDoctorOrAdmin(principal))
+            return new ResponseEntity<>("Không có quyền xem cảnh báo thuốc sắp hết hạn", HttpStatus.FORBIDDEN);
         List<Medicines> list = this.medicineService.getNearExiry(days);
         return new ResponseEntity<>(list, HttpStatus.OK);
+    }
+    
+    
+    private boolean isDoctorOrAdmin(Principal principal){
+        Users caller = this.userService.getUserByUserName(principal.getName());
+        String role = caller.getRole();
+        return UserRole.ROLE_DOCTOR.name().equals(role) || UserRole.ROLE_ADMIN.name().equals(role);
     }
     
 }

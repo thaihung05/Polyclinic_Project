@@ -4,11 +4,15 @@
  */
 package com.pkdk.controllers;
 
+import com.pkdk.enums.UserRole;
 import com.pkdk.pojo.MedicalRecords;
 import com.pkdk.pojo.PrescriptionItems;
 import com.pkdk.pojo.Prescriptions;
+import com.pkdk.pojo.Users;
 import com.pkdk.service.MedicalRecordService;
 import com.pkdk.service.PrescriptionService;
+import com.pkdk.service.UserService;
+import java.security.Principal;
 import java.util.Date;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +39,9 @@ public class ApiPrescriptionController {
     @Autowired
     private PrescriptionService prescriptionService;
     
+    @Autowired
+    private UserService userService;
+    
     @GetMapping("/api/medical-records/{recordId}/prescriptions")
     public ResponseEntity<?> getPrescriptions(@PathVariable("recordId") int recordId){
         MedicalRecords m = this.medicalRecordService.getById(recordId);
@@ -54,7 +61,11 @@ public class ApiPrescriptionController {
     
     @PostMapping("/api/secure/medical-records/{recordId}/prescriptions")
     public ResponseEntity<?> createPrescription(@PathVariable("recordId") int recordId,
-            @RequestBody Prescriptions prescription ){
+            @RequestBody Prescriptions prescription, Principal principal){
+        
+        Users caller = this.userService.getUserByUserName(principal.getName());
+        if (!UserRole.ROLE_DOCTOR.name().equals(caller.getRole()))
+            return new ResponseEntity<>("Chỉ có bác sĩ mới có quyền tạo đơn thuốc mới",HttpStatus.FORBIDDEN);
         
         MedicalRecords m = this.medicalRecordService.getById(recordId);
         if (m==null)
