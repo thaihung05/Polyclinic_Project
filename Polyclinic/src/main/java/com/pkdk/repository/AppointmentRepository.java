@@ -1,6 +1,6 @@
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Interface.java to edit this template
  */
 package com.pkdk.repository;
 
@@ -9,11 +9,12 @@ import java.util.List;
 
 /**
  *
- * @author vanlong
+ * @author Admin
  */
 public interface AppointmentRepository {
-    List<Appointments> getByPatientId(int patientId);
+    List<Appointments> getDoctorId(int doctorId);
+    List<Appointments> getPatientId(int patientId);
+    Appointments getById(int id);
     void save(Appointments appointment);
     void delete(int id);
-    Appointments getById(int id);
 }

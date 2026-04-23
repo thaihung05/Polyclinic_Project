@@ -30,7 +30,8 @@ import org.springframework.core.env.Environment;
         basePackages = {
             "com.pkdk.controllers",
             "com.pkdk.repository",
-            "com.pkdk.service"
+            "com.pkdk.service",
+            "com.pkdk.configs"
         }
 )
 @EnableWebMvc

@@ -1,6 +1,6 @@
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Interface.java to edit this template
  */
 package com.pkdk.service;
 
@@ -9,10 +9,12 @@ import java.util.List;
 
 /**
  *
- * @author vanlong
+ * @author Admin
  */
 public interface AppointmentService {
-    Appointments book(int doctorId, int scheduleId, int patientId, String symptoms);
+    List<Appointments> getByDoctorId(int doctorId);
     List<Appointments> getByPatientId(int patientId);
     Appointments getById(int id);
+    void save(Appointments appointment);
+    Appointments book(int doctorId, int scheduleId, int patientId, String symptoms);
 }

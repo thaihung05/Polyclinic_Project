@@ -6,7 +6,6 @@ package com.pkdk.repository.impl;
 
 import com.pkdk.pojo.Appointments;
 import com.pkdk.repository.AppointmentRepository;
-import jakarta.persistence.NoResultException;
 import java.util.List;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
@@ -17,25 +16,46 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
- * @author vanlong
+ * @author Admin
  */
 @Repository
 @Transactional
-public class AppointmentRepositoryImpl implements AppointmentRepository {
-
+public class AppointmentRepositoryImpl implements AppointmentRepository{
+    
     @Autowired
     private LocalSessionFactoryBean factory;
 
     @Override
-    public void save(Appointments appointment) {
+    public List<Appointments> getByDoctorId(int doctorId) {
         Session s = this.factory.getObject().getCurrentSession();
-        if (appointment.getId() == null) {
-            s.persist(appointment);
-        } else {
-            s.merge(appointment);
-        }
+        Query q = s.createQuery("FROM Appointments a Where a.doctorId.id = :doctorId", Appointments.class)
+                .setParameter("doctorId", doctorId);
+        return q.getResultList();
     }
 
+    @Override
+    public List<Appointments> getByPatientId(int patientId) {
+        Session s = this.factory.getObject().getCurrentSession();
+        Query q = s.createQuery("From Appointments a Where a.patientId.id = :patientId", Appointments.class)
+                .setParameter("patientId", patientId);
+        return q.getResultList();
+    }
+
+    @Override
+    public Appointments getById(int id) {
+        Session s = this.factory.getObject().getCurrentSession();
+        return s.get(Appointments.class, id);
+    }
+
+    @Override
+    public void save(Appointments appointment) {
+        Session s = this.factory.getObject().getCurrentSession();
+        if (appointment.getId()==null)
+            s.persist(appointment);
+        else
+            s.merge(appointment);
+    }
+  
     @Override
     public void delete(int id) {
         Session s = this.factory.getObject().getCurrentSession();
@@ -44,25 +64,5 @@ public class AppointmentRepositoryImpl implements AppointmentRepository {
             s.remove(appointment);
         }
     }
-
-    @Override
-    public List<Appointments> getByPatientId(int patientId) {
-        Session s = this.factory.getObject().getCurrentSession();
-        Query q = s.createQuery("FROM Appointments a WHERE a.patientId.id = :pid ORDER BY a.scheduledAt DESC",Appointments.class);
-        q.setParameter("pid", patientId);
-        try{
-            return q.getResultList();
-        }
-        catch(NoResultException ex){
-            return null;
-        }
-    }
-
-    @Override
-    public Appointments getById(int id) {
-        Session s = this.factory.getObject().getCurrentSession();
-        return s.get(Appointments.class, id);
-        
-    }
-
+    
 }

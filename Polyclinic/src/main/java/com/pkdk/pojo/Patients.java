@@ -58,6 +58,7 @@ public class Patients implements Serializable {
     private String address;
     @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "patientId")
+    @JsonIgnore
     private Collection<Appointments> appointmentsCollection;
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     @OneToOne(optional = false)
