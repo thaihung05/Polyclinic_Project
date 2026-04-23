@@ -133,6 +133,8 @@ public class ApiMedicineController {
     
     private boolean isDoctorOrAdmin(Principal principal){
         Users caller = this.userService.getUserByUserName(principal.getName());
+        if (caller == null)
+            return false;
         String role = caller.getRole();
         return UserRole.ROLE_DOCTOR.name().equals(role) || UserRole.ROLE_ADMIN.name().equals(role);
     }

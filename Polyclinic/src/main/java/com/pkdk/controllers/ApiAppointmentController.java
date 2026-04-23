@@ -7,10 +7,13 @@ package com.pkdk.controllers;
 import com.pkdk.pojo.Appointments;
 import com.pkdk.pojo.Doctors;
 import com.pkdk.pojo.Patients;
+import com.pkdk.pojo.Users;
 import com.pkdk.service.AppointmentService;
 import com.pkdk.service.DoctorService;
 import com.pkdk.service.GoogleMeetingService;
 import com.pkdk.service.PatientService;
+import com.pkdk.service.UserService;
+import java.security.Principal;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -47,85 +50,94 @@ public class ApiAppointmentController {
 
     @Autowired
     private GoogleMeetingService googleMeetingService;
+    
+    @Autowired
+    private UserService userService;
+    
 
     @GetMapping("/secure/patient/appointments")
-public ResponseEntity<?> getMyAppointments(Principal principal) {
-    Users u = userService.getUserByUserName(principal.getName());
-    if (u == null)
-        return new ResponseEntity<>("Không tìm thấy người dùng", HttpStatus.BAD_REQUEST);
+    public ResponseEntity<?> getMyAppointments(Principal principal) {
+        Users u = userService.getUserByUserName(principal.getName());
+        if (u == null) {
+            return new ResponseEntity<>("Không tìm thấy người dùng", HttpStatus.BAD_REQUEST);
+        }
 
-    Patients patient = patientService.getPatientByUserId(u.getId());
-    if (patient == null)
-        return new ResponseEntity<>("Tài khoản không phải bệnh nhân", HttpStatus.BAD_REQUEST);
+        Patients patient = patientService.getPatientByUserId(u.getId());
+        if (patient == null) {
+            return new ResponseEntity<>("Tài khoản không phải bệnh nhân", HttpStatus.BAD_REQUEST);
+        }
 
-    List<Appointments> list = appointmentService.getByPatientId(patient.getId());
-    return new ResponseEntity<>(list, HttpStatus.OK);
-}
-  
-  @GetMapping("/secure/doctor/appointments")
-public ResponseEntity<?> getDoctorAppointments(Principal principal) {
-    Users u = userService.getUserByUserName(principal.getName());
-    if (u == null)
-        return new ResponseEntity<>("Không tìm thấy người dùng", HttpStatus.BAD_REQUEST);
-
-    Doctors doctor = doctorService.getDoctorByUserId(u.getId());
-    if (doctor == null)
-        return new ResponseEntity<>("Tài khoản không phải bác sĩ", HttpStatus.BAD_REQUEST);
-
-    List<Appointments> list = appointmentService.getByDoctorId(doctor.getId());
-    return new ResponseEntity<>(list, HttpStatus.OK);
-}
-  
-  @GetMapping("/admin/appointments")
-public ResponseEntity<?> getAllAppointments(
-        @RequestParam(name = "doctorId", required = false) Integer doctorId,
-        @RequestParam(name = "patientId", required = false) Integer patientId) {
-
-    if (doctorId != null) {
-        List<Appointments> list = appointmentService.getByDoctorId(doctorId);
+        List<Appointments> list = appointmentService.getByPatientId(patient.getId());
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
-    if (patientId != null) {
-        List<Appointments> list = appointmentService.getByPatientId(patientId);
+    @GetMapping("/secure/doctor/appointments")
+    public ResponseEntity<?> getDoctorAppointments(Principal principal) {
+        Users u = userService.getUserByUserName(principal.getName());
+        if (u == null) {
+            return new ResponseEntity<>("Không tìm thấy người dùng", HttpStatus.BAD_REQUEST);
+        }
+
+        Doctors doctor = doctorService.getDoctorByUserId(u.getId());
+        if (doctor == null) {
+            return new ResponseEntity<>("Tài khoản không phải bác sĩ", HttpStatus.BAD_REQUEST);
+        }
+
+        List<Appointments> list = appointmentService.getByDoctorId(doctor.getId());
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
-    List<Appointments> list = appointmentService.getAll();
-    return new ResponseEntity<>(list, HttpStatus.OK);
-}
-  
-  @PostMapping("/secure/appointments")
+    @GetMapping("/admin/appointments")
+    public ResponseEntity<?> getAllAppointments(
+            @RequestParam(name = "doctorId", required = false) Integer doctorId,
+            @RequestParam(name = "patientId", required = false) Integer patientId) {
+
+        if (doctorId != null) {
+            List<Appointments> list = appointmentService.getByDoctorId(doctorId);
+            return new ResponseEntity<>(list, HttpStatus.OK);
+        }
+
+        if (patientId != null) {
+            List<Appointments> list = appointmentService.getByPatientId(patientId);
+            return new ResponseEntity<>(list, HttpStatus.OK);
+        }
+
+        return new ResponseEntity<>("Cần truyền doctorId hoặc patientid", HttpStatus.BAD_REQUEST);
+    }
+
+    @PostMapping("/secure/appointments")
     public ResponseEntity<?> bookAppointment(
             Principal principal,
             @RequestBody Map<String, Object> body) {
-        
+
         Users u = this.userService.getUserByUserName(principal.getName());
-        if (u==null){
+        if (u == null) {
             return new ResponseEntity<>("Không tìm thấy người dùng", HttpStatus.BAD_REQUEST);
         }
-        
+
         Patients p = this.patientService.getPatientByUserId(u.getId());
-        if(p==null){
+        if (p == null) {
             return new ResponseEntity<>("Không tìm thấy thông tin bệnh nhân", HttpStatus.BAD_REQUEST);
         }
-        
+
         Integer doctorId = (Integer) body.get("doctorId");
         Integer scheduleId = (Integer) body.get("scheduleId");
         String symptoms = (String) body.get("symptoms");
-        
-        symptoms=symptoms!=null?symptoms.trim():null;
-        
-        if (doctorId == null)
+
+        symptoms = symptoms != null ? symptoms.trim() : null;
+
+        if (doctorId == null) {
             return new ResponseEntity<>("Thiếu thông tin doctorId", HttpStatus.BAD_REQUEST);
-        if(scheduleId == null)
+        }
+        if (scheduleId == null) {
             return new ResponseEntity<>("Thiếu thông tin scheduleId", HttpStatus.BAD_REQUEST);
- 
+        }
+
         try {
             Appointments appt = appointmentService.book(doctorId, scheduleId, p.getId(), symptoms);
             return new ResponseEntity<>(appt, HttpStatus.CREATED);
         } catch (RuntimeException ex) {
-            return new ResponseEntity<>("Lỗi tạo lịch hẹn: "+ ex.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Lỗi tạo lịch hẹn: " + ex.getMessage(), HttpStatus.BAD_REQUEST);
         }
 
     }

@@ -57,6 +57,8 @@ public class ApiMedicalRecordController {
             ,@RequestBody MedicalRecords record, Principal principal){
         
         Users caller = this.userService.getUserByUserName(principal.getName());
+        if (caller == null)
+            return new ResponseEntity<>("Không tìm thấy người dùng", HttpStatus.UNAUTHORIZED);
         if (!UserRole.ROLE_DOCTOR.name().equals(caller.getRole()))
             return new ResponseEntity<>("Chỉ bác sĩ mới có quyền tạo hồ sơ bệnh án",HttpStatus.FORBIDDEN);
         
@@ -78,6 +80,8 @@ public class ApiMedicalRecordController {
             @RequestBody MedicalRecords record, Principal principal){
         
         Users caller = this.userService.getUserByUserName(principal.getName());
+        if (caller == null)
+            return new ResponseEntity<>("Không tìm thấy người dùng", HttpStatus.UNAUTHORIZED);
         if (!UserRole.ROLE_DOCTOR.name().equals(caller.getRole()))
             return new ResponseEntity<>("Chỉ bác sĩ mới có quyền sửa hồ sơ bệnh án",HttpStatus.FORBIDDEN);
         

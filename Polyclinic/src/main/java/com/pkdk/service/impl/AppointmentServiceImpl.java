@@ -91,7 +91,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         String doctorName=doctor.getUserId().getName();
         String scheduledAt = new SimpleDateFormat("HH:mm dd/MM/yyyy")
                             .format(appointment.getScheduledAt());
-        this.notificationService.createAppointmentNotification(patient.getUserId(), doctorId, doctorName);
+        this.notificationService.createAppointmentNotification(patient.getUserId(), doctorName, scheduledAt);
         
         return appointment;
     }
@@ -108,7 +108,7 @@ public class AppointmentServiceImpl implements AppointmentService {
   
     @Override
     public List<Appointments> getByDoctorId(int doctorId) {
-        return this.appointmentRepo.getDoctorId(doctorId);
+        return this.appointmentRepo.getByDoctorId(doctorId);
     }
   
     @Override

@@ -44,7 +44,7 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public Notifications createAppointmentNotification(Users user, int doctorName, String date) {
+    public Notifications createAppointmentNotification(Users user, String doctorName, String date) {
         Notifications n = new Notifications();
         n.setUserId(user);
         n.setTitle("Nhắc lịch hẹn khám bệnh");

@@ -56,6 +56,8 @@ public class ApiLabResultController {
             @RequestBody LabResults labResult, Principal principal){
         
         Users caller = this.userService.getUserByUserName(principal.getName());
+        if (caller == null)
+            return new ResponseEntity<>("Không tìm thấy người dùng", HttpStatus.UNAUTHORIZED);
         if (!UserRole.ROLE_DOCTOR.name().equals(caller.getRole()))
             return new ResponseEntity<>("Chỉ bác sĩ mới có quyền tạo kết quả xét nghiệm",HttpStatus.FORBIDDEN);
         
@@ -75,7 +77,9 @@ public class ApiLabResultController {
             @RequestBody LabResults labResult, Principal principal){
         
         Users caller = this.userService.getUserByUserName(principal.getName());
-        if (UserRole.ROLE_DOCTOR.name().equals(caller.getRole()))
+        if (caller == null)
+            return new ResponseEntity<>("Không tìm thấy người dùng", HttpStatus.UNAUTHORIZED);
+        if (!UserRole.ROLE_DOCTOR.name().equals(caller.getRole()))
             return new ResponseEntity<>("Chỉ bác sĩ mới có quyền sửa kết quả xét nghiệm", HttpStatus.FORBIDDEN);
         
         LabResults l = this.labResultService.getById(id);

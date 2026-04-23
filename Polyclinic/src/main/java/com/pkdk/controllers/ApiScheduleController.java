@@ -57,6 +57,10 @@ public class ApiScheduleController {
     public ResponseEntity<?> addSchedule(@PathVariable("doctorId") int doctorId, @RequestBody DoctorSchedules s, Principal principal){
         
         Users caller = this.userService.getUserByUserName(principal.getName());
+        
+        if (caller == null)
+            return new ResponseEntity<>("Không tìm thấy người dùng", HttpStatus.UNAUTHORIZED);
+        
         if (!UserRole.ROLE_DOCTOR.name().equals(caller.getRole()))
             return new ResponseEntity<>("Chỉ bác sĩ mới có quyền thêm lịch làm việc",HttpStatus.FORBIDDEN);
         
@@ -71,7 +75,13 @@ public class ApiScheduleController {
     
     @PutMapping("/api/secure/doctors/{doctorId}/schedules/{scheduleId}")
     public ResponseEntity<?> updateSchedules(@PathVariable("doctorId") int doctorId,
-            @PathVariable("scheduleId") int scheduleId, @RequestBody DoctorSchedules s){
+            @PathVariable("scheduleId") int scheduleId, @RequestBody DoctorSchedules s, Principal principal){
+        
+        Users caller = this.userService.getUserByUserName(principal.getName());
+        if (caller == null)
+            return new ResponseEntity<>("Không tìm thấy người dùng", HttpStatus.UNAUTHORIZED);
+        if (!UserRole.ROLE_DOCTOR.name().equals(caller.getRole()))
+            return new ResponseEntity<>("Chỉ bác sĩ mới có quyền sửa lịch làm việc", HttpStatus.FORBIDDEN);
         
         DoctorSchedules schedules = this.scheduleService.getById(scheduleId);
         if (schedules == null)
@@ -89,6 +99,8 @@ public class ApiScheduleController {
             @PathVariable("scheduleId") int scheduleId, Principal principal){
         
         Users caller = this.userService.getUserByUserName(principal.getName());
+        if (caller == null)
+            return new ResponseEntity<>("Không tìm thấy người dùng", HttpStatus.UNAUTHORIZED);
         if (!UserRole.ROLE_DOCTOR.name().equals(caller.getRole()))
             return new ResponseEntity<>("Chỉ bác sĩ mới có quyền xóa lịch làm việc", HttpStatus.FORBIDDEN);
         
