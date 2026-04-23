@@ -12,8 +12,9 @@ import java.util.List;
  * @author Admin
  */
 public interface AppointmentService {
-    List<Appointments> getDoctorId(int doctorId);
-    List<Appointments> getPatientId(int patientId);
+    List<Appointments> getByDoctorId(int doctorId);
+    List<Appointments> getByPatientId(int patientId);
     Appointments getById(int id);
     void save(Appointments appointment);
+    Appointments book(int doctorId, int scheduleId, int patientId, String symptoms);
 }

@@ -22,13 +22,13 @@ public class AppointmentServiceImpl implements AppointmentService{
     private AppointmentRepository appointmentRepo;
 
     @Override
-    public List<Appointments> getDoctorId(int doctorId) {
-        return this.appointmentRepo.getDoctorId(doctorId);
+    public List<Appointments> getByDoctorId(int doctorId) {
+        return this.appointmentRepo.getByDoctorId(doctorId);
     }
 
     @Override
-    public List<Appointments> getPatientId(int patientId) {
-        return this.appointmentRepo.getPatientId(patientId);
+    public List<Appointments> getByPatientId(int patientId) {
+        return this.appointmentRepo.getByPatientId(patientId);
     }
 
     @Override
@@ -39,6 +39,11 @@ public class AppointmentServiceImpl implements AppointmentService{
     @Override
     public void save(Appointments appointment) {
         this.appointmentRepo.save(appointment);
+    }
+
+    @Override
+    public Appointments book(int doctorId, int scheduleId, int patientId, String symptoms) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
     
 }

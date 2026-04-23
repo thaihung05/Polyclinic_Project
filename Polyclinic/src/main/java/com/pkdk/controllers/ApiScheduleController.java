@@ -4,10 +4,14 @@
  */
 package com.pkdk.controllers;
 
+import com.pkdk.enums.UserRole;
 import com.pkdk.pojo.DoctorSchedules;
 import com.pkdk.pojo.Doctors;
+import com.pkdk.pojo.Users;
 import com.pkdk.service.DoctorService;
 import com.pkdk.service.ScheduleService;
+import com.pkdk.service.UserService;
+import java.security.Principal;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -36,6 +40,9 @@ public class ApiScheduleController {
     @Autowired
     private DoctorService doctorService;
     
+    @Autowired
+    private UserService userService;
+    
     @GetMapping("/api/doctors/{doctorId}/schedules")
     public ResponseEntity<?> getSchedules(@PathVariable("doctorId") int doctorId){
         Doctors d = this.doctorService.getDoctorById(doctorId);
@@ -47,7 +54,12 @@ public class ApiScheduleController {
     }
     
     @PostMapping("/api/secure/doctors/{doctorId}/schedules")
-    public ResponseEntity<?> addSchedule(@PathVariable("doctorId") int doctorId, @RequestBody DoctorSchedules s){
+    public ResponseEntity<?> addSchedule(@PathVariable("doctorId") int doctorId, @RequestBody DoctorSchedules s, Principal principal){
+        
+        Users caller = this.userService.getUserByUserName(principal.getName());
+        if (!UserRole.ROLE_DOCTOR.name().equals(caller.getRole()))
+            return new ResponseEntity<>("Chỉ bác sĩ mới có quyền thêm lịch làm việc",HttpStatus.FORBIDDEN);
+        
         Doctors d = this.doctorService.getDoctorById(doctorId);
         if (d == null)
             return new ResponseEntity<>("Không tìm thấy bác sĩ hợp lệ", HttpStatus.NOT_FOUND);
@@ -60,6 +72,7 @@ public class ApiScheduleController {
     @PutMapping("/api/secure/doctors/{doctorId}/schedules/{scheduleId}")
     public ResponseEntity<?> updateSchedules(@PathVariable("doctorId") int doctorId,
             @PathVariable("scheduleId") int scheduleId, @RequestBody DoctorSchedules s){
+        
         DoctorSchedules schedules = this.scheduleService.getById(scheduleId);
         if (schedules == null)
             return new ResponseEntity<>("Không tìm thấy lịch làm việc hợp lệ", HttpStatus.NOT_FOUND);
@@ -73,7 +86,12 @@ public class ApiScheduleController {
     
     @DeleteMapping("/api/secure/doctors/{doctorId}/schedules/{scheduleId}")
     public ResponseEntity<?> deleteSchedules(@PathVariable("doctorId") int doctorId,
-            @PathVariable("scheduleId") int scheduleId){
+            @PathVariable("scheduleId") int scheduleId, Principal principal){
+        
+        Users caller = this.userService.getUserByUserName(principal.getName());
+        if (!UserRole.ROLE_DOCTOR.name().equals(caller.getRole()))
+            return new ResponseEntity<>("Chỉ bác sĩ mới có quyền xóa lịch làm việc", HttpStatus.FORBIDDEN);
+        
         DoctorSchedules schedules = this.scheduleService.getById(scheduleId);
         if (schedules==null)
             return new ResponseEntity<>("Không tìm thấy lịch làm việc hợp lệ",HttpStatus.NOT_FOUND);

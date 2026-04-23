@@ -4,13 +4,17 @@
  */
 package com.pkdk.controllers;
 
+import com.pkdk.enums.UserRole;
 import com.pkdk.pojo.Appointments;
 import com.pkdk.pojo.Doctors;
 import com.pkdk.pojo.Patients;
+import com.pkdk.pojo.Users;
 import com.pkdk.service.AppointmentService;
 import com.pkdk.service.DoctorService;
 import com.pkdk.service.GoogleMeetingService;
 import com.pkdk.service.PatientService;
+import com.pkdk.service.UserService;
+import java.security.Principal;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +37,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @CrossOrigin
-@RequestMapping("/api/secure/appointments")
+@RequestMapping("/api")
 public class ApiAppointmentController {
 
     @Autowired
@@ -47,24 +51,27 @@ public class ApiAppointmentController {
 
     @Autowired
     private GoogleMeetingService googleMeetingService;
+    
+    @Autowired
+    private UserService userService;
 
-    @GetMapping("/api/appointments")
+    @GetMapping("/appointments")
     public ResponseEntity<?> getAppointments(@RequestParam(name = "doctorId", required = false) Integer doctorId,
             @RequestParam(name = "patientId", required = false) Integer patientId) {
         if (doctorId != null) {
-            List<Appointments> list = this.appointmentService.getDoctorId(doctorId);
+            List<Appointments> list = this.appointmentService.getByDoctorId(doctorId);
             return new ResponseEntity<>(list, HttpStatus.OK);
         }
 
         if (patientId != null) {
-            List<Appointments> list = this.appointmentService.getPatientId(patientId);
+            List<Appointments> list = this.appointmentService.getByPatientId(patientId);
             return new ResponseEntity<>(list, HttpStatus.OK);
         }
 
         return new ResponseEntity<>("Cần truyền doctorId hoặc patientid", HttpStatus.BAD_REQUEST);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/secure/appointments/{id}")
     public ResponseEntity<?> getDetail(@PathVariable("id") int id) {
         Appointments a = this.appointmentService.getById(id);
         if (a == null) {
@@ -73,8 +80,13 @@ public class ApiAppointmentController {
         return new ResponseEntity<>(a, HttpStatus.OK);
     }
 
-    @PostMapping
-    public ResponseEntity<?> createAppointment(@RequestBody Appointments appointment) {
+    @PostMapping("/secure/appointments")
+    public ResponseEntity<?> createAppointment(@RequestBody Appointments appointment, Principal principal) {
+        
+        Users caller = this.userService.getUserByUserName(principal.getName());
+        if (!UserRole.ROLE_DOCTOR.name().equals(caller.getRole()))
+            return new ResponseEntity<>("Chỉ bác sĩ mới có quyền tạo lịch hẹn mới",HttpStatus.FORBIDDEN);
+        
         if (appointment.getDoctorId().getId() == null) {
             return new ResponseEntity<>("Vui lòng nhập id của bác sĩ", HttpStatus.BAD_REQUEST);
         }
@@ -101,9 +113,12 @@ public class ApiAppointmentController {
         return new ResponseEntity<>(appointment, HttpStatus.CREATED);
     }
 
-    @PatchMapping("/{id}/status")
+    @PatchMapping("/secure/appointments/{id}/status")
     public ResponseEntity<?> updateStatus(@PathVariable("id") int id,
-            @RequestBody Map<String, String> body) {
+            @RequestBody Map<String, String> body, Principal principal) {
+        
+        Users caller = this.userService.getUserByUserName(principal.getName());
+        
         Appointments a = this.appointmentService.getById(id);
         if (a == null) {
             return new ResponseEntity<>("Không tìm thấy lịch hẹn", HttpStatus.NOT_FOUND);
@@ -116,7 +131,7 @@ public class ApiAppointmentController {
 
         if (body.containsKey("cancelReason")) {
             a.setCancelReason(body.get("cancelReason"));
-            a.setCancelledBy(body.get("cancelledBy"));
+            a.setCancelledBy(caller.getRole());
         }
 
         a.setStatus(newStatus);
@@ -124,9 +139,13 @@ public class ApiAppointmentController {
         return new ResponseEntity<>(a, HttpStatus.OK);
     }
 
-    @PatchMapping("/{id}/meeting-url")
-    public ResponseEntity<?> updateMeetingUrl(@PathVariable("id") int id,
-            @RequestBody Map<String, String> body) {
+    @PatchMapping("/secure/appointments/{id}/meeting-url")
+    public ResponseEntity<?> updateMeetingUrl(@PathVariable("id") int id,Principal principal) {
+        
+        Users caller = this.userService.getUserByUserName(principal.getName());
+        if (!UserRole.ROLE_DOCTOR.name().equals(caller.getRole()))
+            return new ResponseEntity<>("Chỉ bác sĩ mới có quyền thêm link họp",HttpStatus.FORBIDDEN);
+        
         Appointments a = this.appointmentService.getById(id);
         if (a == null) {
             return new ResponseEntity<>("Không tìm thấy lịch hẹn", HttpStatus.NOT_FOUND);

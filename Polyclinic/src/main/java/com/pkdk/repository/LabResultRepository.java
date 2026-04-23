@@ -4,17 +4,15 @@
  */
 package com.pkdk.repository;
 
-import com.pkdk.pojo.Appointments;
+import com.pkdk.pojo.LabResults;
 import java.util.List;
 
 /**
  *
  * @author Admin
  */
-public interface AppointmentRepository {
-    List<Appointments> getByDoctorId(int doctorId);
-    List<Appointments> getByPatientId(int patientId);
-    Appointments getById(int id);
-    void save(Appointments appointment);
-    void delete(int id);
+public interface LabResultRepository {
+    List<LabResults> getByAppointmentId(int appointmentId);
+    LabResults getById(int id);
+    void save(LabResults labResult);
 }
