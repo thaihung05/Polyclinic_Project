@@ -65,7 +65,6 @@ public class Users implements Serializable {
     @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 255)
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Column(name = "password")
     private String password;
     @Basic(optional = false)
@@ -100,6 +99,10 @@ public class Users implements Serializable {
     @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "userId")
     private Collection<Notifications> notificationsCollection;
+
+    @Size(max = 255)
+    @Column(name = "email")
+    private String email;
 
     @Transient
     private MultipartFile file;
@@ -165,6 +168,8 @@ public class Users implements Serializable {
         return isActive;
     }
 
+    
+
     public void setIsActive(boolean isActive) {
         this.isActive = isActive;
     }
@@ -207,6 +212,14 @@ public class Users implements Serializable {
 
     public void setNotificationsCollection(Collection<Notifications> notificationsCollection) {
         this.notificationsCollection = notificationsCollection;
+    }
+    
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     @Override

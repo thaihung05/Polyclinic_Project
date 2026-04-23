@@ -18,3 +18,4 @@ public interface AppointmentRepository {
     void save(Appointments appointment);
     void delete(int id);
 }
+

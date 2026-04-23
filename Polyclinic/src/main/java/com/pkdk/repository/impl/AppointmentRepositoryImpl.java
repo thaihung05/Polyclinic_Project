@@ -20,8 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Repository
 @Transactional
-public class AppointmentRepositoryImpl implements AppointmentRepository {
-
+public class AppointmentRepositoryImpl implements AppointmentRepository{
+    
     @Autowired
     private LocalSessionFactoryBean factory;
 
@@ -50,13 +50,12 @@ public class AppointmentRepositoryImpl implements AppointmentRepository {
     @Override
     public void save(Appointments appointment) {
         Session s = this.factory.getObject().getCurrentSession();
-        if (appointment.getId() == null) {
+        if (appointment.getId()==null)
             s.persist(appointment);
-        } else {
+        else
             s.merge(appointment);
-        }
     }
-
+  
     @Override
     public void delete(int id) {
         Session s = this.factory.getObject().getCurrentSession();
@@ -65,5 +64,5 @@ public class AppointmentRepositoryImpl implements AppointmentRepository {
             s.remove(appointment);
         }
     }
-
+    
 }
