@@ -16,6 +16,7 @@ public interface AppointmentRepository {
     List<Appointments> getByPatientId(int patientId);
     Appointments getById(int id);
     void save(Appointments appointment);
-    void delete(int id);
+//    void delete(int id);
+    boolean existsByPatientAndTime(int patientId, java.util.Date scheduledAt);
 }
 

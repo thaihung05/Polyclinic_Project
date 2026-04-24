@@ -11,6 +11,6 @@ import com.pkdk.pojo.Payments;
  * @author vanlong
  */
 public interface PaymentRepository {
-    Payments save(Payments payment);
+    void save(Payments payment);
     Payments getById(int id);
 }

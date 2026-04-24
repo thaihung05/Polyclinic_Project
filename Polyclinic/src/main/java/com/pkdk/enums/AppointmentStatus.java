@@ -10,8 +10,9 @@ package com.pkdk.enums;
  * @author Admin
  */
 public enum AppointmentStatus {
-    pending,
-    confirmed,
-    completed,
-    cancelled
+    PENDING,
+    CONFIRMED,
+    COMPLETED,
+    CANCELLED,
+    IN_PROGRESS
 }

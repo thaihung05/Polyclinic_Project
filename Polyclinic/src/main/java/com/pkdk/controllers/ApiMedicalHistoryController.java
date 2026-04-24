@@ -41,11 +41,11 @@ public class ApiMedicalHistoryController {
     public ResponseEntity<?> getMedicalRecords(Principal principal){
         Users u = this.userService.getUserByUserName(principal.getName());
         if (u==null){
-            return new ResponseEntity<>("Không tìm thấy người dùng", HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>("Không tìm thấy người dùng", HttpStatus.BAD_REQUEST);
         }
         Patients patient = this.patientService.getPatientByUserId(u.getId());
         if (patient==null){
-            return new ResponseEntity<>("Không tìm thấy bệnh nhân", HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>("Không tìm thấy bệnh nhân", HttpStatus.BAD_REQUEST);
         }
         
         List<MedicalRecords> list = this.medicalHistoryService.getMedicalRecordsByPatientId(patient.getId());
@@ -57,11 +57,11 @@ public class ApiMedicalHistoryController {
     public ResponseEntity<?> getLabResults(Principal principal){
         Users u = this.userService.getUserByUserName(principal.getName());
         if (u==null){
-            return new ResponseEntity<>("Không tìm thấy người dùng", HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>("Không tìm thấy người dùng", HttpStatus.BAD_REQUEST);
         }
         Patients patient = this.patientService.getPatientByUserId(u.getId());
         if (patient==null){
-            return new ResponseEntity<>("Không tìm thấy bệnh nhân", HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>("Không tìm thấy bệnh nhân", HttpStatus.BAD_REQUEST);
         }
         
         List<LabResults> list=this.medicalHistoryService.getLabResultsByPatientId(patient.getId());

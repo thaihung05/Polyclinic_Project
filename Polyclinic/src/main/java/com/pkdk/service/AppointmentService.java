@@ -17,4 +17,5 @@ public interface AppointmentService {
     Appointments getById(int id);
     void save(Appointments appointment);
     Appointments book(int doctorId, int scheduleId, int patientId, String symptoms);
+    boolean existsByPatientAndTime(int patientId, java.util.Date scheduledAt);
 }

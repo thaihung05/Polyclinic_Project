@@ -6,6 +6,7 @@ package com.pkdk.repository.impl;
 
 import com.pkdk.pojo.Appointments;
 import com.pkdk.repository.AppointmentRepository;
+import java.util.Date;
 import java.util.List;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
@@ -56,13 +57,28 @@ public class AppointmentRepositoryImpl implements AppointmentRepository{
             s.merge(appointment);
     }
   
+//    @Override
+//    public void delete(int id) {
+//        Session s = this.factory.getObject().getCurrentSession();
+//        Appointments appointment = s.get(Appointments.class, id);
+//        if (appointment != null) {
+//            s.remove(appointment);
+//        }
+//    }
+
     @Override
-    public void delete(int id) {
+    public boolean existsByPatientAndTime(int patientId, Date scheduledAt) {
         Session s = this.factory.getObject().getCurrentSession();
-        Appointments appointment = s.get(Appointments.class, id);
-        if (appointment != null) {
-            s.remove(appointment);
-        }
+        Query q = s.createQuery(
+            "SELECT COUNT(a) FROM Appointments a " +
+            "WHERE a.patientId.id = :patientId " +
+            "AND a.scheduledAt = :scheduledAt " +
+            "AND a.status NOT IN ('CANCELLED', 'NO_SHOW')",  // ← lịch đã hủy thì không tính
+            Long.class);
+        q.setParameter("patientId", patientId);
+        q.setParameter("scheduledAt", scheduledAt);
+        boolean check = ((Long) q.getSingleResult()) > 0;
+        return check;
     }
     
 }

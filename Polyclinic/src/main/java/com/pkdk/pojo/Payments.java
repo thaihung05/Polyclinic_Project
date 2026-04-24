@@ -73,6 +73,9 @@ public class Payments implements Serializable {
     @Column(name = "ngay_tao")
     @Temporal(TemporalType.TIMESTAMP)
     private Date ngayTao;
+    @Size(max = 500)
+    @Column(name = "qr_url")
+    private String qrUrl;
     @JsonIgnore
     @OneToMany(mappedBy = "paymentId")
     private Collection<Appointments> appointmentsCollection;
@@ -148,6 +151,14 @@ public class Payments implements Serializable {
         this.ngayTao = ngayTao;
     }
 
+    public String getQrUrl() {
+        return qrUrl;
+    }
+
+    public void setQrUrl(String qrUrl) {
+        this.qrUrl = qrUrl;
+    }
+
     public Collection<Appointments> getAppointmentsCollection() {
         return appointmentsCollection;
     }
@@ -180,5 +191,5 @@ public class Payments implements Serializable {
     public String toString() {
         return "com.pkdk.pojo.Payments[ id=" + id + " ]";
     }
-    
+
 }

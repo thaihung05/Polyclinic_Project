@@ -11,6 +11,8 @@ import com.pkdk.pojo.Payments;
  * @author vanlong
  */
 public interface PaymentService {
+    void save(Payments payment);
+    Payments getById(int id);
     Payments createPending(int appointmentId, String method);
     Payments confirm(int appointmentId);
 }
