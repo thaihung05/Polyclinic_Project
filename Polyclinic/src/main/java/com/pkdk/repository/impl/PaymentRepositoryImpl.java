@@ -23,13 +23,12 @@ public class PaymentRepositoryImpl implements PaymentRepository{
     private LocalSessionFactoryBean factory;
     
     @Override
-    public Payments save(Payments payment) {
+    public void save(Payments payment) {
         Session s = this.factory.getObject().getCurrentSession();
          if (payment.getId() == null)
             s.persist(payment);
         else
             s.merge(payment);
-        return payment;
     }
 
     @Override

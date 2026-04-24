@@ -4,6 +4,7 @@
  */
 package com.pkdk.service.impl;
 
+import com.pkdk.enums.AppointmentStatus;
 import com.pkdk.pojo.Appointments;
 import com.pkdk.pojo.DoctorSchedules;
 import com.pkdk.pojo.Doctors;
@@ -75,18 +76,21 @@ public class AppointmentServiceImpl implements AppointmentService {
         if (patient == null) {
             throw new RuntimeException("Không tìm thấy bệnh nhân");
         }
+        
+        if (this.existsByPatientAndTime(patientId, schedule.getStartTime()))
+            throw new RuntimeException("Bạn đã có lịch hẹn vào khung giờ này rồi!");
 
         Appointments appointment = new Appointments();
         appointment.setDoctorId(doctor);
         appointment.setPatientId(patient);
         appointment.setScheduledAt(schedule.getStartTime());
         appointment.setSymptoms(symptoms);
-        appointment.setStatus("PENDING");
+        appointment.setStatus(AppointmentStatus.PENDING.toString());
         appointment.setNgayTao(new Date());
         this.save(appointment);
 
         schedule.setIsActive(false);
-        scheduleService.save(schedule);
+        this.scheduleService.save(schedule);
         
         String doctorName=doctor.getUserId().getName();
         String scheduledAt = new SimpleDateFormat("HH:mm dd/MM/yyyy")
@@ -114,5 +118,10 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Override
     public void save(Appointments appointment) {
         this.appointmentRepo.save(appointment);
+    }
+
+    @Override
+    public boolean existsByPatientAndTime(int patientId, Date scheduledAt) {
+        return this.appointmentRepo.existsByPatientAndTime(patientId, scheduledAt);
     }
 }

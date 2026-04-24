@@ -36,7 +36,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @CrossOrigin
-@RequestMapping("/api/secure/appointments")
+@RequestMapping("/api")
 public class ApiAppointmentController {
 
     @Autowired
@@ -134,7 +134,7 @@ public class ApiAppointmentController {
         }
 
         try {
-            Appointments appt = appointmentService.book(doctorId, scheduleId, p.getId(), symptoms);
+            Appointments appt = this.appointmentService.book(doctorId, scheduleId, p.getId(), symptoms);
             return new ResponseEntity<>(appt, HttpStatus.CREATED);
         } catch (RuntimeException ex) {
             return new ResponseEntity<>("Lỗi tạo lịch hẹn: " + ex.getMessage(), HttpStatus.BAD_REQUEST);
