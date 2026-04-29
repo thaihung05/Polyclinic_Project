@@ -191,3 +191,9 @@ footer.site-footer .contact-row {
     color: var(--accent) !important;
     background: rgba(0,184,156,.08);
 }
+
+.dropdown-menu {
+    display: block !important;
+    z-index: 9999 !important;
+    position: absolute !important;
+}
