@@ -5,6 +5,7 @@ import Register from "./screens/User/Register";
 import Profile from "./screens/User/Profile";
 import Appointment from "./screens/Appointment/Appointment";
 import ProtectedRoute from "./components/ProtectedRoute";
+import PublicRoute from "./components/PublicRoute";
 import DoctorDashboard from "./screens/Doctor/DoctorDashboard";
 
 function App() {
@@ -12,8 +13,8 @@ function App() {
         <BrowserRouter>
             <Routes>
                 <Route path="/" element={<Home />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
+                <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+                <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
                 <Route path="/appointment" element={
                     <ProtectedRoute requiredRole="ROLE_PATIENT"><Appointment /></ProtectedRoute>
                 } />
