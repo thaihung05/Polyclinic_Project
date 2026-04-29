@@ -276,7 +276,6 @@ public class UserServiceImpl implements UserService {
             return false;
         }
 
-        // Kiểm tra mật khẩu cũ
         if (!this.passwordEncoder.matches(oldPassword, u.getPassword())) {
             return false;
         }
