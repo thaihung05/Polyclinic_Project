@@ -50,7 +50,7 @@ public class ApiScheduleController {
             return new ResponseEntity<>("Không tìm thấy bác sĩ hợp lệ", HttpStatus.NOT_FOUND);
         List<DoctorSchedules> s = this.scheduleService.getByDoctorId(doctorId);
         
-        return new ResponseEntity<>(s,HttpStatus.OK);
+        return new ResponseEntity<>(s, HttpStatus.OK);
     }
     
     @PostMapping("/api/secure/doctors/{doctorId}/schedules")
@@ -64,12 +64,21 @@ public class ApiScheduleController {
         if (!UserRole.ROLE_DOCTOR.name().equals(caller.getRole()))
             return new ResponseEntity<>("Chỉ bác sĩ mới có quyền thêm lịch làm việc",HttpStatus.FORBIDDEN);
         
+        Doctors callerDoctor = this.doctorService.getDoctorByUserId(caller.getId());
+        if (callerDoctor == null || callerDoctor.getId()!=doctorId)
+            return new ResponseEntity<>("Bác sĩ chỉ có quyền thêm lịch của chính mình",HttpStatus.FORBIDDEN);
+        
         Doctors d = this.doctorService.getDoctorById(doctorId);
         if (d == null)
             return new ResponseEntity<>("Không tìm thấy bác sĩ hợp lệ", HttpStatus.NOT_FOUND);
         s.setId(null);
         s.setDoctorId(d);
-        this.scheduleService.save(s);
+        s.setIsActive(true);
+        try {
+            this.scheduleService.save(s);
+        } catch (RuntimeException ex) {
+            return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+        }
         return new ResponseEntity<>(s, HttpStatus.CREATED);
     }
     
@@ -83,9 +92,21 @@ public class ApiScheduleController {
         if (!UserRole.ROLE_DOCTOR.name().equals(caller.getRole()))
             return new ResponseEntity<>("Chỉ bác sĩ mới có quyền sửa lịch làm việc", HttpStatus.FORBIDDEN);
         
+        Doctors callerDoctor = this.doctorService.getDoctorByUserId(caller.getId());
+        if (callerDoctor == null || callerDoctor.getId()!=doctorId)
+            return new ResponseEntity<>("Bác sĩ chỉ có quyền sửa lịch của chính mình",HttpStatus.FORBIDDEN);
+        
         DoctorSchedules schedules = this.scheduleService.getById(scheduleId);
         if (schedules == null)
             return new ResponseEntity<>("Không tìm thấy lịch làm việc hợp lệ", HttpStatus.NOT_FOUND);
+        if (schedules.getDoctorId().getId()!=doctorId)
+            return new ResponseEntity<>("Lịch làm việc không thuộc bác sĩ này",HttpStatus.FORBIDDEN);
+        
+        boolean timeChanged = !s.getStartTime().equals(schedules.getStartTime()) || !s.getEndTime().equals(schedules.getEndTime());
+        
+        if (timeChanged && !schedules.getIsActive())
+            return new ResponseEntity<>("Không thể thay đổi giờ của lịch đã được bệnh nhân đặt", HttpStatus.BAD_REQUEST);
+        
         schedules.setStartTime(s.getStartTime());
         schedules.setEndTime(s.getEndTime());
         schedules.setIsActive(s.getIsActive());
@@ -104,9 +125,20 @@ public class ApiScheduleController {
         if (!UserRole.ROLE_DOCTOR.name().equals(caller.getRole()))
             return new ResponseEntity<>("Chỉ bác sĩ mới có quyền xóa lịch làm việc", HttpStatus.FORBIDDEN);
         
+        Doctors callerDoctor = this.doctorService.getDoctorByUserId(caller.getId());
+        if (callerDoctor == null || callerDoctor.getId()!=doctorId)
+            return new ResponseEntity<>("Bác sĩ chỉ có quyền xóa lịch của chính mình",HttpStatus.FORBIDDEN);
+        
         DoctorSchedules schedules = this.scheduleService.getById(scheduleId);
-        if (schedules==null)
+        if (schedules == null)
             return new ResponseEntity<>("Không tìm thấy lịch làm việc hợp lệ",HttpStatus.NOT_FOUND);
+        
+        if (schedules.getDoctorId().getId() != doctorId)
+            return new ResponseEntity<>("Lịch làm việc không thuộc về bác sĩ này", HttpStatus.FORBIDDEN);
+        
+        if (!schedules.getIsActive())
+            return new ResponseEntity<>("Không thể xóa lịch đã được bệnh nhân đặt", HttpStatus.BAD_REQUEST);
+
         this.scheduleService.delete(scheduleId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         

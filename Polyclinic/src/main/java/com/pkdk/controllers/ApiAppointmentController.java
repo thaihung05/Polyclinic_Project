@@ -4,7 +4,9 @@
  */
 package com.pkdk.controllers;
 
+import com.pkdk.enums.UserRole;
 import com.pkdk.pojo.Appointments;
+import com.pkdk.pojo.DoctorSchedules;
 import com.pkdk.pojo.Doctors;
 import com.pkdk.pojo.Patients;
 import com.pkdk.pojo.Users;
@@ -12,6 +14,7 @@ import com.pkdk.service.AppointmentService;
 import com.pkdk.service.DoctorService;
 import com.pkdk.service.GoogleMeetingService;
 import com.pkdk.service.PatientService;
+import com.pkdk.service.ScheduleService;
 import com.pkdk.service.UserService;
 import java.security.Principal;
 import java.util.Date;
@@ -50,10 +53,12 @@ public class ApiAppointmentController {
 
     @Autowired
     private GoogleMeetingService googleMeetingService;
-    
+
     @Autowired
     private UserService userService;
-    
+
+    @Autowired
+    private ScheduleService scheduleService;
 
     @GetMapping("/secure/patient/appointments")
     public ResponseEntity<?> getMyAppointments(Principal principal) {
@@ -151,37 +156,15 @@ public class ApiAppointmentController {
         return new ResponseEntity<>(a, HttpStatus.OK);
     }
 
-    @PostMapping
-    public ResponseEntity<?> createAppointment(@RequestBody Appointments appointment) {
-        if (appointment.getDoctorId().getId() == null) {
-            return new ResponseEntity<>("Vui lòng nhập id của bác sĩ", HttpStatus.BAD_REQUEST);
-        }
-        if (appointment.getPatientId().getId() == null) {
-            return new ResponseEntity<>("Vui lòng nhập id của bệnh nhân", HttpStatus.BAD_REQUEST);
-        }
-
-        Doctors d = this.doctorService.getDoctorById(appointment.getDoctorId().getId());
-        Patients p = this.patientService.getPatientByUserId(appointment.getPatientId().getId());
-
-        if (d == null) {
-            return new ResponseEntity<>("Bác sĩ không tồn tại", HttpStatus.NOT_FOUND);
-        }
-        if (p == null) {
-            return new ResponseEntity<>("Bệnh nhân không tồn tại", HttpStatus.NOT_FOUND);
-        }
-
-        appointment.setId(null);
-        appointment.setDoctorId(d);
-        appointment.setPatientId(p);
-        appointment.setStatus("pending");
-        appointment.setNgayTao(new Date());
-        this.appointmentService.save(appointment);
-        return new ResponseEntity<>(appointment, HttpStatus.CREATED);
-    }
-
-    @PatchMapping("/{id}/status")
+    @PatchMapping("/secure/appointments/{id}/status")
     public ResponseEntity<?> updateStatus(@PathVariable("id") int id,
-            @RequestBody Map<String, String> body) {
+            @RequestBody Map<String, String> body, Principal principal) {
+
+        Users u = this.userService.getUserByUserName(principal.getName());
+        if (u == null) {
+            return new ResponseEntity<>("Không tìm thấy người dùng", HttpStatus.UNAUTHORIZED);
+        }
+
         Appointments a = this.appointmentService.getById(id);
         if (a == null) {
             return new ResponseEntity<>("Không tìm thấy lịch hẹn", HttpStatus.NOT_FOUND);
@@ -192,31 +175,84 @@ public class ApiAppointmentController {
             return new ResponseEntity<>("Thiếu trạng thái mới", HttpStatus.BAD_REQUEST);
         }
 
+        String role = u.getRole();
+        if (UserRole.ROLE_DOCTOR.name().equals(role)) {
+            Doctors d = this.doctorService.getDoctorByUserId(u.getId());
+            if (d == null || a.getDoctorId().getId() != d.getId()) {
+                return new ResponseEntity<>("Bác sĩ chỉ cập nhật trạng thái lịch hẹn của mình", HttpStatus.FORBIDDEN);
+            }
+            if (!newStatus.equals("CONFIRMED") && !newStatus.equals("COMPLETED") && !newStatus.equals("CANCELLED")) {
+                return new ResponseEntity<>("Bác sĩ không có quyền đặt trạng thái: " + newStatus, HttpStatus.FORBIDDEN);
+            }
+        } else if (UserRole.ROLE_PATIENT.name().equals(role)) {
+            Patients p = this.patientService.getPatientByUserId(u.getId());
+            if (p == null || a.getPatientId().getId() != p.getId()) {
+                return new ResponseEntity<>("Bệnh nhân chỉ cập nhật trạng thái lịch hẹn của mình", HttpStatus.FORBIDDEN);
+            }
+            if ("CANCELLED".equals(newStatus)) {
+                a.setCancelReason(body.get("cancelReason"));
+                a.setCancelledBy(body.get("cancelledBy"));
+                Date now = new Date();
+                if (a.getScheduledAt() != null && a.getScheduledAt().after(now)) {
+                    DoctorSchedules slot = this.scheduleService.getByDoctorAndStartTime(
+                            a.getDoctorId().getId(), a.getScheduledAt());
+                    if (slot != null && !slot.getIsActive()) {
+                        this.scheduleService.reactivate(slot);
+                    }
+                }
+            } else {
+                return new ResponseEntity<>("Bệnh nhân chỉ được quyền hủy lịch hẹn của mình", HttpStatus.FORBIDDEN);
+            }
+
+        } else if (!UserRole.ROLE_ADMIN.name().equals(role)) {
+            return new ResponseEntity<>("Không có quyền thực hiện thao tác này", HttpStatus.FORBIDDEN);
+        }
+
         if (body.containsKey("cancelReason")) {
             a.setCancelReason(body.get("cancelReason"));
             a.setCancelledBy(body.get("cancelledBy"));
         }
 
         a.setStatus(newStatus);
+
         this.appointmentService.save(a);
         return new ResponseEntity<>(a, HttpStatus.OK);
     }
 
-    @PatchMapping("/{id}/meeting-url")
+    @PatchMapping("/secure/appointments/{id}/meeting-url")
     public ResponseEntity<?> updateMeetingUrl(@PathVariable("id") int id,
-            @RequestBody Map<String, String> body) {
+            @RequestBody Map<String, String> body, Principal principal) {
+
+        Users u = this.userService.getUserByUserName(principal.getName());
+        if (u == null) {
+            return new ResponseEntity<>("Không tìm thấy người dùng", HttpStatus.UNAUTHORIZED);
+        }
+
+        if (!UserRole.ROLE_DOCTOR.name().equals(u.getRole())) {
+            return new ResponseEntity<>("Chỉ bác sĩ mới có quyền tạo link họp", HttpStatus.FORBIDDEN);
+        }
+
+        Doctors d = this.doctorService.getDoctorByUserId(u.getId());
+        if (d == null) {
+            return new ResponseEntity<>("Không tìm thấy thông tin bác sĩ", HttpStatus.BAD_REQUEST);
+        }
+
         Appointments a = this.appointmentService.getById(id);
         if (a == null) {
             return new ResponseEntity<>("Không tìm thấy lịch hẹn", HttpStatus.NOT_FOUND);
         }
 
-        String meetLink = googleMeetingService.createMeeting(a);
-        if (meetLink == null) {
-            return new ResponseEntity<>("Không tạo được link Meeting", HttpStatus.BAD_REQUEST);
+        if (a.getDoctorId().getId() != d.getId()) {
+            return new ResponseEntity<>("Bác sĩ chỉ được tạo link họp cho lịch hẹn của mình", HttpStatus.FORBIDDEN);
         }
 
         if (a.getMeetingUrl() != null) {
             return new ResponseEntity<>("Đã có meeting", HttpStatus.BAD_REQUEST);
+        }
+
+        String meetLink = googleMeetingService.createMeeting(a);
+        if (meetLink == null) {
+            return new ResponseEntity<>("Không tạo được link Meeting", HttpStatus.BAD_REQUEST);
         }
 
         a.setMeetingUrl(meetLink);

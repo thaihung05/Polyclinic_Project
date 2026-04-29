@@ -1,37 +1,31 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { authApis, endpoints } from "../../configs/Api";
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import Header from "../../components/Header";
+import "./DoctorDashboard.css";
 
 const DoctorDashboard = () => {
-
-    const navigate = useNavigate();
-    const token = localStorage.getItem('polyclinic_token');
-
-    const [appointments, setAppointments] = useState([]);
-    const [loading, setLoading] = useState(false);
-
-    const loadAppointments = async () => {
-        try {
-            setLoading(true);
-            const res = await authApis(token).get(endpoints['doctor-appointments']);
-            setAppointments(res.data);
-        }
-        catch(err){
-            console.log(err);
-        }
-        finally{
-            setLoading(false);
-        }
-    };
-
-    useEffect(()=>{
-        loadAppointments();
-    }, []);
-
-    return(
+    return (
         <>
             <Header />
+            <div className="doctor-layout">
+                <aside className="doctor-sidebar">
+                    <div className="sidebar-header">
+                        <i className="bi bi-hospital me-2"></i>Bác sĩ
+                    </div>
+                    <nav className="sidebar-nav">
+                        <NavLink to="/doctor/dashboard" end className={({ isActive }) => isActive ? "sidebar-link active" : "sidebar-link"}>
+                            <i className="bi bi-calendar-check me-2"></i>Lịch hẹn bệnh nhân
+                        </NavLink>
+                        <NavLink to="/doctor/dashboard/schedules" className={({ isActive }) => isActive ? "sidebar-link active" : "sidebar-link"}>
+                            <i className="bi bi-clock me-2"></i>Lịch làm việc
+                        </NavLink>
+                    </nav>
+                </aside>
+
+                <main className="doctor-content">
+                    <Outlet />
+                </main>
+            </div>
         </>
     );
 }
