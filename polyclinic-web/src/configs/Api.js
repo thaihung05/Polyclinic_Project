@@ -12,7 +12,10 @@ export const endpoints = {
     'schedules': (doctorId) => `/doctors/${doctorId}/schedules`,
 
     'profile': '/secure/profile',
+    'update-profile': '/secure/profile',
+    'change-password': '/secure/profile/change-password',
     'doctor-appointments': '/secure/doctor/appointments',
+    "patient-appointments": '/secure/patient/appointments',
     'appointment-status': (id) => `/${id}/status`,
     'appointment-meeting': (id) => `/${id}/meeting`
 

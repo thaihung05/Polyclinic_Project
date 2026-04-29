@@ -151,34 +151,6 @@ public class ApiAppointmentController {
         return new ResponseEntity<>(a, HttpStatus.OK);
     }
 
-    @PostMapping
-    public ResponseEntity<?> createAppointment(@RequestBody Appointments appointment) {
-        if (appointment.getDoctorId().getId() == null) {
-            return new ResponseEntity<>("Vui lòng nhập id của bác sĩ", HttpStatus.BAD_REQUEST);
-        }
-        if (appointment.getPatientId().getId() == null) {
-            return new ResponseEntity<>("Vui lòng nhập id của bệnh nhân", HttpStatus.BAD_REQUEST);
-        }
-
-        Doctors d = this.doctorService.getDoctorById(appointment.getDoctorId().getId());
-        Patients p = this.patientService.getPatientByUserId(appointment.getPatientId().getId());
-
-        if (d == null) {
-            return new ResponseEntity<>("Bác sĩ không tồn tại", HttpStatus.NOT_FOUND);
-        }
-        if (p == null) {
-            return new ResponseEntity<>("Bệnh nhân không tồn tại", HttpStatus.NOT_FOUND);
-        }
-
-        appointment.setId(null);
-        appointment.setDoctorId(d);
-        appointment.setPatientId(p);
-        appointment.setStatus("pending");
-        appointment.setNgayTao(new Date());
-        this.appointmentService.save(appointment);
-        return new ResponseEntity<>(appointment, HttpStatus.CREATED);
-    }
-
     @PatchMapping("/{id}/status")
     public ResponseEntity<?> updateStatus(@PathVariable("id") int id,
             @RequestBody Map<String, String> body) {

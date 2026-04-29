@@ -81,7 +81,7 @@ public class Appointments implements Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Ho_Chi_Minh")
     private Date ngayTao;
-    @JsonIgnoreProperties({"specialtyId", "userId", "doctorSchedulesCollection", "appointmentsCollection"})
+    @JsonIgnoreProperties({"doctorSchedulesCollection", "appointmentsCollection"})
     @JoinColumn(name = "doctor_id", referencedColumnName = "id")
     @ManyToOne(optional = false)
     private Doctors doctorId;

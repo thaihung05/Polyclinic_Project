@@ -7,6 +7,7 @@ import Appointment from "./screens/Appointment/Appointment";
 import ProtectedRoute from "./components/ProtectedRoute";
 import PublicRoute from "./components/PublicRoute";
 import DoctorDashboard from "./screens/Doctor/DoctorDashboard";
+import PatientAppointment from "./screens/Patient/Appointment/PatientAppointment";
 
 function App() {
     return (
@@ -25,6 +26,7 @@ function App() {
                 <Route path="/profile" element={
                     <ProtectedRoute><Profile /></ProtectedRoute>
                 } />
+                <Route path="/patient/appointments" element={<ProtectedRoute><PatientAppointment/></ProtectedRoute>}></Route>
             </Routes>
         </BrowserRouter>
     );

@@ -4,7 +4,9 @@
  */
 package com.pkdk.controllers;
 
+import com.pkdk.pojo.Patients;
 import com.pkdk.pojo.Users;
+import com.pkdk.service.PatientService;
 import com.pkdk.service.UserService;
 import com.pkdk.utils.JwtUtils;
 import java.security.Principal;
@@ -12,6 +14,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -36,6 +39,8 @@ public class ApiUserController {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private PatientService patientService;
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestParam Map<String, String> info,
@@ -111,7 +116,7 @@ public class ApiUserController {
                     return new ResponseEntity<>("Ngày sinh không hợp lệ", HttpStatus.BAD_REQUEST);
                 }
             } catch (ParseException e) {
-                return new ResponseEntity<>("Lỗi: "+ e.getMessage(), HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>("Lỗi: " + e.getMessage(), HttpStatus.BAD_REQUEST);
             }
         }
 
@@ -160,8 +165,30 @@ public class ApiUserController {
     @RequestMapping("/secure/profile")
     @ResponseBody
     @CrossOrigin
-    public ResponseEntity<Users> getProfile(Principal principal) {
-        return new ResponseEntity<>(this.userService.getUserByUserName(principal.getName()), HttpStatus.OK);
+    public ResponseEntity<?> getProfile(Principal principal) {
+        Users u = this.userService.getUserByUserName(principal.getName());
+        Patients p = this.patientService.getPatientByUserId(u.getId());
+
+        Map<String, Object> info = new HashMap<>();
+        info.put("id", u.getId());
+        info.put("username", u.getUsername());
+        info.put("name", u.getName());
+        info.put("email", u.getEmail());
+        info.put("phone", u.getPhone());
+        info.put("avatar", u.getAvatar());
+        info.put("role", u.getRole());
+        info.put("isActive", u.getIsActive());
+
+        if (p != null) {
+            info.put("gender", p.getGender());
+            info.put("address", p.getAddress());
+            info.put("dateOfBirth", p.getDateOfBirth());
+        } else {
+            info.put("gender", null);
+            info.put("address", null);
+            info.put("dateOfBirth", null);
+        }
+        return new ResponseEntity<>(info, HttpStatus.OK);
     }
 
     @PutMapping("/secure/profile")
@@ -207,10 +234,10 @@ public class ApiUserController {
         String newPassword = body.get("newPassword");
         String confirmNewPassword = body.get("confirmNewPassword");
 
-        oldPassword=oldPassword!=null?oldPassword.trim():null;
-        newPassword=newPassword!=null?newPassword.trim():null;
-        confirmNewPassword=confirmNewPassword!=null?confirmNewPassword.trim():null;
-        
+        oldPassword = oldPassword != null ? oldPassword.trim() : null;
+        newPassword = newPassword != null ? newPassword.trim() : null;
+        confirmNewPassword = confirmNewPassword != null ? confirmNewPassword.trim() : null;
+
         if (oldPassword == null || oldPassword.isEmpty()) {
             return new ResponseEntity<>("Mật khẩu cũ không được để trống", HttpStatus.BAD_REQUEST);
         }

@@ -97,7 +97,7 @@ const Header = () => {
                                                 {user.role === "ROLE_PATIENT" && (
                                                     <>
                                                         <li>
-                                                            <Link className="dropdown-item" to="/my-appointments">
+                                                            <Link className="dropdown-item" to="/patient/appointments">
                                                                 <i className="bi bi-calendar-check me-2"></i>Lịch hẹn của tôi
                                                             </Link>
                                                         </li>
