@@ -2,6 +2,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Home from "./screens/Home/Home";
 import Login from "./screens/User/Login";
 import Register from "./screens/User/Register";
+import Profile from "./screens/User/Profile";
 import Appointment from "./screens/Appointment/Appointment";
 import ProtectedRoute from "./components/ProtectedRoute";
 import DoctorDashboard from "./screens/Doctor/DoctorDashboard";
@@ -19,6 +20,9 @@ function App() {
 
                 <Route path="/doctor/dashboard" element={
                     <ProtectedRoute requiredRole="ROLE_DOCTOR"><DoctorDashboard /></ProtectedRoute>
+                } />
+                <Route path="/profile" element={
+                    <ProtectedRoute><Profile /></ProtectedRoute>
                 } />
             </Routes>
         </BrowserRouter>

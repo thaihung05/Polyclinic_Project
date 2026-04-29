@@ -1,6 +1,44 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
+import { useEffect, useRef, useState } from "react";
+
 
 const Header = () => {
+
+    const nav = useNavigate();
+    const token = localStorage.getItem('polyclinic_token');
+    const user = JSON.parse(localStorage.getItem("polyclinic_user") || "null");
+    const [showDropdown, setShowDropdown] = useState(false);
+    const dropdownRef = useRef(null);
+
+    console.log("token:", token);
+    console.log("user:", user);
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(e.target))
+                setShowDropdown(false);
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+
+    const logout = () => {
+        Swal.fire({
+            title: "Đăng xuất?",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonText: "Đăng xuất",
+            cancelButtonText: "Hủy"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                localStorage.removeItem("polyclinic_token");
+                localStorage.removeItem("polyclinic_user");
+                nav("/");
+            }
+        })
+    };
+
     return (
         <>
             <div className="topbar">
@@ -27,8 +65,77 @@ const Header = () => {
                         <ul className="navbar-nav me-auto">
                             <li className="nav-item"><Link className="nav-link" to="/">Trang Chủ</Link></li>
                             <li className="nav-item"><Link className="nav-link" to="/appointment">Đặt Lịch</Link></li>
-                            <li className="nav-item"><Link className="nav-link" to="/login">Đăng Nhập</Link></li>
-                            <li className="nav-item"><Link className="nav-link" to="/register">Đăng Ký</Link></li>
+                        </ul>
+                        <ul className="navbar-nav ms-auto align-items-center gap-2">
+                            {token && user ? (
+                                <>
+                                    <li className="nav-item">
+                                        <Link className="nav-link" to="/notifications">
+                                            <i className="bi bi-bell-fill"></i>
+                                        </Link>
+                                    </li>
+
+                                    <li className="nav-item dropdown" ref={dropdownRef}>
+                                        <a className="nav-link d-flex align-items-center gap-2" href="#"
+                                            onClick={(e) => { e.preventDefault(); setShowDropdown(!showDropdown); }}>
+                                            <img
+                                                src={user.avatar}
+                                                alt="avatar"
+                                                style={{ width: 40, height: 40, borderRadius: "50%", objectFit: "cover" }}
+                                            />
+                                            <span className="fw-bold">{user.name}</span>
+                                            <i className="bi bi-chevron-down" style={{ fontSize: 12 }}></i>
+                                        </a>
+                                        {showDropdown && (
+                                            <ul className={`dropdown-menu dropdown-menu-end ${showDropdown ? "show" : ""}`}>
+                                                <li>
+                                                    <Link className="dropdown-item" to="/profile">
+                                                        <i className="bi bi-person-fill me-2"></i>Hồ sơ
+                                                    </Link>
+                                                </li>
+
+                                                {user.role === "ROLE_PATIENT" && (
+                                                    <>
+                                                        <li>
+                                                            <Link className="dropdown-item" to="/my-appointments">
+                                                                <i className="bi bi-calendar-check me-2"></i>Lịch hẹn của tôi
+                                                            </Link>
+                                                        </li>
+
+                                                        <li>
+                                                            <Link className="dropdown-item" to="/medical-history">
+                                                                <i className="bi bi-file-medical me-2"></i>Lịch sử khám
+                                                            </Link>
+                                                        </li>
+                                                    </>
+                                                )}
+
+                                                {user.role === "ROLE_DOCTOR" && (
+                                                    <>
+                                                        <li>
+                                                            <Link className="dropdown-item" to="/doctor/dashboard">
+                                                                <i className="bi bi-speedometer2 me-2"></i>Dashboard
+                                                            </Link>
+                                                        </li>
+                                                    </>
+                                                )}
+
+                                                <li><hr className="dropdown-divider" /></li>
+                                                <li>
+                                                    <button className="dropdown-item text-danger" onClick={logout}>
+                                                        <i className="bi bi-box-arrow-right me-2"></i>Đăng xuất
+                                                    </button>
+                                                </li>
+                                            </ul>
+                                        )}
+                                    </li>
+                                </>
+                            ) : (
+                                <>
+                                    <li className="nav-item"><Link className="nav-link" to="/login">Đăng Nhập</Link></li>
+                                    <li className="nav-item"><Link className="nav-link" to="/register">Đăng Ký</Link></li>
+                                </>
+                            )}
                         </ul>
                     </div>
                 </div>
