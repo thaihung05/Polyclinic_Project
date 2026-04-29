@@ -89,8 +89,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointment.setNgayTao(new Date());
         this.save(appointment);
 
-        schedule.setIsActive(false);
-        this.scheduleService.save(schedule);
+        this.scheduleService.deactivate(schedule);
         
         String doctorName=doctor.getUserId().getName();
         String scheduledAt = new SimpleDateFormat("HH:mm dd/MM/yyyy")

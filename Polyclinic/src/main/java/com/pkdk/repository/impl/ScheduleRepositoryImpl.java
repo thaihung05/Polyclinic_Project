@@ -6,6 +6,7 @@ package com.pkdk.repository.impl;
 
 import com.pkdk.pojo.DoctorSchedules;
 import com.pkdk.repository.ScheduleRepository;
+import java.util.Date;
 import java.util.List;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
@@ -20,8 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Repository
 @Transactional
-public class ScheduleRepositoryImpl implements ScheduleRepository{
-    
+public class ScheduleRepositoryImpl implements ScheduleRepository {
+
     @Autowired
     private LocalSessionFactoryBean factory;
 
@@ -42,18 +43,50 @@ public class ScheduleRepositoryImpl implements ScheduleRepository{
     @Override
     public void save(DoctorSchedules schedule) {
         Session s = this.factory.getObject().getCurrentSession();
-        if (schedule.getId()==null)
+        if (schedule.getId() == null) {
             s.persist(schedule);
-        else
+        } else {
             s.merge(schedule);
+        }
     }
 
     @Override
     public void delete(int id) {
         Session s = this.factory.getObject().getCurrentSession();
         DoctorSchedules schedule = s.get(DoctorSchedules.class, id);
-        if (schedule!=null)
+        if (schedule != null) {
             s.remove(schedule);
+        }
     }
-    
+
+    @Override
+    public boolean isOverlap(int doctorId, Date start, Date end, Integer excludeId) {
+        Session s = this.factory.getObject().getCurrentSession();
+        String hql = "SELECT COUNT(d) FROM DoctorSchedules d "
+                + "WHERE d.doctorId.id = :doctorId "
+                + "AND d.startTime < :end AND d.endTime > :start"
+                + (excludeId != null ? " AND d.id <> :excludeId" : "");
+        Query q = s.createQuery(hql, Long.class)
+                .setParameter("doctorId", doctorId)
+                .setParameter("start", start)
+                .setParameter("end", end);
+        if (excludeId != null) {
+            q.setParameter("excludeId", excludeId);
+        }
+        Long count = (Long) q.getSingleResult();
+        return count != null && count > 0;
+    }
+
+    @Override
+    public DoctorSchedules getByDoctorAndStartTime(int doctorId, Date startTime) {
+        Session s = this.factory.getObject().getCurrentSession();
+        Query q = s.createQuery(
+                "FROM DoctorSchedules d WHERE d.doctorId.id = :doctorId AND d.startTime = :startTime",
+                DoctorSchedules.class)
+                .setParameter("doctorId", doctorId)
+                .setParameter("startTime", startTime)
+                .setMaxResults(1);
+        return (DoctorSchedules) q.uniqueResult();
+    }
+
 }

@@ -5,6 +5,7 @@
 package com.pkdk.repository;
 
 import com.pkdk.pojo.DoctorSchedules;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -16,4 +17,6 @@ public interface ScheduleRepository {
     DoctorSchedules getById(int id);
     void save(DoctorSchedules schedule);
     void delete(int id);
+    boolean isOverlap(int doctorId, Date start, Date end, Integer excludeId);
+    DoctorSchedules getByDoctorAndStartTime(int doctorId, Date startTime);
 }
