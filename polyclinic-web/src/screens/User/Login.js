@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
-import Apis, { endpoints } from "../../configs/Api";
+import Apis, { authApis, endpoints } from "../../configs/Api";
 import Swal from "sweetalert2";
 import "./user.css";
 import "../../styles/base.css";
@@ -27,13 +27,23 @@ const Login = () => {
 
         try {
             const res = await Apis.post(endpoints.login, user);
+            const token = res.data.token;
 
-            console.log(res.data);
+            const profileRes = await authApis(token).get(endpoints.profile);
+            const profile = profileRes.data;
+
+            localStorage.setItem('polyclinic_token', token);
+            localStorage.setItem('polyclinic_user', JSON.stringify(profile));
+
+            const role = profile.role;
 
             Swal.fire({
                 icon: "success",
                 title: "Đăng nhập thành công!"
-            }).then(() => nav("/"));
+            }).then(() => {
+                if (role === "ROLE_DOCTOR") nav("/doctor/dashboard");
+                else nav("/");
+            });
         } catch (err) {
             console.error(err);
 
