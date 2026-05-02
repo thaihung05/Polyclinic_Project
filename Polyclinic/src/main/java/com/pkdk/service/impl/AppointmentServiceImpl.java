@@ -123,4 +123,45 @@ public class AppointmentServiceImpl implements AppointmentService {
     public boolean existsByPatientAndTime(int patientId, Date scheduledAt) {
         return this.appointmentRepo.existsByPatientAndTime(patientId, scheduledAt);
     }
+
+    @Override
+    public Appointments bookFollowUp(int doctorId, int scheduleId, int patientId, String sysptoms) {
+        Doctors doctor = this.doctorService.getDoctorById(doctorId);
+        if (doctor==null)
+            throw new RuntimeException("Không tìm thấy bác sĩ!");
+        DoctorSchedules ds = this.scheduleService.getById(scheduleId);
+        if (ds==null)
+            throw new RuntimeException("Lịch không hợp lệ!");
+        if (!ds.getIsActive())
+            throw new RuntimeException("Lịch hẹn đã ngừng hoạt động!");
+        if (!ds.getDoctorId().getId().equals(doctorId))
+            throw new RuntimeException("Lịch không thuôc về bác sĩ đang thao tác!");
+        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("Asia/Ho_Chi_Minh"));
+        Date now = cal.getTime();
+        
+        if (ds.getStartTime().before(now))
+            throw new RuntimeException("Lịch đã qua, vui lòng chọn lịch khác!");
+        Patients p = this.patientService.getPatientById(patientId);
+        if (p==null)
+            throw new RuntimeException("Không tìm thấy bệnh nhân!");
+        if (this.existsByPatientAndTime(patientId, ds.getStartTime()))
+            throw new RuntimeException("Bệnh nhân đã có lịch hẹn vào khung giờ này rồi!");
+        
+        Appointments a = new Appointments();
+        a.setDoctorId(doctor);
+        a.setPatientId(p);
+        a.setScheduledAt(ds.getStartTime());
+        a.setSymptoms(sysptoms);
+        a.setStatus(AppointmentStatus.PENDING.toString());
+        a.setNgayTao(new Date());
+        
+        this.save(a);
+        this.scheduleService.save(ds);
+        
+        String doctorName = doctor.getUserId().getName();
+        String scheduledAt = new SimpleDateFormat("HH:mm dd/MM/yyyy").format(a.getScheduledAt());
+        this.notificationService.createFollowUpNotification(p.getUserId(), doctorName, scheduledAt);
+        
+        return a;
+    }
 }

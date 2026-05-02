@@ -85,7 +85,7 @@ public class Appointments implements Serializable {
     @JoinColumn(name = "doctor_id", referencedColumnName = "id")
     @ManyToOne(optional = false)
     private Doctors doctorId;
-    @JsonIgnoreProperties({"appointmentsCollection", "userId"})
+    @JsonIgnoreProperties({"appointmentsCollection"})
     @JoinColumn(name = "patient_id", referencedColumnName = "id")
     @ManyToOne(optional = false)
     private Patients patientId;

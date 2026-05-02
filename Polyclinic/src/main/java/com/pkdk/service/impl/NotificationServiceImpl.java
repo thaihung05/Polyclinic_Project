@@ -4,7 +4,6 @@
  */
 package com.pkdk.service.impl;
 
-import com.pkdk.pojo.Appointments;
 import com.pkdk.pojo.Notifications;
 import com.pkdk.pojo.Users;
 import com.pkdk.repository.NotificationRepository;
@@ -89,6 +88,20 @@ public class NotificationServiceImpl implements NotificationService {
         } catch (Exception e) {
             System.err.println("Email thất bại: " + e.getMessage());
         }
+    }
+
+    @Override
+    public Notifications createFollowUpNotification(Users user, String doctorName, String scheduledAt) {
+        Notifications n = new Notifications();
+        n.setUserId(user);
+        n.setTitle("Lịch tái khám mới!");
+        n.setMessage(String.format(
+                "Bác sĩ %s đã đặt lịch tái khám cho bạn vào lúc %s. Vui lòng chuẩn bị kết quả xét nghiệm.",
+                doctorName, scheduledAt));
+        n.setNgayTao(new Date());
+        this.save(n);
+        this.sendEmailNoti(user, n);
+        return n;
     }
 
 }
