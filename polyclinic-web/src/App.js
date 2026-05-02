@@ -9,6 +9,7 @@ import PublicRoute from "./components/PublicRoute";
 import DoctorDashboard from "./screens/Doctor/DoctorDashboard";
 import AppointmentList from "./screens/Doctor/Appointments/AppointmentList";
 import PatientAppointment from "./screens/Patient/Appointment/PatientAppointment";
+import MedicalHistory from "./screens/Patient/MedicalHistory";
 
 
 function App() {
@@ -31,6 +32,7 @@ function App() {
                     <ProtectedRoute><Profile /></ProtectedRoute>
                 } />
                 <Route path="/patient/appointments" element={<ProtectedRoute><PatientAppointment/></ProtectedRoute>}></Route>
+                <Route path="/patient/medical-history" element={<ProtectedRoute><MedicalHistory/></ProtectedRoute>}></Route>
             </Routes>
         </BrowserRouter>
     );
