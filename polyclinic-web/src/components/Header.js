@@ -103,7 +103,7 @@ const Header = () => {
                                                         </li>
 
                                                         <li>
-                                                            <Link className="dropdown-item" to="/medical-history">
+                                                            <Link className="dropdown-item" to="/patient/medical-history">
                                                                 <i className="bi bi-file-medical me-2"></i>Lịch sử khám
                                                             </Link>
                                                         </li>
