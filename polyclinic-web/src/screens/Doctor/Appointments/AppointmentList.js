@@ -140,7 +140,7 @@ const AppointmentList = () => {
                         {list.map((a, i) => (
                             <tr key={a.id}>
                                 <td>{i+1}</td>
-                                <td>{a.patientId.userId.name}</td>
+                                <td>{a.patientId?.userId?.name}</td>
                                 <td>{a.scheduledAt}</td>
                                 <td>{a.symptoms}</td>
                                 <td>
