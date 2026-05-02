@@ -1,118 +1,302 @@
 import { useEffect, useState } from "react";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
-import Apis, { endpoints } from "../../configs/Api";
+import Apis, { authApis, endpoints } from "../../configs/Api";
 import "../../styles/base.css";
 import "./appointment.css";
+import Swal from "sweetalert2";
+import { Button, Form, Spinner } from "react-bootstrap";
+
 
 const Appointment = () => {
     const [specialties, setSpecialties] = useState([]);
     const [doctors, setDoctors] = useState([]);
+    const [schedules, setSchedules] = useState([]);
     const [selectedSpecialty, setSelectedSpecialty] = useState(null);
     const [selectedDoctor, setSelectedDoctor] = useState(null);
+    const [selectedDate, setSelectedDate] = useState(null);
+    const [selectedSchedule, setSelectedSchedule] = useState(null);
+    const [symptoms, setSymptoms] = useState("");
+    const [loading, setLoading] = useState(false);
+    const token = localStorage.getItem('polyclinic_token');
+
+    const loadSpecialties = async () => {
+        try {
+            setLoading(true);
+            const res = await Apis.get(endpoints['specialties']);
+            setSpecialties(res.data);
+        } catch (err) {
+            Swal.fire("Lỗi", "Không tải được các chuyên khoa", "error");
+        }
+        finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const loadSpecialties = async () => {
-            try {
-                const res = await Apis.get(endpoints.specialties);
-                setSpecialties(res.data);
-            } catch (err) {
-                console.error(err);
-            }
-        };
         loadSpecialties();
     }, []);
 
     const chooseSpecialty = async (specialty) => {
-        setSelectedSpecialty(specialty);
-        setSelectedDoctor(null);
-
         try {
+            setSelectedDoctor(null);
+            setSchedules([]);
+            setSelectedDate(null);
+            setSelectedSchedule(null);
             const res = await Apis.get(`${endpoints.doctors}?specialtyId=${specialty.id}`);
             setDoctors(res.data);
+            setSelectedSpecialty(specialty);
         } catch (err) {
-            console.error(err);
-            setDoctors([]);
+            Swal.fire("Lỗi", "Không tải được các bác sĩ", "error");
         }
+        
     };
 
-    return (
-        <>
-            <Header />
-            <section className="appt-main py-5">
-                <div className="container">
-                    <div className="row g-4">
-                        <div className="col-lg-8">
-                            <div className="booking-card">
-                                <div className="step-header mb-4">
-                                    <h4>Chọn Chuyên Khoa</h4>
-                                    <p>Chọn chuyên khoa và bác sĩ bạn muốn khám</p>
-                                </div>
+    const chooseDoctor = async (doctor) => {
+        try {
+            
+            const res = await Apis.get(endpoints.schedules(doctor.id));
+            setSelectedDoctor(doctor);
+            setSchedules(res.data.filter(s => s.isActive));
+        }
+        catch (err) {
+            Swal.fire('Lỗi', 'Không tải được lịch làm của các bác sĩ', 'error');
+        }
+    }
 
-                                <div className="specialty-grid mb-4">
-                                    {specialties.map(s => (
-                                        <div
-                                            key={s.id}
-                                            className={`specialty-tile ${selectedSpecialty?.id === s.id ? "selected" : ""}`}
-                                            onClick={() => chooseSpecialty(s)}
-                                        >
-                                            <div className="sp-icon">
-                                                <i className="bi bi-hospital-fill"></i>
-                                            </div>
-                                            <div className="sp-name">{s.name}</div>
-                                            <div className="sp-desc">{s.description}</div>
-                                        </div>
-                                    ))}
-                                </div>
+    const groupByDate = (schedules) => {
+        const groups = {};
+        schedules.forEach(s => {
+            const date = s.startTime.split(" ")[0];
+            if (!groups[date]) groups[date] = [];
+            groups[date].push(s);
+        })
+        return groups;
+    }
+    const formatDate = (dateStr) => {
+        const [year, month, day] = dateStr.split("-");
+        return `${day}/${month}/${year}`;
+    };
+    const formatTimeRange = (startTime, endTime) => {
+        const start = startTime.split(" ")[1].slice(0, 5);
+        const end = endTime.split(" ")[1].slice(0, 5);
+        return `${start} - ${end}`;
+    };
 
-                                <div className="doctor-list">
-                                    {doctors.length > 0 ? doctors.map(d => (
-                                        <div
-                                            key={d.id}
-                                            className={`doctor-card ${selectedDoctor?.id === d.id ? "selected" : ""}`}
-                                            onClick={() => setSelectedDoctor(d)}
-                                        >
-                                            <div className="dc-avatar">
-                                                <img src={d.avatar} alt={d.name} />
+    const bookAppointment = async () => {
+        if (!selectedDoctor) {
+            Swal.fire("Thông báo", "Vui lòng chọn bác sĩ", "warning");
+            return;
+        }
+        if (!selectedSchedule) {
+            Swal.fire("Thông báo", "Vui lòng chọn ca khám", "warning");
+        }
+        try {
+            setLoading(true);
+            await authApis(token).post(endpoints['book-appointment'], {
+                doctorId: selectedDoctor.id,
+                scheduleId: selectedSchedule.id,
+                symptoms: symptoms.trim() || null
+            })
+            Swal.fire("Thành công!", "Đặt lịch khám thành công!", "success");
+            setSelectedSpecialty(null);
+            setSelectedDoctor(null);
+            setSchedules([]);
+            setSelectedDate(null);
+            setSelectedSchedule(null);
+            setSymptoms("");
+            setDoctors([]);
+        }
+        catch (err) {
+            Swal.fire("Lỗi", "Đặt lịch không thành công", 'error');
+        }
+        finally {
+            setLoading(false);
+        }
+    }
+
+    const groupedSchedules = groupByDate(schedules);
+    const availableDate = Object.keys(groupedSchedules).sort();
+    const schedulesOfSelectedDate = selectedDate ? groupedSchedules[selectedDate] : [];
+
+    if (loading) {
+        return (
+            <>
+                <Header />
+                <div className="text-center py-5"><Spinner animation="border" /></div>
+                <Footer />
+            </>
+        );
+    }
+    else {
+        return (
+            <>
+                <Header />
+                <section className="appt-main py-5">
+                    <div className="container">
+                        <div className="row g-4">
+                            <div className="col-lg-8">
+                                <div className="booking-card">
+                                    <div className="step-header mb-4">
+                                        <h4>Chọn Chuyên Khoa</h4>
+                                        <p>Chọn chuyên khoa muốn khám</p>
+                                    </div>
+
+                                    <div className="specialty-grid mb-4">
+                                        {specialties.map(s => (
+                                            <div
+                                                key={s.id}
+                                                className={`specialty-tile ${selectedSpecialty?.id === s.id ? "selected" : ""}`}
+                                                onClick={() => chooseSpecialty(s)}
+                                            >
+                                                <div className="sp-icon">
+                                                    <i className="bi bi-hospital-fill"></i>
+                                                </div>
+                                                <div className="sp-name">{s.name}</div>
+                                                <div className="sp-desc">{s.description}</div>
                                             </div>
-                                            <div className="dc-info">
-                                                <div className="dc-name">{d.name}</div>
-                                                <div className="dc-title">Bác sĩ chuyên khoa</div>
+                                        ))}
+                                    </div>
+
+                                    {selectedSpecialty && (
+                                        <>
+                                            <div className="step-header mb-4">
+                                                <h4>Chọn bác sĩ</h4>
                                             </div>
-                                        </div>
-                                    )) : (
-                                        <div className="text-muted">Vui lòng chọn chuyên khoa để xem bác sĩ.</div>
+
+                                            <div className="doctor-list mb-4">
+                                                {doctors.length === 0 ? (
+                                                    <div className="text-muted">Không có bác sĩ nào trong chuyên khoa này.</div>
+                                                ) : doctors.map(d => (
+                                                    <div key={d.id} onClick={() => chooseDoctor(d)}
+                                                        className={`doctor-card ${selectedDoctor?.id === d.id ? "selected" : ""}`}>
+                                                        <div className="dc-avatar">
+                                                            <img src={d.userId?.avatar} alt={d.userId?.name} />
+                                                        </div>
+                                                        <div className="dc-info">
+                                                            <div className="dc-name">{d.userId?.name}</div>
+                                                            <div className="dc-title">Bác sĩ chuyên khoa {d.specialtyId?.name}</div>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </>
+                                    )}
+
+                                    {selectedDoctor && availableDate.length > 0 && (
+                                        <>
+                                            <div className="step-header mb-4">
+                                                <h4>Chọn ngày khám</h4>
+                                            </div>
+                                            <div className="date-grid mb-4">
+                                                {availableDate.map(date => (
+                                                    <div key={date}
+                                                        className={`date-tile ${selectedDate === date ? "selected" : ""}`}
+                                                        onClick={() => {
+                                                            setSelectedDate(date);
+                                                            setSelectedSchedule(null);
+                                                        }}
+                                                    >
+                                                        {formatDate(date)}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </>
+                                    )}
+
+
+                                    {selectedDate && (
+                                        <>
+                                            <div className="step-header mb-4">
+                                                <h4>Chọn ca khám</h4>
+                                            </div>
+                                            <div className="schedule-grid mb-4">
+                                                {schedulesOfSelectedDate.map(s => (
+                                                    <div key={s.id}
+                                                        className={`schedule-tile ${selectedSchedule?.id === s.id ? "selected" : ""}`}
+                                                        onClick={() => setSelectedSchedule(s)}
+                                                    >
+                                                        <i className="bi bi-clock me-2"></i>
+                                                        {formatTimeRange(s.startTime, s.endTime)}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </>
+                                    )}
+
+
+                                    {selectedSchedule && (
+                                        <>
+                                            <div className="step-header mb-4">
+                                                <h4>Mô tả triệu chứng</h4>
+                                            </div>
+                                            <Form.Group className="mb-4">
+                                                <Form.Control
+                                                    as="textarea"
+                                                    rows={3}
+                                                    placeholder="Mô tả triệu chứng của bạn (không bắt buộc)..."
+                                                    value={symptoms}
+                                                    onChange={e => setSymptoms(e.target.value)}
+                                                />
+                                            </Form.Group>
+                                            <Button variant="primary" className="w-100" onClick={bookAppointment} disabled={loading}>
+                                                {loading ? "Đang đặt lịch..." : "Xác nhận đặt lịch"}
+                                            </Button>
+
+                                        </>
                                     )}
                                 </div>
                             </div>
-                        </div>
 
-                        <div className="col-lg-4">
-                            <div className="summary-card">
-                                <div className="sc-header">
-                                    <i className="bi bi-clipboard2-check-fill me-2"></i>
-                                    Tóm Tắt Lịch Hẹn
-                                </div>
-
-                                <div className="sc-body">
-                                    <div className="sc-row">
-                                        <div className="sc-label">Chuyên khoa</div>
-                                        <div className="sc-value">{selectedSpecialty?.name || "Chưa chọn"}</div>
+                            <div className="col-lg-4">
+                                <div className="summary-card">
+                                    <div className="sc-header">
+                                        <i className="bi bi-clipboard2-check-fill me-2"></i>
+                                        Tóm Tắt Lịch Hẹn
                                     </div>
 
-                                    <div className="sc-row">
-                                        <div className="sc-label">Bác sĩ</div>
-                                        <div className="sc-value">{selectedDoctor?.name || "Chưa chọn"}</div>
+                                    <div className="sc-body">
+                                        <div className="sc-row">
+                                            <div className="sc-label">Chuyên khoa</div>
+                                            <div className="sc-value">{selectedSpecialty?.name || "Chưa chọn"}</div>
+                                        </div>
+
+                                        <div className="sc-row">
+                                            <div className="sc-label">Bác sĩ</div>
+                                            <div className="sc-value">{selectedDoctor?.name || "Chưa chọn"}</div>
+                                        </div>
+
+                                        <div className="sc-row">
+                                            <div className="sc-label">Ngày khám</div>
+                                            <div className="sc-value">{selectedDate ? formatDate(selectedDate) : "Chưa chọn"}</div>
+                                        </div>
+
+                                        <div className="sc-row">
+                                            <div className="sc-label">Ca khám</div>
+                                            <div className="sc-value">
+                                                {selectedSchedule
+                                                    ? formatTimeRange(selectedSchedule.startTime, selectedSchedule.endTime)
+                                                    : "Chưa chọn"}
+                                            </div>
+                                        </div>
+
+                                        <div className="sc-row">
+                                            <div className="sc-label">Triệu chứng</div>
+                                            <div className="sc-value">{symptoms || "Chưa nhập"}</div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </section>
-            <Footer />
-        </>
-    );
+                </section>
+                <Footer />
+            </>
+        );
+    }
+
+
+
 };
 
 export default Appointment;

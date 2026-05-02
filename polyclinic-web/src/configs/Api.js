@@ -20,9 +20,11 @@ export const endpoints = {
 
     'doctor-schedules': (doctorId) => `/secure/doctors/${doctorId}/schedules`,
     'doctor-schedule-item': (doctorId, scheduleId) => `/secure/doctors/${doctorId}/schedules/${scheduleId}`,
-    "patient-appointments": '/secure/patient/appointments',
+    'patient-appointments': '/secure/patient/appointments',
+
     'medical-records':'/secure/medical-records',
-    'lab-results':'/secure/lab-results'
+    'lab-results':'/secure/lab-results',
+    'book-appointment':'/secure/appointments'
 
 
 };
