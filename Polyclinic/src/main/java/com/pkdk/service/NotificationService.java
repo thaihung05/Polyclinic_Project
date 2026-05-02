@@ -19,5 +19,6 @@ public interface NotificationService {
     Notifications getById(int id);
     Notifications createAppointmentNotification(Users user, String doctorName, String date);
     Notifications createPaySuccessNotification(Users user, String transactionId, BigDecimal amount);
+    Notifications createFollowUpNotification(Users user, String doctorName, String scheduledAt);
     void markAsRead(Notifications n);
 }
