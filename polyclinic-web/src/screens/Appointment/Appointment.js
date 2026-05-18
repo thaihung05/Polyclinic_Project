@@ -5,8 +5,14 @@ import Apis, { authApis, endpoints } from "../../configs/Api";
 import "../../styles/base.css";
 import "./appointment.css";
 import Swal from "sweetalert2";
-import { Button, Form, Spinner } from "react-bootstrap";
+import { Button, Form, Modal, Spinner } from "react-bootstrap";
 
+
+const BANK_CONFIG = {
+    BANKING: { code: "TCB", account: "1234567890" },
+    MOMO: { code: "MOMO", account: "0123456789" },
+};
+const ACCOUNT_NAME = "PHONG KHAM TH VL";
 
 const Appointment = () => {
     const [specialties, setSpecialties] = useState([]);
@@ -17,6 +23,13 @@ const Appointment = () => {
     const [selectedDate, setSelectedDate] = useState(null);
     const [selectedSchedule, setSelectedSchedule] = useState(null);
     const [symptoms, setSymptoms] = useState("");
+
+    const [paymentMethod, setPaymentMethod] = useState("BANKING");
+    const [showPaymentModal, setShowPaymentModal] = useState(false);
+
+
+    const [paymentConfirming, setPaymentConfirming] = useState(false);
+
     const [loading, setLoading] = useState(false);
 
     const loadSpecialties = async () => {
@@ -48,12 +61,12 @@ const Appointment = () => {
         } catch (err) {
             Swal.fire("Lỗi", "Không tải được các bác sĩ", "error");
         }
-        
+
     };
 
     const chooseDoctor = async (doctor) => {
         try {
-            
+
             const res = await Apis.get(endpoints.schedules(doctor.id));
             setSelectedDoctor(doctor);
             setSchedules(res.data.filter(s => s.isActive));
@@ -82,37 +95,67 @@ const Appointment = () => {
         return `${start} - ${end}`;
     };
 
-    const bookAppointment = async () => {
+    const buildPreviewQrUrl = () => {
+        if (!selectedDoctor?.consultationFee) return null;
+        const { code, account } = BANK_CONFIG[paymentMethod] || BANK_CONFIG.BANKING;
+        const amount = selectedDoctor.consultationFee;
+        const desc = encodeURIComponent("Thanh toan kham benh");
+        const name = encodeURIComponent(ACCOUNT_NAME);
+        return `https://img.vietqr.io/image/${code}-${account}-compact2.png?amount=${amount}&addInfo=${desc}&accountName=${name}`;
+    };
+
+    const resetAll = () => {
+        setSelectedSpecialty(null);
+        setSelectedDoctor(null);
+        setSchedules([]);
+        setSelectedDate(null);
+        setSelectedSchedule(null);
+        setSymptoms("");
+        setDoctors([]);
+        setPaymentMethod("BANKING");
+    }
+
+    const handleOpenPaymentModal = () => {
         if (!selectedDoctor) {
             Swal.fire("Thông báo", "Vui lòng chọn bác sĩ", "warning");
             return;
         }
         if (!selectedSchedule) {
             Swal.fire("Thông báo", "Vui lòng chọn ca khám", "warning");
+            return;
         }
+        setShowPaymentModal(true);
+    };
+
+
+
+    const confirmPayment = async () => {
         try {
             setLoading(true);
             await authApis().post(endpoints['book-appointment'], {
                 doctorId: selectedDoctor.id,
                 scheduleId: selectedSchedule.id,
                 symptoms: symptoms.trim() || null
-            })
-            Swal.fire("Thành công!", "Đặt lịch khám thành công!", "success");
-            setSelectedSpecialty(null);
-            setSelectedDoctor(null);
-            setSchedules([]);
-            setSelectedDate(null);
-            setSelectedSchedule(null);
-            setSymptoms("");
-            setDoctors([]);
+            });
+            const appointmentId = appointmentRes.data.id;
+
+            await authApis(token).post(endpoints['payment-create'], {
+                appointmentId,
+                method: paymentMethod
+            });
+
+            await authApis(token).post(endpoints['payment-confirm'], {
+                appointmentId
+            });
+            setShowPaymentModal(false);
+            resetAll();
+            Swal.fire("Thành công!", "Đặt lịch và thanh toán thành công!", "success");
+        } catch (err) {
+            Swal.fire("Lỗi", err?.response?.data || "Thanh toán thất bại", "error");
+        } finally {
+            setPaymentConfirming(false);
         }
-        catch (err) {
-            Swal.fire("Lỗi", "Đặt lịch không thành công", 'error');
-        }
-        finally {
-            setLoading(false);
-        }
-    }
+    };
 
     const groupedSchedules = groupByDate(schedules);
     const availableDate = Object.keys(groupedSchedules).sort();
@@ -238,8 +281,8 @@ const Appointment = () => {
                                                     onChange={e => setSymptoms(e.target.value)}
                                                 />
                                             </Form.Group>
-                                            <Button variant="primary" className="w-100" onClick={bookAppointment} disabled={loading}>
-                                                {loading ? "Đang đặt lịch..." : "Xác nhận đặt lịch"}
+                                            <Button variant="primary" className="w-100" onClick={handleOpenPaymentModal} >
+                                                Thanh toán
                                             </Button>
 
                                         </>
@@ -289,6 +332,50 @@ const Appointment = () => {
                         </div>
                     </div>
                 </section>
+
+
+
+                <Modal show={showPaymentModal} onHide={() => setShowPaymentModal(false)} centered>
+                    <Modal.Header closeButton>
+                        <Modal.Title>Thanh toán lịch khám</Modal.Title>
+                    </Modal.Header>
+
+
+                    <Modal.Body className="text-center">
+
+                        <p className="text-muted mb-1">
+                            Thanh toán khám bệnh — Bác sĩ <strong>{selectedDoctor?.userId?.name}</strong>
+                        </p>
+                        <h5 className="fw-bold text-danger mb-3">
+                            {selectedDoctor?.consultationFee
+                                ? `${Number(selectedDoctor.consultationFee).toLocaleString("vi-VN")} VNĐ`
+                                : ""}
+                        </h5>
+                        {buildPreviewQrUrl() && (
+                            <img
+                                src={buildPreviewQrUrl()}
+                                alt="QR Thanh toán"
+                                style={{ maxWidth: "220px", borderRadius: "12px", border: "1px solid #dbe8f3" }}
+                            />
+                        )}
+                        <p className="mt-3 text-muted small">
+                            Quét mã QR để chuyển khoản, sau đó bấm <strong>Xác nhận thanh toán</strong>.<br/>
+                            Sau khi thanh toán, sẽ không hoàn trả tiền vì bất kể lí do nào.
+                        </p>
+
+
+                    </Modal.Body>
+
+                    <Modal.Footer>
+                        <Button variant="outline-secondary" onClick={() => setShowPaymentModal(false)}>
+                            Đóng
+                        </Button>
+                        <Button variant="success" onClick={confirmPayment} disabled={paymentConfirming}>
+                            {paymentConfirming ? <Spinner animation="border" size="sm" /> : "Xác nhận thanh toán"}
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
+
                 <Footer />
             </>
         );

@@ -128,7 +128,7 @@ public class ApiAppointmentController {
         Integer doctorId = (Integer) body.get("doctorId");
         Integer scheduleId = (Integer) body.get("scheduleId");
         String symptoms = (String) body.get("symptoms");
-
+        
         symptoms = symptoms != null ? symptoms.trim() : null;
 
         if (doctorId == null) {
@@ -137,6 +137,7 @@ public class ApiAppointmentController {
         if (scheduleId == null) {
             return new ResponseEntity<>("Thiếu thông tin scheduleId", HttpStatus.BAD_REQUEST);
         }
+        
 
         try {
             Appointments appt = this.appointmentService.book(doctorId, scheduleId, p.getId(), symptoms);

@@ -80,16 +80,18 @@ const Register = () => {
             Swal.fire({
                 icon: "success",
                 title: "Thành công!",
-                text: res.data?.message || "Đăng ký thành công!"
+                text: "Đăng ký thành công!"
             }).then(() => nav("/login"));
 
         } catch (err) {
-            console.error(err);
+            
             Swal.fire({
                 icon: "error",
                 title: "Lỗi!",
                 text: err.response?.data?.message || "Đăng ký thất bại!"
             });
+
+
         } finally {
             setLoading(false);
         }
