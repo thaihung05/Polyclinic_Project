@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { authApis, endpoints } from "../../../configs/Api";
 import Swal from "sweetalert2";
-import { Badge, Spinner, Table } from "react-bootstrap";
+import { Badge, Button, Spinner, Table } from "react-bootstrap";
 import Header from "../../../components/Header";
 import Footer from "../../../components/Footer";
 
@@ -38,6 +38,8 @@ const PatientAppointment = () => {
             return <Badge bg="secondary">Hoàn thành</Badge>
     };
 
+    
+
     const formatDateTime = (dateStr) => {
         if (!dateStr) return "—";
         const date = new Date(dateStr);
@@ -52,7 +54,7 @@ const PatientAppointment = () => {
     return (
         <>
             <Header />
-            <main lassName="container my-4">
+            <main className="container my-4">
                 <h4 className="fw-bold mt-4 text-center">Lịch hẹn của tôi</h4>
                 {loading ? (
                     <div className="text-center py-5">

@@ -13,6 +13,7 @@ import com.pkdk.pojo.Users;
 import com.pkdk.repository.AppointmentRepository;
 import com.pkdk.repository.PaymentRepository;
 import com.pkdk.service.AppointmentService;
+import com.pkdk.service.GoogleMeetingService;
 import com.pkdk.service.NotificationService;
 import com.pkdk.service.PaymentService;
 import com.pkdk.service.QrService;
@@ -37,7 +38,9 @@ public class PaymentServiceImpl implements PaymentService {
     private NotificationService notificationService;
     @Autowired
     private QrService qrService;
-
+    @Autowired
+    private GoogleMeetingService googleMeetingService;
+    
     @Override
     public Payments createPending(int appointmentId, String method) {
         Appointments appointment = this.appointmentService.getById(appointmentId);
@@ -98,6 +101,14 @@ public class PaymentServiceImpl implements PaymentService {
         this.save(payment);
 
         appointment.setStatus(AppointmentStatus.CONFIRMED.toString());
+        
+        if (appointment.getMeetingUrl() == null) {
+            String meetLink = this.googleMeetingService.createMeeting(appointment);
+            if (meetLink != null) {
+                appointment.setMeetingUrl(meetLink);
+            }
+        }
+        
         this.appointmentService.save(appointment);
 
         Users u = appointment.getPatientId().getUserId();

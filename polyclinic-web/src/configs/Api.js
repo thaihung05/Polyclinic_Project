@@ -24,7 +24,9 @@ export const endpoints = {
 
     'medical-records':'/secure/medical-records',
     'lab-results':'/secure/lab-results',
-    'book-appointment':'/secure/appointments'
+    'book-appointment':'/secure/appointments',
+    'payment-create':'/secure/payment/create',
+    'payment-confirm':'/secure/payment/confirm'
 
 
 };
