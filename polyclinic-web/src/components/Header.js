@@ -1,18 +1,15 @@
 import { Link, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
-import { useEffect, useRef, useState } from "react";
-
+import { useContext, useEffect, useRef, useState } from "react";
+import { MyUserContext } from "../configs/Contexts";
 
 const Header = () => {
 
+    const [user, dispatch] = useContext(MyUserContext);
     const nav = useNavigate();
-    const token = localStorage.getItem('polyclinic_token');
-    const user = JSON.parse(localStorage.getItem("polyclinic_user") || "null");
     const [showDropdown, setShowDropdown] = useState(false);
     const dropdownRef = useRef(null);
 
-    console.log("token:", token);
-    console.log("user:", user);
     useEffect(() => {
         const handleClickOutside = (e) => {
             if (dropdownRef.current && !dropdownRef.current.contains(e.target))
@@ -32,8 +29,7 @@ const Header = () => {
             cancelButtonText: "Hủy"
         }).then((result) => {
             if (result.isConfirmed) {
-                localStorage.removeItem("polyclinic_token");
-                localStorage.removeItem("polyclinic_user");
+                dispatch({ type: "LOGOUT" });
                 nav("/");
             }
         })
@@ -67,7 +63,7 @@ const Header = () => {
                             <li className="nav-item"><Link className="nav-link" to="/appointment">Đặt Lịch</Link></li>
                         </ul>
                         <ul className="navbar-nav ms-auto align-items-center gap-2">
-                            {token && user ? (
+                            {user ? (
                                 <>
                                     <li className="nav-item">
                                         <Link className="nav-link" to="/notifications">

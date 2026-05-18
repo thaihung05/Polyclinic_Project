@@ -1,6 +1,8 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { authApis, endpoints } from "../../configs/Api";
+import cookies from 'react-cookies';
+import { MyUserContext } from "../../configs/Contexts";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import Swal from "sweetalert2";
@@ -8,7 +10,7 @@ import { Button, Col, Form, Row } from "react-bootstrap";
 
 const Profile = () => {
     const nav = useNavigate();
-    const token = localStorage.getItem("polyclinic_token");
+    const [, dispatch] = useContext(MyUserContext);
     const [loading, setLoading] = useState(false);
     const [avatarPreview, setAvatarPreview] = useState(null);
     const [tab, setTab] = useState("infoTab");
@@ -41,7 +43,7 @@ const Profile = () => {
 
     const loadProfile = async () => {
         try {
-            const res = await authApis(token).get(endpoints["profile"]);
+            const res = await authApis().get(endpoints["profile"]);
             const u = res.data;
 
 
@@ -100,12 +102,13 @@ const Profile = () => {
             if (info.avatar)
                 form.append("avatar", info.avatar);
 
-            const res = await authApis(token).put(endpoints["update-profile"], form, {
+            const res = await authApis().put(endpoints["update-profile"], form, {
                 headers: { "Content-Type": "multipart/form-data" }
             });
 
-            const oldUser = JSON.parse(localStorage.getItem("polyclinic_user") || "{}");
-            localStorage.setItem("polyclinic_user", JSON.stringify({ ...oldUser, ...res.data }));
+            const updated = { ...cookies.load('user'), ...res.data };
+            cookies.save('user', updated);
+            dispatch({ type: "LOGIN", payload: updated });
 
             Swal.fire("Thành công!", "Cập nhật thông tin thành công!", "success");
             loadProfile();
@@ -128,7 +131,7 @@ const Profile = () => {
         setLoading(true);
 
         try {
-            await authApis(token).put(endpoints["change-password"], passwordForm);
+            await authApis().put(endpoints["change-password"], passwordForm);
             Swal.fire("Thành công!", "Đổi mật khẩu thành công!", "success");
             setPasswordForm({ oldPassword: "", newPassword: "", confirmPassword: "" });
         }

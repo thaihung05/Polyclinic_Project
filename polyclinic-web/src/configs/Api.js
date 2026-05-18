@@ -1,4 +1,5 @@
 import axios from "axios";
+import cookies from 'react-cookies';
 
 const BASE_URL = "http://localhost:8080/Polyclinic/api";
 
@@ -20,8 +21,8 @@ export const endpoints = {
 
     'doctor-schedules': (doctorId) => `/secure/doctors/${doctorId}/schedules`,
     'doctor-schedule-item': (doctorId, scheduleId) => `/secure/doctors/${doctorId}/schedules/${scheduleId}`,
+    
     'patient-appointments': '/secure/patient/appointments',
-
     'medical-records':'/secure/medical-records',
     'lab-results':'/secure/lab-results',
     'book-appointment':'/secure/appointments',
@@ -35,7 +36,7 @@ export default axios.create({
     baseURL: BASE_URL
 })
 
-export const authApis = (token) => axios.create({
+export const authApis = () => axios.create({
     baseURL: BASE_URL,
-    headers: {'Authorization': `Bearer ${token}`}
+    headers: {'Authorization': `Bearer ${cookies.load('token')}`}
 })

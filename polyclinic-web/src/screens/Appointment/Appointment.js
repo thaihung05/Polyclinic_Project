@@ -31,7 +31,6 @@ const Appointment = () => {
     const [paymentConfirming, setPaymentConfirming] = useState(false);
 
     const [loading, setLoading] = useState(false);
-    const token = localStorage.getItem('polyclinic_token');
 
     const loadSpecialties = async () => {
         try {
@@ -132,8 +131,8 @@ const Appointment = () => {
 
     const confirmPayment = async () => {
         try {
-            setPaymentConfirming(true);
-            const appointmentRes = await authApis(token).post(endpoints['book-appointment'], {
+            setLoading(true);
+            await authApis().post(endpoints['book-appointment'], {
                 doctorId: selectedDoctor.id,
                 scheduleId: selectedSchedule.id,
                 symptoms: symptoms.trim() || null

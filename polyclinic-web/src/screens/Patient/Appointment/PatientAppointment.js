@@ -7,14 +7,13 @@ import Footer from "../../../components/Footer";
 
 
 const PatientAppointment = () => {
-    const token = localStorage.getItem("polyclinic_token");
     const [appointments, setAppointments] = useState([]);
     const [loading, setLoading] = useState(false);
 
     const loadAppointments = async () => {
         try {
             setLoading(true);
-            const res = await authApis(token).get(endpoints["patient-appointments"]);
+            const res = await authApis().get(endpoints["patient-appointments"]);
             setAppointments(res.data);
         } catch (err) {
             console.log(err);

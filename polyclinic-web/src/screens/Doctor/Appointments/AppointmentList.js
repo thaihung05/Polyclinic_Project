@@ -5,24 +5,24 @@ import MySpinner from "../../../components/MySpinner";
 import Swal from "sweetalert2";
 
 const statusLabel = (s) => {
-    if (s === "PENDING")   return "Chờ xác nhận";
+    if (s === "PENDING") return "Chờ xác nhận";
     if (s === "CONFIRMED") return "Đã xác nhận";
     if (s === "COMPLETED") return "Hoàn thành";
     if (s === "CANCELLED") return "Đã hủy";
+    if (s === "NO_SHOW") return "Vắng khám";
     return s;
 };
 
 const statusBg = (s) => {
-    if (s === "PENDING")   return "warning";
+    if (s === "PENDING") return "warning";
     if (s === "CONFIRMED") return "primary";
     if (s === "COMPLETED") return "success";
     if (s === "CANCELLED") return "danger";
-    if (s === "NO_SHOW")   return "secondary";
+    if (s === "NO_SHOW") return "secondary";
     return "light";
 }
 
 const AppointmentList = () => {
-    const token = localStorage.getItem('polyclinic_token');
     const [loading, setLoading] = useState(false);
     const [appointments, setAppointments] = useState([]);
     const [tab, setTab] = useState("");
@@ -30,75 +30,47 @@ const AppointmentList = () => {
     const loadAppointments = useCallback(async () => {
         try {
             setLoading(true);
-            let res = await authApis(token).get(endpoints['doctor-appointments']);
+            let res = await authApis().get(endpoints['doctor-appointments']);
             setAppointments(res.data);
-        } catch(ex){
+        } catch (ex) {
             console.log(ex);
-        }finally{
+        } finally {
             setLoading(false);
         }
-    }, [token]);
+    }, []);
 
-    useEffect(()=> {
+    useEffect(() => {
         loadAppointments();
-    },[loadAppointments])
+    }, [loadAppointments])
 
     const updateStatus = async (id, newStatus) => {
-        let body = { status: newStatus }
-
-        if (newStatus === "CANCELLED"){
-            let result = await Swal.fire({
-                title: "Lý do hủy?",
-                input: "textarea",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonText: "Xác nhận hủy!",
-                cancelButtonText: "Đóng",
-                inputValidator: (value) => {
-                    if (!value) return "Vui lòng nhập lý do hủy hẹn!!";
-                }
-            });
-            if (!result.isConfirmed) return;
-            body.cancelReason = result.value;
-            body.cancelledBy = "ROLE_DOCTOR";
-        } else {
-            let confirm = await Swal.fire({
-                title: "Xác nhận",
-                text: `Cập nhật trạng thái sang "${statusLabel(newStatus)}"?`,
-                icon: "question",
-                showCancelButton: true,
-                confirmButtonText: "Xác nhận",
-                cancelButtonText: "Đóng"
-            });
-            if (!confirm.isConfirmed) return;
-        }
+        let body = { status: newStatus };
+        let confirm = await Swal.fire({
+            title: "Xác nhận",
+            text: `Cập nhật trạng thái sang "${statusLabel(newStatus)}"?`,
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonText: "Xác nhận",
+            cancelButtonText: "Đóng"
+        });
+        if (!confirm.isConfirmed) return;
 
         try {
-            await authApis(token).patch(endpoints['appointment-status'](id), body);
-            Swal.fire({
-                icon: "success",
-                title: "Cập nhật thành công!",
-                showConfirmButton: false,
-                timer: 1000
-            })
+            await authApis().patch(endpoints['appointment-status'](id), body);
+            Swal.fire({ icon: "success", title: "Cập nhật thành công!", showConfirmButton: false, timer: 1000 });
             loadAppointments();
-        } catch(ex){
-            console.log(ex)
-            Swal.fire({
-                icon: "error",
-                title: "Đã xảy ra lỗi!",
-                text: "Không thể thay đổi trạng thái!"
-            })
+        } catch (ex) {
+            Swal.fire({ icon: "error", title: "Đã xảy ra lỗi!", text: "Không thể thay đổi trạng thái!" });
         }
-
     }
 
-    let tabs = ["", "PENDING", "CONFIRMED", "COMPLETED", "CANCELLED"];
+
+    let tabs = ["", "PENDING", "CONFIRMED", "COMPLETED", "CANCELLED", "NO_SHOW"];
     let statusCount = {};
-    for (let i = 0;i<appointments.length;i++){
+    for (let i = 0; i < appointments.length; i++) {
         let a = appointments[i];
         if (statusCount[a.status])
-            statusCount[a.status] +=1
+            statusCount[a.status] += 1
         else
             statusCount[a.status] = 1
     }
@@ -110,7 +82,7 @@ const AppointmentList = () => {
 
     const list = tab ? appointments.filter(a => a.status === tab) : appointments;
 
-    return(
+    return (
         <div>
             <h4 className="mb-4 fw-bold">Lịch hẹn bệnh nhân</h4>
 
@@ -139,7 +111,7 @@ const AppointmentList = () => {
                     <tbody>
                         {list.map((a, i) => (
                             <tr key={a.id}>
-                                <td>{i+1}</td>
+                                <td>{i + 1}</td>
                                 <td>{a.patientId?.userId?.name}</td>
                                 <td>{a.scheduledAt}</td>
                                 <td>{a.symptoms}</td>
@@ -152,18 +124,17 @@ const AppointmentList = () => {
                                     <Badge bg={statusBg(a.status)}>{statusLabel(a.status)}</Badge>
                                 </td>
                                 <td>
-                                    {a.status !== "COMPLETED" && a.status !== "CANCELLED" ? (
+                                    {a.status === "CONFIRMED" ? (
                                         <select
                                             className="form-select form-select-sm"
                                             value={a.status}
                                             onChange={e => updateStatus(a.id, e.target.value)}
                                         >
-                                            <option value="PENDING">Chờ xác nhận</option>
-                                            <option value="CONFIRMED">Đã xác nhận</option>
+                                            <option value="">-- Chọn --</option>
                                             <option value="COMPLETED">Hoàn thành</option>
-                                            <option value="CANCELLED">Đã hủy</option>
+                                            <option value="NO_SHOW">Vắng khám</option>
                                         </select>
-                                    ):(
+                                    ) : (
                                         <span className="text-muted fst-italic">Không đổi được trạng thái</span>
                                     )}
                                 </td>

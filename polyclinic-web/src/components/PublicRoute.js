@@ -1,14 +1,14 @@
 import { Navigate } from "react-router-dom";
+import { useContext } from "react";
+import { MyUserContext } from "../configs/Contexts";
 
 const PublicRoute = ({ children }) => {
-    const token = localStorage.getItem('polyclinic_token');
-    const user = JSON.parse(localStorage.getItem('polyclinic_user') || 'null');
+    const [user] = useContext(MyUserContext);
 
-    if (token && user) {
+    if (user) {
         if (user.role === "ROLE_DOCTOR") return <Navigate to="/doctor/dashboard" />;
         return <Navigate to="/" />;
     }
-
     return children;
 };
 
