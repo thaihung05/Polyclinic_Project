@@ -12,32 +12,41 @@ import PatientAppointment from "./screens/Patient/Appointment/PatientAppointment
 import MedicalHistory from "./screens/Patient/MedicalHistory";
 import DoctorHome from "./screens/Doctor/Home/DoctorHome";
 import ScheduleManager from "./screens/Doctor/Schedules/ScheduleManager";
+import { useReducer } from "react";
+import MyUserReducer from "./reducers/MyUserReducer";
+import cookies from 'react-cookies';
+import { MyUserContext } from "./configs/Contexts";
 
 
 function App() {
-    return (
-        <BrowserRouter>
-            <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
-                <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
-                <Route path="/appointment" element={
-                    <ProtectedRoute requiredRole="ROLE_PATIENT"><Appointment /></ProtectedRoute>
-                } />
+    const [user, dispatch] = useReducer(MyUserReducer, cookies.load('user') || null);
 
-                <Route path="/doctor/dashboard" element={
-                    <ProtectedRoute requiredRole="ROLE_DOCTOR"><DoctorDashboard /></ProtectedRoute>
+    return (
+        <MyUserContext.Provider value={[user, dispatch]}>
+            <BrowserRouter>
+                <Routes>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+                    <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
+                    <Route path="/appointment" element={
+                        <ProtectedRoute requiredRole="ROLE_PATIENT"><Appointment /></ProtectedRoute>
+                    } />
+
+                    <Route path="/doctor/dashboard" element={
+                        <ProtectedRoute requiredRole="ROLE_DOCTOR"><DoctorDashboard /></ProtectedRoute>
                     }>
-                    <Route index element={<DoctorHome />} />
-                    <Route path="schedules" element={<ScheduleManager />} />
-                </Route>
-                <Route path="/profile" element={
-                    <ProtectedRoute><Profile /></ProtectedRoute>
-                } />
-                <Route path="/patient/appointments" element={<ProtectedRoute><PatientAppointment/></ProtectedRoute>}></Route>
-                <Route path="/patient/medical-history" element={<ProtectedRoute><MedicalHistory/></ProtectedRoute>}></Route>
-            </Routes>
-        </BrowserRouter>
+                        <Route index element={<DoctorHome />} />
+                        <Route path="appointments" element={<AppointmentList />} />
+                        <Route path="schedules" element={<ScheduleManager />} />
+                    </Route>
+                    <Route path="/profile" element={
+                        <ProtectedRoute><Profile /></ProtectedRoute>
+                    } />
+                    <Route path="/patient/appointments" element={<ProtectedRoute><PatientAppointment /></ProtectedRoute>}></Route>
+                    <Route path="/patient/medical-history" element={<ProtectedRoute><MedicalHistory /></ProtectedRoute>}></Route>
+                </Routes>
+            </BrowserRouter>
+        </MyUserContext.Provider>
     );
 }
 

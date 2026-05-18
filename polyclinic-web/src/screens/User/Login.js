@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
@@ -6,8 +6,11 @@ import Apis, { authApis, endpoints } from "../../configs/Api";
 import Swal from "sweetalert2";
 import "./user.css";
 import "../../styles/base.css";
+import { MyUserContext } from "../../configs/Contexts";
+import cookies from 'react-cookies';
 
 const Login = () => {
+    const [, dispatch] = useContext(MyUserContext);
     const nav = useNavigate();
 
     const [user, setUser] = useState({
@@ -29,19 +32,21 @@ const Login = () => {
             const res = await Apis.post(endpoints.login, user);
             const token = res.data.token;
 
-            const profileRes = await authApis(token).get(endpoints.profile);
+            cookies.save('token', token)
+
+            const profileRes = await authApis().get(endpoints.profile);
             const profile = profileRes.data;
 
-            localStorage.setItem('polyclinic_token', token);
-            localStorage.setItem('polyclinic_user', JSON.stringify(profile));
-
-            const role = profile.role;
+            cookies.save('user', profile)
+            dispatch({
+                type: "LOGIN", payload: profile
+            });
 
             Swal.fire({
                 icon: "success",
                 title: "Đăng nhập thành công!"
             }).then(() => {
-                if (role === "ROLE_DOCTOR") nav("/doctor/dashboard");
+                if (profile.role === "ROLE_DOCTOR") nav("/doctor/dashboard");
                 else nav("/");
             });
         } catch (err) {

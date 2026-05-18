@@ -18,7 +18,6 @@ const Appointment = () => {
     const [selectedSchedule, setSelectedSchedule] = useState(null);
     const [symptoms, setSymptoms] = useState("");
     const [loading, setLoading] = useState(false);
-    const token = localStorage.getItem('polyclinic_token');
 
     const loadSpecialties = async () => {
         try {
@@ -93,7 +92,7 @@ const Appointment = () => {
         }
         try {
             setLoading(true);
-            await authApis(token).post(endpoints['book-appointment'], {
+            await authApis().post(endpoints['book-appointment'], {
                 doctorId: selectedDoctor.id,
                 scheduleId: selectedSchedule.id,
                 symptoms: symptoms.trim() || null

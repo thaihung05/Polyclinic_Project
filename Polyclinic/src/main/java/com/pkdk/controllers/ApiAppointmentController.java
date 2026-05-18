@@ -213,8 +213,11 @@ public class ApiAppointmentController {
             if (d == null || !a.getDoctorId().getId().equals(d.getId())) {
                 return new ResponseEntity<>("Bác sĩ chỉ cập nhật trạng thái lịch hẹn của mình", HttpStatus.FORBIDDEN);
             }
-            if (!newStatus.equals("CONFIRMED") && !newStatus.equals("COMPLETED") && !newStatus.equals("CANCELLED")) {
+            if (!newStatus.equals("COMPLETED") && !newStatus.equals("NO_SHOW")) {
                 return new ResponseEntity<>("Bác sĩ không có quyền đặt trạng thái: " + newStatus, HttpStatus.FORBIDDEN);
+            }
+            if (!"CONFIRMED".equals(a.getStatus())){
+                return new ResponseEntity<>("Chỉ được cập nhật lịch hẹn đã xác nhận", HttpStatus.BAD_REQUEST);
             }
         } else if (UserRole.ROLE_PATIENT.name().equals(role)) {
             Patients p = this.patientService.getPatientByUserId(u.getId());
@@ -223,7 +226,7 @@ public class ApiAppointmentController {
             }
             if ("CANCELLED".equals(newStatus)) {
                 a.setCancelReason(body.get("cancelReason"));
-                a.setCancelledBy(body.get("cancelledBy"));
+                a.setCancelledBy(u.getName());
                 Date now = new Date();
                 if (a.getScheduledAt() != null && a.getScheduledAt().after(now)) {
                     DoctorSchedules slot = this.scheduleService.getByDoctorAndStartTime(

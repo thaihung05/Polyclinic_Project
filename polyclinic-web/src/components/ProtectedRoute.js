@@ -1,10 +1,12 @@
 import { Navigate } from "react-router-dom";
+import { useContext } from "react";
+import { MyUserContext } from "../configs/Contexts";
 
 const ProtectedRoute = ({children, requiredRole}) =>{
-    const token = localStorage.getItem('polyclinic_token')
-    const user = JSON.parse(localStorage.getItem('polyclinic_user') || 'null')
-    if (!token || !user) return <Navigate to={"/login"} />
-    if (requiredRole && user.role !== requiredRole ) return <Navigate to={'/'} />
+    const [user] = useContext(MyUserContext);
+
+    if (!user) return <Navigate to="/login" />;
+    if (requiredRole && user.role !== requiredRole) return <Navigate to="/" />;
     return children;
 }
 
