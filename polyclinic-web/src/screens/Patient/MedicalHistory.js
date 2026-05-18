@@ -8,7 +8,6 @@ import Swal from "sweetalert2";
 
 const MedicalHistory = () => {
 
-    const token = localStorage.getItem("polyclinic_token");
     const [medicalRecords, setMedicalRecords] = useState([]);
     const [labResults, setLabResults] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -30,8 +29,8 @@ const MedicalHistory = () => {
         try {
             setLoading(true);
             const [recordRes, labRes] = await Promise.all([
-                authApis(token).get(endpoints['medical-records']),
-                authApis(token).get(endpoints['lab-results'])
+                authApis().get(endpoints['medical-records']),
+                authApis().get(endpoints['lab-results'])
             ]);
             setLabResults(labRes.data);
             setMedicalRecords(recordRes.data);

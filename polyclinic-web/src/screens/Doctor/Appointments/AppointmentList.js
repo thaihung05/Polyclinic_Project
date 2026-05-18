@@ -23,7 +23,6 @@ const statusBg = (s) => {
 }
 
 const AppointmentList = () => {
-    const token = localStorage.getItem('polyclinic_token');
     const [loading, setLoading] = useState(false);
     const [appointments, setAppointments] = useState([]);
     const [tab, setTab] = useState("");
@@ -31,14 +30,14 @@ const AppointmentList = () => {
     const loadAppointments = useCallback(async () => {
         try {
             setLoading(true);
-            let res = await authApis(token).get(endpoints['doctor-appointments']);
+            let res = await authApis().get(endpoints['doctor-appointments']);
             setAppointments(res.data);
         } catch (ex) {
             console.log(ex);
         } finally {
             setLoading(false);
         }
-    }, [token]);
+    }, []);
 
     useEffect(() => {
         loadAppointments();
@@ -57,7 +56,7 @@ const AppointmentList = () => {
         if (!confirm.isConfirmed) return;
 
         try {
-            await authApis(token).patch(endpoints['appointment-status'](id), body);
+            await authApis().patch(endpoints['appointment-status'](id), body);
             Swal.fire({ icon: "success", title: "Cập nhật thành công!", showConfirmButton: false, timer: 1000 });
             loadAppointments();
         } catch (ex) {

@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { authApis, endpoints } from "../../../configs/Api";
+import { MyUserContext } from "../../../configs/Contexts";
 import { Alert, Badge, Button, Table } from "react-bootstrap";
 import MySpinner from "../../../components/MySpinner";
 
@@ -9,9 +10,8 @@ const today = () => new Date().toISOString().slice(0, 10);
 const emptyForm = { date: today(), startTime: "08:00", endTime: "10:00", isActive: true };
 
 const ScheduleManager = () => {
-    const token = localStorage.getItem("polyclinic_token");
-    const user = JSON.parse(localStorage.getItem("polyclinic_user"));
-    const doctorId = user.doctorId;
+    const [user] = useContext(MyUserContext);
+    const doctorId = user?.doctorId;
 
     const [filterTab, setFilterTab] = useState("ALL");
     const [loading, setLoading] = useState(false);
@@ -27,7 +27,7 @@ const ScheduleManager = () => {
         if (!doctorId) return;
         try{
             setLoading(true);
-            const res = await authApis(token).get(endpoints['schedules'](doctorId));
+            const res = await authApis().get(endpoints['schedules'](doctorId));
             const sorted = (res.data || []).sort((a, b)=>
                 new Date(a.startTime) - new Date(b.startTime)
             );
@@ -37,7 +37,7 @@ const ScheduleManager = () => {
         } finally{
             setLoading(false);
         }
-    },[token, doctorId]);
+    },[doctorId]);
 
     useEffect(()=>{
         loadSchedules();

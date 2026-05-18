@@ -1,8 +1,9 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { authApis, endpoints } from "../../../configs/Api";
 import { Alert, Badge, Table } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import MySpinner from "../../../components/MySpinner";
+import { MyUserContext } from "../../../configs/Contexts";
 
 const statusLable = (s) => {
     if (s==="PENDING") return "Chờ xác nhận";
@@ -21,10 +22,9 @@ const statusBg = (s) => {
 }
 
 const DoctorHome = () =>{
-    const token = localStorage.getItem("polyclinic_token");
-    const user = JSON.parse(localStorage.getItem("polyclinic_user"));
+    const [user] = useContext(MyUserContext);
     const navigate = useNavigate();
-    
+
     const [appointments, setAppoiments] = useState([]);
     const [loading, setLoading] = useState(false);
 
@@ -32,14 +32,14 @@ const DoctorHome = () =>{
     const loadAppointments = useCallback(async () => {
         try{
             setLoading(true);
-            const res = await authApis(token).get(endpoints['doctor-appointments']);
+            const res = await authApis().get(endpoints['doctor-appointments']);
             setAppoiments(res.data || []);
         } catch(ex){
             console.error(ex);
         } finally{
             setLoading(false);
         }
-    },[token]);
+    },[]);
 
     useEffect(() => {
         loadAppointments();
