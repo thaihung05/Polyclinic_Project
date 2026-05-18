@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { authApis, endpoints } from "../../../configs/Api";
-import { Alert, Badge } from "react-bootstrap";
+import { Alert, Badge, Table } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import MySpinner from "../../../components/MySpinner";
 
@@ -117,7 +117,7 @@ const DoctorHome = () =>{
                 )}
                 {!loading && todayAppointments.length > 0 && (
                     <div className="table-responsive">
-                        <table className="table table-hover mb-0">
+                        <Table className="table table-hover mb-0">
                             <thead className="table-light">
                                 <tr>
                                     <th>Giờ hẹn</th>
@@ -146,7 +146,7 @@ const DoctorHome = () =>{
                                     </tr>
                                 ))}
                             </tbody>
-                        </table>
+                        </Table>
                     </div>
                 )}
             </div>
