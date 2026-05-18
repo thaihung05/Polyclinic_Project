@@ -10,6 +10,8 @@ import DoctorDashboard from "./screens/Doctor/DoctorDashboard";
 import AppointmentList from "./screens/Doctor/Appointments/AppointmentList";
 import PatientAppointment from "./screens/Patient/Appointment/PatientAppointment";
 import MedicalHistory from "./screens/Patient/MedicalHistory";
+import DoctorHome from "./screens/Doctor/Home/DoctorHome";
+import ScheduleManager from "./screens/Doctor/Schedules/ScheduleManager";
 
 
 function App() {
@@ -26,7 +28,8 @@ function App() {
                 <Route path="/doctor/dashboard" element={
                     <ProtectedRoute requiredRole="ROLE_DOCTOR"><DoctorDashboard /></ProtectedRoute>
                     }>
-                    <Route index element={<AppointmentList />} />
+                    <Route index element={<DoctorHome />} />
+                    <Route path="schedules" element={<ScheduleManager />} />
                 </Route>
                 <Route path="/profile" element={
                     <ProtectedRoute><Profile /></ProtectedRoute>
