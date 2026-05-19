@@ -21,8 +21,7 @@ const Register = () => {
     const avatar = useRef();
 
     const change = (e) => {
-        const { name, value } = e.target;
-        setUser({ ...user, [name]: value });
+        setUser({ ...user, [e.target.name]: e.target.value });
     };
 
     const onDobChange = (date) => {
@@ -114,14 +113,12 @@ const Register = () => {
 
     const register = async (e) => {
         e.preventDefault();
-
         
-
         if (validate()) {
-            setLoading(true);
+            
             let form = new FormData();
             for (let key of Object.keys(user)) {
-                if (key !== 'confirm') {
+                if (key !== 'confirmPassword') {
                     form.append(key, user[key]);
                 }
             }
@@ -129,6 +126,7 @@ const Register = () => {
                 form.append("avatar", avatar.current.files[0]);
 
             try {
+                setLoading(true);
                 const res = await Apis.post(endpoints.register, form, {
                     headers: {
                         "Content-Type": "multipart/form-data"

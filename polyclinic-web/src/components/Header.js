@@ -49,7 +49,7 @@ const Header = () => {
                             thaihung.me05@gmail.com
                         </a>
                     </div>
-                    <Link to="/appointment" className="btn-appointment">
+                    <Link to={user === null ? '/login?next=/appointment' : '/appointment'} className="btn-appointment">
                         <i className="bi bi-calendar2-check-fill"></i>ĐẶT LỊCH KHÁM
                     </Link>
                 </div>
@@ -60,7 +60,7 @@ const Header = () => {
                     <div className="collapse navbar-collapse show">
                         <ul className="navbar-nav me-auto">
                             <li className="nav-item"><Link className="nav-link" to="/">Trang Chủ</Link></li>
-                            <li className="nav-item"><Link className="nav-link" to="/appointment">Đặt Lịch</Link></li>
+                            <li className="nav-item"><Link className="nav-link" to={user === null ? '/login?next=/appointment' : '/appointment'}>Đặt Lịch</Link></li>
                         </ul>
                         <ul className="navbar-nav ms-auto align-items-center gap-2">
                             {user ? (

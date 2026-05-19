@@ -132,19 +132,19 @@ const Appointment = () => {
     const confirmPayment = async () => {
         try {
             setLoading(true);
-            await authApis().post(endpoints['book-appointment'], {
+            const appointmentRes = await authApis().post(endpoints['book-appointment'], {
                 doctorId: selectedDoctor.id,
                 scheduleId: selectedSchedule.id,
                 symptoms: symptoms.trim() || null
             });
             const appointmentId = appointmentRes.data.id;
 
-            await authApis(token).post(endpoints['payment-create'], {
+            await authApis().post(endpoints['payment-create'], {
                 appointmentId,
                 method: paymentMethod
             });
 
-            await authApis(token).post(endpoints['payment-confirm'], {
+            await authApis().post(endpoints['payment-confirm'], {
                 appointmentId
             });
             setShowPaymentModal(false);

@@ -1,14 +1,15 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import Apis, { endpoints } from "../../configs/Api";
 import "./home.css";
 import "../../styles/base.css";
+import { MyUserContext } from "../../configs/Contexts";
 
 const Home = () => {
     const [specialties, setSpecialties] = useState([]);
-
+    const [user,] = useContext(MyUserContext);
     useEffect(() => {
         const loadSpecialties = async () => {
             try {
@@ -39,7 +40,7 @@ const Home = () => {
                                     Tưng bừng khai trương chi nhánh, ưu đãi khách hàng có bảo hiểm y tế —
                                     tiết kiệm đến 100% chi phí khám ban đầu.
                                 </p>
-                                <Link to="/appointment" className="btn-hero">
+                                <Link to={user === null ? '/login?next=/appointment' : '/appointment'} className="btn-hero">
                                     XEM THÊM <i className="bi bi-arrow-right-circle-fill"></i>
                                 </Link>
                             </div>
@@ -96,7 +97,7 @@ const Home = () => {
                     </div>
 
                     <div className="text-center mt-4">
-                        <Link to="/appointment" className="btn btn-outline-primary px-4 rounded-pill">
+                        <Link to={user === null ? '/login?next=/appointment' : '/appointment'} className="btn btn-outline-primary px-4 rounded-pill">
                             Đặt lịch khám <i className="bi bi-arrow-right ms-1"></i>
                         </Link>
                     </div>
