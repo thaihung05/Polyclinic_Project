@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
@@ -6,37 +6,23 @@ import Apis, { endpoints } from "../../configs/Api";
 import Swal from "sweetalert2";
 import "./user.css";
 import "../../styles/base.css";
-import { Button, Col, Form, Row } from "react-bootstrap";
+import { Alert, Button, Col, Form, Row } from "react-bootstrap";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 
 const Register = () => {
     const nav = useNavigate();
 
-    const [user, setUser] = useState({
-        name: "",
-        phone: "",
-        username: "",
-        password: "",
-        confirmPassword: "",
-        email: "",
-        gender: "",
-        dateOfBirth: "",
-        address: "",
-        avatar: null
-    });
-
+    const [user, setUser] = useState({});
+    const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const [dobDate, setDobDate] = useState(null);
     const [showCalendar, setShowCalendar] = useState(false);
+    const avatar = useRef();
 
     const change = (e) => {
-        const { name, value, files } = e.target;
-
-        if (name === "avatar")
-            setUser({ ...user, avatar: files[0] });
-        else
-            setUser({ ...user, [name]: value });
+        const { name, value } = e.target;
+        setUser({ ...user, [name]: value });
     };
 
     const onDobChange = (date) => {
@@ -48,53 +34,138 @@ const Register = () => {
         setShowCalendar(false);
     };
 
+    const validate = () => {
+        if (!user.name || user.name.trim() === '') {
+            setError('Họ và tên không được để trống!');
+            return false;
+        }
+        if (user.name.trim().length < 2) {
+            setError('Họ và tên phải có ít nhất 2 ký tự!');
+            return false;
+        }
+
+        if (!user.gender || user.gender === '') {
+            setError('Vui lòng chọn giới tính!');
+            return false;
+        }
+
+        if (!user.address || user.address.trim() === '') {
+            setError('Địa chỉ không được để trống!');
+            return false;
+        }
+
+        if (!user.email || user.email.trim() === '') {
+            setError('Email không được để trống!');
+            return false;
+        }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(user.email.trim())) {
+            setError('Email không hợp lệ!');
+            return false;
+        }
+
+        if (!user.phone || user.phone.trim() === '') {
+            setError('Số điện thoại không được để trống!');
+            return false;
+        }
+        if (!/^0[0-9]{9}$/.test(user.phone.trim())) {
+            setError('Số điện thoại không hợp lệ (phải có 10 số)!');
+            return false;
+        }
+
+        if (!dobDate) {
+            setError('Vui lòng chọn ngày sinh!');
+            return false;
+        }
+
+        if (!user.username || user.username.trim() === '') {
+            setError('Tên đăng nhập không được để trống!');
+            return false;
+        }
+        if (user.username.trim().length < 6) {
+            setError('Tên đăng nhập phải có ít nhất 6 ký tự!');
+            return false;
+        }
+        if (!/^[a-zA-Z0-9_]+$/.test(user.username.trim())) {
+            setError('Tên đăng nhập chỉ được chứa chữ cái, số và dấu gạch dưới (_)!');
+            return false;
+        }
+
+        if (!user.password || user.password === '') {
+            setError('Mật khẩu không được để trống!');
+            return false;
+        }
+        if (user.password.length < 6) {
+            setError('Mật khẩu phải có ít nhất 6 ký tự!');
+            return false;
+        }
+
+        if (!user.confirmPassword || user.confirmPassword === '') {
+            setError('Mật khẩu xác nhận không được để trống!');
+            return false;
+        }
+        if (user.password !== user.confirmPassword) {
+            setError('Mật khẩu không khớp!');
+            return false;
+        }
+
+        return true;
+
+    }
+
     const register = async (e) => {
         e.preventDefault();
-        if (user.password !== user.confirmPassword) {
-            Swal.fire({ icon: "warning", title: "Mật khẩu không khớp!" });
-            return;
-        }
-        setLoading(true);
 
-        try {
+        
+
+        if (validate()) {
+            setLoading(true);
             let form = new FormData();
-            form.append("name", user.name);
-            form.append("phone", user.phone);
-            form.append("username", user.username);
-            form.append("password", user.password);
-            form.append("confirmPassword", user.confirmPassword);
-            form.append("email", user.email);
-            form.append("gender", user.gender);
-            form.append("address", user.address);
-            form.append("dateOfBirth", user.dateOfBirth);
-
-            if (user.avatar)
-                form.append("avatar", user.avatar);
-
-            const res = await Apis.post(endpoints.register, form, {
-                headers: {
-                    "Content-Type": "multipart/form-data"
+            for (let key of Object.keys(user)) {
+                if (key !== 'confirm') {
+                    form.append(key, user[key]);
                 }
-            });
+            }
+            if (avatar.current.files.length > 0)
+                form.append("avatar", avatar.current.files[0]);
 
-            Swal.fire({
-                icon: "success",
-                title: "Thành công!",
-                text: "Đăng ký thành công!"
-            }).then(() => nav("/login"));
+            try {
+                const res = await Apis.post(endpoints.register, form, {
+                    headers: {
+                        "Content-Type": "multipart/form-data"
+                    }
+                });
+                if (res.status === 201) {
+                    Swal.fire({
+                        icon: "success",
+                        title: "Thành công!",
+                        text: "Đăng ký thành công!"
+                    }).then(() => nav("/login"));
+                }
+                else {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Lỗi!",
+                        text: 'Hệ thống bị lỗi!'
+                    });
+                }
 
-        } catch (err) {
-            
-            Swal.fire({
-                icon: "error",
-                title: "Lỗi!",
-                text: err.response?.data?.message || "Đăng ký thất bại!"
-            });
+
+            } catch (err) {
+
+                Swal.fire({
+                    icon: "error",
+                    title: "Lỗi!",
+                    text: err.response?.data?.message || "Đăng ký thất bại!"
+                });
 
 
-        } finally {
-            setLoading(false);
+            } finally {
+                setLoading(false);
+            }
+
         }
+
+
     };
 
     return (
@@ -103,19 +174,19 @@ const Register = () => {
             <main className="register-wrapper d-flex justify-content-center align-items-center">
                 <div className="register-card mt-3 mb-3">
                     <h3 className="text-center fw-bold mb-4">Đăng ký tài khoản</h3>
-
+                    {error && <Alert variant="danger">{error}</Alert>}
                     <Form onSubmit={register}>
                         <Row>
                             <Col>
                                 <div className="mb-3">
                                     <label className="form-label">Họ và tên</label>
-                                    <input type="text" name="name" className="form-control input-custom" required onChange={change} />
+                                    <input type="text" name="name" className="form-control input-custom"  onChange={change} />
                                 </div>
                             </Col>
                             <Col>
                                 <div className="mb-3">
                                     <label className="form-label">Giới tính</label>
-                                    <Form.Select name="gender" onChange={change} required>
+                                    <Form.Select name="gender" onChange={change}>
                                         <option value="">Chọn giới tính</option>
                                         <option value="MALE">Nam</option>
                                         <option value="FEMALE">Nữ</option>
@@ -129,13 +200,13 @@ const Register = () => {
                             <Col>
                                 <div className="mb-3">
                                     <label className="form-label">Địa chỉ</label>
-                                    <input type="text" name="address" className="form-control input-custom" required onChange={change} />
+                                    <input type="text" name="address" className="form-control input-custom" onChange={change} />
                                 </div>
                             </Col>
                             <Col>
                                 <div className="mb-3">
                                     <label className="form-label">Email</label>
-                                    <input type="text" name="email" className="form-control input-custom" required onChange={change} />
+                                    <input type="text" name="email" className="form-control input-custom" onChange={change} />
                                 </div>
                             </Col>
                         </Row>
@@ -144,7 +215,7 @@ const Register = () => {
                             <Col>
                                 <div className="mb-3">
                                     <label className="form-label">Số điện thoại</label>
-                                    <input type="text" name="phone" className="form-control input-custom" required onChange={change} />
+                                    <input type="text" name="phone" className="form-control input-custom" onChange={change} />
                                 </div>
                             </Col>
 
@@ -186,13 +257,13 @@ const Register = () => {
                             <Col>
                                 <div className="mb-3">
                                     <label className="form-label">Tên đăng nhập</label>
-                                    <input type="text" name="username" className="form-control input-custom" required onChange={change} />
+                                    <input type="text" name="username" className="form-control input-custom" onChange={change} />
                                 </div>
                             </Col>
                             <Col>
                                 <div className="mb-3">
                                     <label className="form-label">Mật khẩu</label>
-                                    <input type="password" name="password" className="form-control input-custom" required onChange={change} />
+                                    <input type="password" name="password" className="form-control input-custom" onChange={change} />
                                 </div>
                             </Col>
                         </Row>
@@ -201,13 +272,13 @@ const Register = () => {
                             <Col>
                                 <div className="mb-3">
                                     <label className="form-label">Ảnh đại diện</label>
-                                    <input type="file" name="avatar" className="form-control input-custom" onChange={change} />
+                                    <input type="file" name="avatar" className="form-control input-custom" ref={avatar} />
                                 </div>
                             </Col>
                             <Col>
                                 <div className="mb-3">
                                     <label className="form-label">Nhập lại mật khẩu</label>
-                                    <input type="password" name="confirmPassword" className="form-control input-custom" required onChange={change} />
+                                    <input type="password" name="confirmPassword" className="form-control input-custom" onChange={change} />
                                 </div>
 
                             </Col>
