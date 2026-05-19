@@ -31,6 +31,12 @@ const DoctorDashboard = () => {
                         >
                             <i className="bi bi-clock me-2"></i>Lịch làm việc
                         </NavLink>
+                        <NavLink to="/doctor/dashboard/medicines"
+                            className={({ isActive }) => isActive ? "sidebar-link active" : "sidebar-link"}
+                        >
+                            <i className="bi bi-capsule me-2"></i>Quản lý kho thuốc
+                        </NavLink>
+
                         <div className="sidebar-divider"></div>
                         <NavLink to="/profile"
                             className={({ isActive }) => isActive ? "sidebar-link active" : "sidebar-link"}

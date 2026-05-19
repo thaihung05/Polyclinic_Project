@@ -1,12 +1,14 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { authApis, endpoints } from "../../../configs/Api";
 import Swal from "sweetalert2";
 import { Badge, Button, Spinner, Table } from "react-bootstrap";
 import Header from "../../../components/Header";
 import Footer from "../../../components/Footer";
+import { MyUserContext } from "../../../configs/Contexts";
 
 
 const PatientAppointment = () => {
+    const [user] = useContext(MyUserContext);
     const [appointments, setAppointments] = useState([]);
     const [loading, setLoading] = useState(false);
 
@@ -50,6 +52,33 @@ const PatientAppointment = () => {
         return `${day}-${month}-${year} ${hours}:${minutes}`;
     };
 
+    const cancelAppointment = async (appointment) =>{
+        const {value: cancelReason, isConfirmed} = await Swal.fire({
+            title: "Hủy lịch hẹn",
+            input: "textarea",
+            inputLabel: "Lý do hủy",
+            inputPlaceholder: "Nhập lý do hủy lịch hẹn...",
+            showCancelButton: true,
+            confirmButtonText: "Xác nhận hủy",
+            cancelButtonText: "Đóng",
+            confirmButtonColor: "#d33"
+        });
+
+        if (!isConfirmed) return;
+
+        try{
+            await authApis().patch(endpoints["appointment-status"](appointment.id),{
+                status: "CANCELLED",
+                cancelReason: cancelReason || "Bệnh nhân tự hủy lịch hẹn",
+                cancelledBy: user?.role
+            });
+            await Swal.fire("Đã hủy!", "Lịch hẹn đã được hủy thành công.", "success");
+            loadAppointments();
+        }catch(err){
+            Swal.fire("Lỗi!", err?.response?.data || "Không thể hủy lịch hẹn.", "error");
+        }
+    };
+
     return (
         <>
             <Header />
@@ -76,6 +105,7 @@ const PatientAppointment = () => {
                                     <th>Ghi chú</th>
                                     <th>Link khám online</th>
                                     <th>Trạng thái</th>
+                                    <th>Hành động</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -88,9 +118,20 @@ const PatientAppointment = () => {
                                         <td>{appointment.symptoms || ""}</td>
                                         <td>{appointment.cancelReason || ""}</td>
                                         <td>
-                                            {appointment.meetingUrl ? <a href={appointment.meetingUrl} target="_blank" rel="noreferrer">Tham gia</a> : ""}
+                                            {appointment.meetingUrl && appointment.status !== "CANCELLED" ? <a href={appointment.meetingUrl} target="_blank" rel="noreferrer">Tham gia</a> : ""}
                                         </td>
                                         <td>{renderStatus(appointment.status)}</td>
+                                        <td>
+                                            {(appointment.status === "PENDING" || appointment.status === "CONFIRMED") && (
+                                                <Button
+                                                    variant="danger"
+                                                    size="sm"
+                                                    onClick={() => cancelAppointment(appointment)}
+                                                >
+                                                    Hủy
+                                                </Button>
+                                            )}
+                                        </td>
                                     </tr>
                                 ))}
                             </tbody>
