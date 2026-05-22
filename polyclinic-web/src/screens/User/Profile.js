@@ -44,7 +44,6 @@ const Profile = () => {
             });
             setAvatarPreview(u.avatar);
         } catch (err) {
-            console.log(err);
             Swal.fire("Lỗi", "Không tải được thông tin", "error");
         }
     };

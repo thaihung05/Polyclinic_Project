@@ -30,7 +30,7 @@ export const endpoints = {
     'medicine-delete': (id) => `/secure/medicines/${id}`,
     'medicines-low-stock': '/secure/medicines/alerts/low-stock',
     'medicines-near-expiry': '/secure/medicines/alerts/near-expiry',
-
+    
     
     'patient-appointments': '/secure/patient/appointments',
     'medical-records':'/secure/medical-records',
