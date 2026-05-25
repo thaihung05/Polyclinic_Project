@@ -118,9 +118,7 @@ const Register = () => {
             
             let form = new FormData();
             for (let key of Object.keys(user)) {
-                if (key !== 'confirmPassword') {
                     form.append(key, user[key]);
-                }
             }
             if (avatar.current.files.length > 0)
                 form.append("avatar", avatar.current.files[0]);
@@ -153,7 +151,7 @@ const Register = () => {
                 Swal.fire({
                     icon: "error",
                     title: "Lỗi!",
-                    text: err.response?.data?.message || "Đăng ký thất bại!"
+                    text: err.response?.data || "Đăng ký thất bại!"
                 });
 
 

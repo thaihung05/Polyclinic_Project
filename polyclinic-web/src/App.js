@@ -17,6 +17,7 @@ import MyUserReducer from "./reducers/MyUserReducer";
 import cookies from 'react-cookies';
 import { MyUserContext } from "./configs/Contexts";
 import MedicineManager from "./screens/Doctor/Medicines/MedicineManager";
+import AppointmentDetail from "./screens/Doctor/Appointments/AppointmentDetail";
 
 
 function App() {
@@ -38,6 +39,7 @@ function App() {
                     }>
                         <Route index element={<DoctorHome />} />
                         <Route path="appointments" element={<AppointmentList />} />
+                        <Route path="appointments/:appointmentId" element={<AppointmentDetail />} />
                         <Route path="schedules" element={<ScheduleManager />} />
                         <Route path="medicines" element={<MedicineManager />} />
                     </Route>

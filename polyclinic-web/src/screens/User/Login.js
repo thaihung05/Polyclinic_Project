@@ -57,12 +57,12 @@ const Login = () => {
                 const res = await Apis.post(endpoints.login, user);
                 const token = res.data.token;
 
-                cookies.save('token', token);
+                 cookies.save('token', token, { path: '/' });
 
                 const profileRes = await authApis().get(endpoints.profile);
                 const profile = profileRes.data;
 
-                cookies.save('user', profile);
+                cookies.save('user', profile, { path: '/' });
                 dispatch({
                     type: "LOGIN", payload: profile
                 });

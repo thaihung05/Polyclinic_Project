@@ -44,7 +44,7 @@ public class GoogleConfig {
                         .setDataStoreFactory(new FileDataStoreFactory(new java.io.File("tokens")))
                         .setAccessType("offline")
                         .build();
-
+        System.out.println(new java.io.File("tokens").getAbsolutePath());
         Credential credential = new AuthorizationCodeInstalledApp(
                 flow,
                 new LocalServerReceiver())

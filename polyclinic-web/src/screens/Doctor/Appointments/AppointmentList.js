@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { authApis, endpoints } from "../../../configs/Api";
-import { Alert, Badge, Table } from "react-bootstrap";
+import { Alert, Badge, Button, Table } from "react-bootstrap";
 import MySpinner from "../../../components/MySpinner";
 import Swal from "sweetalert2";
+import { useNavigate } from "react-router-dom";
 
 const statusLabel = (s) => {
     if (s === "PENDING") return "Chờ xác nhận";
@@ -26,6 +27,7 @@ const AppointmentList = () => {
     const [loading, setLoading] = useState(false);
     const [appointments, setAppointments] = useState([]);
     const [tab, setTab] = useState("");
+    const navigate = useNavigate();
 
     const loadAppointments = useCallback(async () => {
         try {
@@ -106,6 +108,7 @@ const AppointmentList = () => {
                             <th>Link khám bệnh</th>
                             <th>Trạng thái</th>
                             <th>Cập nhật</th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -116,9 +119,18 @@ const AppointmentList = () => {
                                 <td>{a.scheduledAt}</td>
                                 <td>{a.symptoms}</td>
                                 <td>
-                                    {a.status === "CONFIRMED" && (
-                                        <button className="btn btn-sm btn-outline-secondary">Vào khám</button>
-                                    )}
+                                    {a.status === "CONFIRMED" && a.meetingUrl ? (
+                                        <a
+                                            href={a.meetingUrl}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="btn btn-sm btn-outline-success"
+                                        >
+                                            Vào khám
+                                        </a>
+                                    ) : a.status === "CONFIRMED" ? (
+                                        <span className="text-muted fst-italic small">Chưa có link</span>
+                                    ) : null}
                                 </td>
                                 <td>
                                     <Badge bg={statusBg(a.status)}>{statusLabel(a.status)}</Badge>
@@ -137,6 +149,15 @@ const AppointmentList = () => {
                                     ) : (
                                         <span className="text-muted fst-italic">Không đổi được trạng thái</span>
                                     )}
+                                </td>
+                                <td>
+                                    <Button
+                                        variant="outline-primary"
+                                        size="sm"
+                                        onClick={() => navigate(`/doctor/dashboard/appointments/${a.id}`)}
+                                    >
+                                        Chi tiết
+                                    </Button>
                                 </td>
                             </tr>
                         ))}

@@ -37,7 +37,19 @@ export const endpoints = {
     'lab-results':'/secure/lab-results',
     'book-appointment':'/secure/appointments',
     'payment-create':'/secure/payment/create',
-    'payment-confirm':'/secure/payment/confirm'
+    'payment-confirm':'/secure/payment/confirm',
+
+    'appointment-detail': (id) => `/${id}`,
+    'appointment-medical-record': (appointmentId) => `/appointments/${appointmentId}/medical-record`,
+    'create-medical-record': (appointmentId) => `/secure/appointments/${appointmentId}/medical-record`,
+    'update-medical-record': (recordId) => `/secure/medical-record/${recordId}`,
+
+    'prescriptions-by-record': (recordId) => `/medical-records/${recordId}/prescriptions`,
+    'create-prescription':     (recordId) => `/secure/medical-records/${recordId}/prescriptions`,
+
+    'lab-results-by-appointment': (appointmentId) => `/appointments/${appointmentId}/lab-results`,
+    'create-lab-result': (appointmentId) => `/secure/appointments/${appointmentId}/lab-results`,
+    'update-lab-result': (id) => `/secure/lab-results/${id}`
 
 
 };
