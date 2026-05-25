@@ -49,8 +49,11 @@ export const endpoints = {
 
     'lab-results-by-appointment': (appointmentId) => `/appointments/${appointmentId}/lab-results`,
     'create-lab-result': (appointmentId) => `/secure/appointments/${appointmentId}/lab-results`,
-    'update-lab-result': (id) => `/secure/lab-results/${id}`
+    'update-lab-result': (id) => `/secure/lab-results/${id}`,
 
+
+    'notifications':'/secure/notifications',
+    'read-notifications':(id) => `/secure/notifications/${id}/read`
 
 };
 

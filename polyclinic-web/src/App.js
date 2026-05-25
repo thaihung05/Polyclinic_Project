@@ -18,6 +18,7 @@ import cookies from 'react-cookies';
 import { MyUserContext } from "./configs/Contexts";
 import MedicineManager from "./screens/Doctor/Medicines/MedicineManager";
 import AppointmentDetail from "./screens/Doctor/Appointments/AppointmentDetail";
+import Notification from "./screens/Notification/Notification";
 
 
 function App() {
@@ -30,6 +31,7 @@ function App() {
                     <Route path="/" element={<Home />} />
                     <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
                     <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
+                    <Route path="/notifications" element={<ProtectedRoute><Notification/></ProtectedRoute>}/>
                     <Route path="/appointment" element={
                         <ProtectedRoute requiredRole="ROLE_PATIENT"><Appointment /></ProtectedRoute>
                     } />
