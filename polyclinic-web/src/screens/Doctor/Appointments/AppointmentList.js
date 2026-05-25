@@ -116,9 +116,19 @@ const AppointmentList = () => {
                                 <td>{a.scheduledAt}</td>
                                 <td>{a.symptoms}</td>
                                 <td>
-                                    {a.status === "CONFIRMED" && (
-                                        <button className="btn btn-sm btn-outline-secondary">Vào khám</button>
-                                    )}
+                                    {a.status === "CONFIRMED" && a.meetingUrl ? (
+                                        <a
+                                            href={a.meetingUrl}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="btn btn-sm btn-outline-success"
+                                        >
+                                            Vào khám
+                                        </a>
+                                    ) : a.status === "CONFIRMED" ? (
+                                        <span className="text-muted fst-italic small">Chưa có link</span>
+                                    ) : null}
+
                                 </td>
                                 <td>
                                     <Badge bg={statusBg(a.status)}>{statusLabel(a.status)}</Badge>

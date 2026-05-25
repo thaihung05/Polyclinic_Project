@@ -1,7 +1,9 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import Swal from "sweetalert2";
 import { useContext, useEffect, useRef, useState } from "react";
 import { MyUserContext } from "../configs/Contexts";
+import { authApis, endpoints } from "../configs/Api";
+import { Alert, Badge, Button } from "react-bootstrap";
 
 const Header = () => {
 
@@ -9,6 +11,24 @@ const Header = () => {
     const nav = useNavigate();
     const [showDropdown, setShowDropdown] = useState(false);
     const dropdownRef = useRef(null);
+    const [loading, setLoading] = useState(false);
+    const [unreadCount, setUnreadCount] = useState(0);
+    const [error, setError] = useState('');
+    const location = useLocation();
+
+    const fetchUnread = async () => {
+        try {
+            setLoading(true);
+            const res = await authApis().get(endpoints['notifications']);
+            setUnreadCount(res.data.filter(n => !n.isRead).length);
+        }
+        catch (err) {
+            setError('Lỗi hệ thống! Không thể tải thông báo!');
+        }
+        finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
         const handleClickOutside = (e) => {
@@ -19,6 +39,13 @@ const Header = () => {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
+    useEffect(() => {
+        if (!user) {
+            setUnreadCount(0);
+            return;
+        }
+        fetchUnread();
+    }, [user, location.pathname]);
 
     const logout = () => {
         Swal.fire({
@@ -66,8 +93,15 @@ const Header = () => {
                             {user ? (
                                 <>
                                     <li className="nav-item">
-                                        <Link className="nav-link" to="/notifications">
-                                            <i className="bi bi-bell-fill"></i>
+                                        <Link className="nav-link position-relative" to="/notifications">
+                                            <i className="bi bi-bell-fill fs-5"></i>
+                                            {unreadCount > 0 && (
+                                                <span className='position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger'
+                                                    style={{ fontSize: 10, minWidth: 18, padding: "2px 5px" }}
+                                                >
+                                                    {unreadCount > 99 ? '99+' : unreadCount}
+                                                </span>
+                                            )}
                                         </Link>
                                     </li>
 
@@ -118,9 +152,9 @@ const Header = () => {
 
                                                 <li><hr className="dropdown-divider" /></li>
                                                 <li>
-                                                    <button className="dropdown-item text-danger" onClick={logout}>
+                                                    <Button className="dropdown-item text-danger" onClick={logout}>
                                                         <i className="bi bi-box-arrow-right me-2"></i>Đăng xuất
-                                                    </button>
+                                                    </Button>
                                                 </li>
                                             </ul>
                                         )}

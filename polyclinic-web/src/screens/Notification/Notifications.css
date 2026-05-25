@@ -1,0 +1,61 @@
+.noti-page {
+    min-height: 80vh;
+}
+
+.noti-title-icon {
+    color: var(--primary, #0d6efd);
+}
+
+.noti-empty-icon {
+    font-size: 48px;
+}
+
+.noti-item {
+    border-radius: 12px;
+    padding: 14px 18px;
+    transition: background 0.2s;
+}
+
+.noti-item--unread {
+    background: #f0f7ff;
+    border: 1px solid #b6d4fe;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(13, 110, 253, 0.07);
+}
+
+.noti-item--read {
+    background: #fff;
+    border: 1px solid #dee2e6;
+    cursor: default;
+}
+
+.noti-icon-wrap {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.noti-icon-wrap--unread {
+    background: #e7f1ff;
+}
+
+.noti-icon-wrap--read {
+    background: #f1f3f5;
+}
+
+.noti-icon {
+    font-size: 20px;
+}
+
+.noti-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #0d6efd;
+    display: inline-block;
+    flex-shrink: 0;
+}

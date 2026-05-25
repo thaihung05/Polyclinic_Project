@@ -37,8 +37,11 @@ export const endpoints = {
     'lab-results':'/secure/lab-results',
     'book-appointment':'/secure/appointments',
     'payment-create':'/secure/payment/create',
-    'payment-confirm':'/secure/payment/confirm'
+    'payment-confirm':'/secure/payment/confirm',
 
+
+    'notifications':'/secure/notifications',
+    'read-notifications':(id) => `/secure/notifications/${id}/read`
 
 };
 

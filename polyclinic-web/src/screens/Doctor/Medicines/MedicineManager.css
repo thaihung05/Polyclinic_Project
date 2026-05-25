@@ -1,0 +1,38 @@
+.mm-tab-bar {
+    background: #f0f2f5;
+}
+
+.mm-tab-btn {
+    border: none;
+    border-radius: 8px;
+    padding: 6px 16px;
+    font-size: 0.85rem;
+    font-weight: 400;
+    cursor: pointer;
+    transition: all 0.18s;
+    background: transparent;
+    color: #555;
+    box-shadow: none;
+}
+
+.mm-tab-btn.active {
+    background: #fff;
+    color: #0d6efd;
+    font-weight: 600;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+}
+
+.mm-tab-badge {
+    margin-left: 6px;
+    background: #dee2e6;
+    color: #555;
+    border-radius: 20px;
+    padding: 1px 8px;
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+.mm-tab-btn.active .mm-tab-badge {
+    background: #e8f0fe;
+    color: #0d6efd;
+}

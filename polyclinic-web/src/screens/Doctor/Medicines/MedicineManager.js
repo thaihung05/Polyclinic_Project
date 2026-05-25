@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import MySpinner from "../../../components/MySpinner";
 import Apis, { authApis, endpoints } from "../../../configs/Api";
 import Swal from "sweetalert2";
+import "./MedicineManager.css";
 
 
 const CATEGORIES = ["Kháng sinh", "Giảm đau", "Hạ sốt", "Tim mạch", "Tiêu hóa", "Hô hấp", "Da liễu", "Thần kinh", "Nội tiết", "Vitamin", "Khác"];
@@ -12,12 +13,6 @@ const CATEGORIES = ["Kháng sinh", "Giảm đau", "Hạ sốt", "Tim mạch", "T
 const formatPrice = (price) => {
     if (!price && price !== 0) return '-';
     return Number(price).toLocaleString('vi-VN') + "VNĐ";
-}
-
-const stockBadge = (quantity) => {
-    if (quantity <= 0) return <Badge bg="danger">Hết hàng</Badge>;
-    if (quantity <= 10) return <Badge bg="warning" text="dark">Sắp hết ({quantity})</Badge>;
-    return <Badge bg="success">{quantity}</Badge>;
 }
 
 const expiryBadge = (dateStr) => {
@@ -68,6 +63,8 @@ const MedicineManager = () => {
 
     const [threshold, setThreshold] = useState(10);
     const [days, setDays] = useState(30);
+    const [debouncedThreshold, setDebouncedThreshold] = useState(10);
+    const [debouncedDays, setDebouncedDays] = useState(30);
 
     const loadMedicines = useCallback(async () => {
         try {
@@ -89,9 +86,9 @@ const MedicineManager = () => {
             setLoading(true);
             let res = null;
             if (tab === 'low-stock')
-                res = await authApis().get(`${endpoints['medicines-low-stock']}?threshold=${threshold}`);
+                res = await authApis().get(`${endpoints['medicines-low-stock']}?threshold=${debouncedThreshold}`);
             else
-                res = await authApis().get(`${endpoints['medicines-near-expiry']}?days=${days}`);
+                res = await authApis().get(`${endpoints['medicines-near-expiry']}?days=${debouncedDays}`);
 
             setAlerts(res.data || []);
         }
@@ -101,7 +98,23 @@ const MedicineManager = () => {
         finally {
             setLoading(false);
         }
-    }, [tab, threshold, days]);
+    }, [tab, debouncedThreshold, debouncedDays]);
+
+    useEffect(()=>{
+        setAlerts([]);
+        const time = setTimeout(() => {
+            setDebouncedThreshold(threshold)
+        },500);
+        return () => clearTimeout(time);
+    },[threshold]);
+
+    useEffect(() =>{
+        setAlerts([]);
+        const time = setTimeout(() => {
+            setDebouncedDays(days);
+        },500);
+        return () => clearTimeout(time);
+    },[days]);
 
     useEffect(() => {
         if (tab === 'list') loadMedicines();
@@ -173,40 +186,40 @@ const MedicineManager = () => {
     };
 
 
-    const saveMedicines = async () => {
-        if (validate()) {
-            const body = {
-                ...form,
-                stockQuantity: Number(form.stockQuantity),
-                price: Number(form.price),
-                expiryDate: form.expiryDate ? form.expiryDate + " 00:00:00" : null
-            };
+    const buildBody = () => ({
+        ...form,
+        stockQuantity: Number(form.stockQuantity),
+        price: Number(form.price),
+        expiryDate: form.expiryDate ? form.expiryDate + " 00:00:00" : null
+    });
 
-            try {
-                setLoading(true);
-                setSaving(true);
-                if (editItem) {
-                    await authApis().put(endpoints['medicine-update'](editItem.id), body);
-                    Swal.fire({ icon: "success", title: "Cập nhật thành công!", showConfirmButton: false, timer: 1000 });
-                }
-                else {
-                    await authApis().post(endpoints['medicines-secure'], body);
-                    Swal.fire({ icon: "success", title: "Thêm thuốc thành công!", showConfirmButton: false, timer: 1000 });
-                }
-                setShowModal(false);
-                loadMedicines();
-            }
-            catch (err) {
-                Swal.fire({
-                    icon: "error",
-                    title: "Thất bại!",
-                    text: err?.response?.data || "Đã xảy ra lỗi!"
-                });
-            }
-            finally {
-                setLoading(false);
-                setSaving(false);
-            }
+    const addMedicine = async () => {
+        if (!validate()) return;
+        try {
+            setSaving(true);
+            await authApis().post(endpoints['medicines-secure'], buildBody());
+            Swal.fire({ icon: "success", title: "Thêm thuốc thành công!", showConfirmButton: false, timer: 1000 });
+            setShowModal(false);
+            loadMedicines();
+        } catch (err) {
+            Swal.fire({ icon: "error", title: "Thêm thất bại!", text: "Đã xảy ra lỗi! Thêm thuốc thất bại!" });
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const updateMedicine = async () => {
+        if (!validate()) return;
+        try {
+            setSaving(true);
+            await authApis().put(endpoints['medicine-update'](editItem.id), buildBody());
+            Swal.fire({ icon: "success", title: "Cập nhật thành công!", showConfirmButton: false, timer: 1000 });
+            setShowModal(false);
+            loadMedicines();
+        } catch (err) {
+            Swal.fire({ icon: "error", title: "Cập nhật thất bại!", text:"Đã xảy ra lỗi! Cập nhật thuốc thất bại!" });
+        } finally {
+            setSaving(false);
         }
     };
 
@@ -266,15 +279,17 @@ const MedicineManager = () => {
                     )}
                 </div>
 
-                <div className="d-flex gap-2 mb-4 flex-wrap">
+                <div className="d-flex gap-2 mb-4 flex-wrap p-1 rounded-3 mm-tab-bar">
                     {TABS.map(t => (
-                        <Button key={t.key}
-                            className={`btn btn-sm ${tab === t.key ? "btn-primary" : "btn-outline-secondary"}`}
+                        <button key={t.key}
+                            className={`mm-tab-btn${tab === t.key ? " active" : ""}`}
                             onClick={() => { setTab(t.key); setPage(1); }}
                         >
                             <i className={`bi ${t.icon} me-1`}></i>{t.label}
-                            {t.key === 'list' && `(${medicines.length})`}
-                        </Button>
+                            {t.key === 'list' && (
+                                <span className="mm-tab-badge">{medicines.length}</span>
+                            )}
+                        </button>
                     ))}
                 </div>
 
@@ -298,10 +313,10 @@ const MedicineManager = () => {
                         </select>
 
                         {(search || filterCategory) && (
-                            <Button className="btn btn-sm btn-outline-secondary"
+                            <Button variant="outline-primary" size="sm"
                                 onClick={() => { setSearch(""); setFilterCategory('') }}
                             >
-                                <i className="bi bi-x me-1"></i>Bỏ lọc
+                                <i className="bi bi-x-circle me-1"></i>Bỏ lọc
                             </Button>
                         )}
 
@@ -318,8 +333,6 @@ const MedicineManager = () => {
                                 <input type="number" className="form-control form-control-sm" style={{ width: 80 }}
                                     value={threshold} min={1}
                                     onChange={e => setThreshold(Number(e.target.value))} />
-
-                                <Button className="btn btn-sm btn-outline-primary" onClick={loadAlerts}>Áp dụng</Button>
                             </div>
                         )}
                         {tab === 'near-expiry' && (
@@ -328,9 +341,7 @@ const MedicineManager = () => {
                                 <input type="number" className="form-control form-control-sm" style={{ width: 80 }}
                                     value={days} min={1}
                                     onChange={e => setDays(Number(e.target.value))} />
-
                                 <span className="small">ngày</span>
-                                <Button className="btn btn-sm btn-outline-primary" onClick={loadAlerts}>Áp dụng</Button>
                             </div>
                         )}
                         <span className="text-muted small ms-auto">{alerts.length} thuốc cần chú ý</span>
@@ -376,13 +387,11 @@ const MedicineManager = () => {
                                                     <td>{m.unit}</td>
                                                     <td>{m.concentration || '-'}</td>
                                                     <td>{m.manufacturer || "—"}</td>
-                                                    <td>{stockBadge(m.stockQuantity)}</td>
+                                                    <td>{m.stockQuantity}</td>
                                                     <td>{expiryBadge(m.expiryDate)}</td>
-                                                    <td className="text-end">{formatPrice(m.price)}</td>
-                                                    <td>
-                                                        <Badge bg={m.isActive ? "success" : "secondary"}>
-                                                            {m.isActive ? "Hoạt động" : "Ngừng"}
-                                                        </Badge>
+                                                    <td className="text-center">{formatPrice(m.price)}</td>
+                                                    <td className="text-center">
+                                                            {m.isActive ? "Còn" : "Hết"}
                                                     </td>
                                                     <td>
                                                         <div className="d-flex gap-1">
@@ -421,11 +430,6 @@ const MedicineManager = () => {
                             </Alert>
                         ) : (
                             <>
-                                <Alert variant="warning" className="py-2">
-                                    <i className="bi bi-exclamation-triangle me-2"></i>
-                                    <strong>{alerts.length} thuốc</strong> cần chú ý!
-                                </Alert>
-
                                 <div className="table-responsive">
                                     <Table className="bg-white rounded shadow-sm" bordered hover size="sm">
                                         <thead className="table-light">
@@ -450,9 +454,9 @@ const MedicineManager = () => {
                                                     <td className="fw-semibold">{m.name}</td>
                                                     <td>{m.category || "—"}</td>
                                                     <td>{m.unit}</td>
-                                                    {tab === 'low-stock' && <td>{stockBadge(m.stockQuantity)}</td>}
+                                                    {tab === 'low-stock' && <td>{m.stockQuantity}</td>}
                                                     {tab === "near-expiry" && <td>{expiryBadge(m.expiryDate)}</td>}
-                                                    <td className="text-end">{formatPrice(m.price)}</td>
+                                                    <td>{formatPrice(m.price)}</td>
                                                     <td>
                                                         <Button size="sm" variant="outline-primary" onClick={() => { setTab("list"); openEdit(m); }}>
                                                             <i className="bi bi-pencil me-1"></i>Cập nhật
@@ -560,7 +564,7 @@ const MedicineManager = () => {
 
                     <Modal.Footer>
                         <Button variant="secondary" size="sm" onClick={() => setShowModal(false)} disabled={saving}>Hủy</Button>
-                        <Button variant="primary" size="sm" onClick={saveMedicines} disabled={saving}>
+                        <Button variant="primary" size="sm" onClick={editItem ? updateMedicine : addMedicine} disabled={saving}>
                             {saving
                                 ? <><span className="spinner-border spinner-border-sm me-1"></span>Đang lưu...</>
                                 : <><i className={`bi ${editItem ? "bi-check-lg" : "bi-plus-lg"} me-1`}></i>{editItem ? "Cập nhật" : "Thêm thuốc"}</>
