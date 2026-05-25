@@ -154,6 +154,7 @@ const Appointment = () => {
             Swal.fire("Lỗi", err?.response?.data || "Thanh toán thất bại", "error");
         } finally {
             setPaymentConfirming(false);
+            setLoading(false);
         }
     };
 
