@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import { MyUserContext } from "../../configs/Contexts";
 import { authApis, endpoints } from "../../configs/Api";
 import Header from "../../components/Header";
-import { Badge, Button, Spinner } from "react-bootstrap";
+import { Badge, Button, Pagination, Spinner } from "react-bootstrap";
 import Moment from "react-moment";
 import Footer from "../../components/Footer";
 const Notification = () => {
@@ -11,6 +11,9 @@ const Notification = () => {
     const [loading, setLoading] = useState(false);
     const [markingAll, setMarkingAll] = useState(false);
     const [error, setError] = useState('');
+    const [page, setPage] = useState(1);
+
+    const PAGE_SIZE = 5;
 
     const loadNotifications = async () => {
         try {
@@ -18,6 +21,7 @@ const Notification = () => {
             const res = await authApis().get(endpoints['notifications']);
             const sorted = [...res.data].sort((a, b) => new Date(b.ngayTao) - new Date(a.ngayTao));
             setNotifications(sorted);
+            setPage(1);
         } catch (err) {
             setError('Lỗi ! Tải thông báo thất bại!');
         }
@@ -26,7 +30,7 @@ const Notification = () => {
         }
     }
 
-    useEffect(() => { loadNotifications() }, []);
+    useEffect(() => { loadNotifications(); }, []);
 
     const markAsRead = async (id) => {
         try {
@@ -82,6 +86,8 @@ const Notification = () => {
         return "#6c757d";
     };
 
+    const totalPages = Math.ceil(notifications.length / PAGE_SIZE);
+    const visibleNotifications = notifications.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
     const unreadCount = notifications.filter(n => !n.isRead).length;
 
     return (
@@ -90,7 +96,10 @@ const Notification = () => {
             <div className="container py-4 noti-page">
                 <div className="d-flex justify-content-between align-items-center mb-4">
                     <div className="d-flex align-items-center gap-3">
-                        <h4 className="mb-0 fw-bold">Thông báo</h4>
+                        <h4 className="mb-0 fw-bold">
+                            <i className="bi bi-bell-fill me-2 noti-title-icon"></i>
+                            Thông báo
+                        </h4>
                         {unreadCount > 0 && (
                             <Badge bg="danger" pill>{unreadCount} chưa đọc</Badge>
                         )}
@@ -110,6 +119,8 @@ const Notification = () => {
                     )}
                 </div>
 
+
+
                 {error && (
                     <div className="alert alert-danger d-flex align-items-center gap-2" role="alert">
                         <i className="bi bi-exclamation-triangle-fill"></i>
@@ -125,11 +136,12 @@ const Notification = () => {
 
                 ) : notifications.length === 0 ? (
                     <div className="text-center py-5 text-muted">
+                        <i className="bi bi-bell-slash noti-empty-icon"></i>
                         <p className="mt-3">Bạn chưa có thông báo nào.</p>
                     </div>
                 ) : (
                     <div className="d-flex flex-column gap-2">
-                        {notifications.map(n => (
+                        {visibleNotifications.map(n => (
                             <div key={n.id}
                                 onClick={() => !n.isRead && markAsRead(n.id)}
                                 className={`noti-item ${n.isRead ? "noti-item--read" : "noti-item--unread"}`}
@@ -166,8 +178,26 @@ const Notification = () => {
                         ))}
                     </div>
                 )}
+
+                {totalPages > 1 && (
+                    <div className="d-flex justify-content-center mt-5">
+                        <Pagination>
+                            <Pagination.Prev disabled={page === 1} onClick={() => setPage(page - 1)} />
+                            {[...Array(totalPages)].map((_, i) => (
+                                <Pagination.Item
+                                    key={i + 1}
+                                    active={page === i + 1}
+                                    onClick={() => setPage(i + 1)}
+                                >
+                                    {i + 1}
+                                </Pagination.Item>
+                            ))}
+                            <Pagination.Next disabled={page === totalPages} onClick={() => setPage(page + 1)} />
+                        </Pagination>
+                    </div>
+                )}
             </div>
-            <Footer />
+            <Footer/>
         </>
     );
 };

@@ -96,6 +96,9 @@ public class AppointmentServiceImpl implements AppointmentService {
                             .format(appointment.getScheduledAt());
         this.notificationService.createAppointmentNotification(patient.getUserId(), doctorName, scheduledAt);
         
+        String patientName = patient.getUserId().getName();
+        this.notificationService.createNewBookingNotificationForDoctor(doctor.getUserId(), patientName, scheduledAt);
+        
         return appointment;
     }
 

@@ -4,6 +4,7 @@
  */
 package com.pkdk.controllers;
 
+import com.pkdk.enums.AppointmentStatus;
 import com.pkdk.enums.UserRole;
 import com.pkdk.pojo.Appointments;
 import com.pkdk.pojo.DoctorSchedules;
@@ -13,10 +14,12 @@ import com.pkdk.pojo.Users;
 import com.pkdk.service.AppointmentService;
 import com.pkdk.service.DoctorService;
 import com.pkdk.service.GoogleMeetingService;
+import com.pkdk.service.NotificationService;
 import com.pkdk.service.PatientService;
 import com.pkdk.service.ScheduleService;
 import com.pkdk.service.UserService;
 import java.security.Principal;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -59,6 +62,9 @@ public class ApiAppointmentController {
 
     @Autowired
     private ScheduleService scheduleService;
+    
+    @Autowired
+    private NotificationService notificationService;
 
     @GetMapping("/secure/patient/appointments")
     public ResponseEntity<?> getMyAppointments(Principal principal) {
@@ -252,6 +258,17 @@ public class ApiAppointmentController {
         a.setStatus(newStatus);
 
         this.appointmentService.save(a);
+        if(newStatus.equals(AppointmentStatus.CANCELLED.name())){
+            String scheduledAt = new SimpleDateFormat("HH:mm dd/MM/yyyy").format(a.getScheduledAt());
+            String patientName = a.getPatientId().getUserId().getName();
+            String cancelledBy = u.getName();
+            
+            this.notificationService.createCancelNotificationForPatient(
+                    a.getPatientId().getUserId(), scheduledAt, cancelledBy);
+            
+            this.notificationService.createCancelNotificationForDoctor(
+                    a.getDoctorId().getUserId(), patientName, scheduledAt);
+        }
         return new ResponseEntity<>(a, HttpStatus.OK);
     }
 
