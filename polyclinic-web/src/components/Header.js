@@ -93,7 +93,7 @@ const Header = () => {
                             {user ? (
                                 <>
                                     <li className="nav-item">
-                                        <Link className="nav-link position-relative" to="/notifications">
+                                        <Link className="nav-link position-relative p-1" to="/notifications">
                                             <i className="bi bi-bell-fill fs-5"></i>
                                             {unreadCount > 0 && (
                                                 <span className='position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger'

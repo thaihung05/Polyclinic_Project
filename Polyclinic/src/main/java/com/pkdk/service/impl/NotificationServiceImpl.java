@@ -104,4 +104,45 @@ public class NotificationServiceImpl implements NotificationService {
         return n;
     }
 
+    @Override
+    public Notifications createNewBookingNotificationForDoctor(Users doctorUser, String patientName, String scheduledAt) {
+        Notifications n = new Notifications();
+        n.setUserId(doctorUser);
+        n.setTitle("Lịch hẹn mới");
+        n.setMessage(String.format(
+                "Bệnh nhân %s vừa đặt lịch khám với bạn vào lúc %s.",
+                patientName, scheduledAt));
+        n.setNgayTao(new Date());
+        this.save(n);
+        this.sendEmailNoti(doctorUser, n);
+        return n;
+    }
+
+    @Override
+    public Notifications createCancelNotificationForPatient(Users user, String scheduledAt, String cancelledBy) {
+        Notifications n = new Notifications();
+        n.setUserId(user);
+        n.setTitle("Lịch hẹn đã bị hủy");
+        n.setMessage(String.format("Lịch khám vào lúc %s của bạn đã bị hủy bởi %s.",scheduledAt, cancelledBy));
+        n.setNgayTao(new Date());
+        this.save(n);
+        this.sendEmailNoti(user, n);
+        return n;
+        
+    }
+
+    @Override
+    public Notifications createCancelNotificationForDoctor(Users doctorUser, String patientName, String scheduledAt) {
+        Notifications n = new Notifications();
+        n.setUserId(doctorUser);
+        n.setTitle("Lịch hẹn đã bị hủy");
+        n.setMessage(String.format(
+                "Bệnh nhân %s đã hủy lịch khám vào lúc %s.",
+                patientName, scheduledAt));
+        n.setNgayTao(new Date());
+        this.save(n);
+        this.sendEmailNoti(doctorUser, n);
+        return n;
+    }
+
 }
