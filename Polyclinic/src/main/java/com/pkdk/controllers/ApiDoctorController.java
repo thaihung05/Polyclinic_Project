@@ -5,8 +5,12 @@
 package com.pkdk.controllers;
 
 import com.pkdk.pojo.Doctors;
+import com.pkdk.pojo.Users;
 import com.pkdk.service.DoctorService;
 import com.pkdk.service.SpecialtyService;
+import com.pkdk.service.UserService;
+import java.security.Principal;
+import java.util.Collections;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -30,6 +34,9 @@ public class ApiDoctorController {
 
     @Autowired
     private SpecialtyService specialtyService;
+
+    @Autowired
+    private UserService userService;
 
     @GetMapping("/api/doctors")
     public ResponseEntity<?> getDoctors(
@@ -56,5 +63,15 @@ public class ApiDoctorController {
         }
 
         return new ResponseEntity<>(d, HttpStatus.OK);
+    }
+
+    @GetMapping("/api/secure/doctors/me")
+    public ResponseEntity<?> getMyDoctorId(Principal principal) {
+        Users u = this.userService.getUserByUserName(principal.getName());
+        Doctors d = this.doctorService.getDoctorByUserId(u.getId());
+        if (d == null) {
+            return new ResponseEntity<>("Không tìm thấy bác sĩ", HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(Collections.singletonMap("doctorId", d.getId()), HttpStatus.OK);
     }
 }

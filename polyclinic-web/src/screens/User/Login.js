@@ -62,6 +62,11 @@ const Login = () => {
                 const profileRes = await authApis().get(endpoints.profile);
                 const profile = profileRes.data;
 
+                if (profile.role === "ROLE_DOCTOR") {
+                    const doctorRes = await authApis().get('/secure/doctors/me');
+                    profile.doctorId = doctorRes.data.doctorId;
+                }
+
                 cookies.save('user', profile, { path: '/' });
                 dispatch({
                     type: "LOGIN", payload: profile
@@ -75,6 +80,7 @@ const Login = () => {
                 })
 
                 if (profile.role === "ROLE_DOCTOR") nav("/doctor/dashboard");
+                else if (profile.role === "ROLE_PHARMACIST") nav("/pharmacist/dashboard");
                 else if (next) nav(next);
                 else nav('/');
 

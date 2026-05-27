@@ -8,6 +8,11 @@
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
+#root {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
 
 .topbar {
     background: #f4f8fb;
@@ -132,7 +137,7 @@ footer.site-footer {
     color: #adbbc8;
     font-size: .88rem;
     padding: 2.8rem 0 0;
-    margin-top: 3rem;
+    margin-top: auto;
 }
 footer.site-footer h6 {
     color: #fff;

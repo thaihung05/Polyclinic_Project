@@ -73,7 +73,7 @@ const DoctorHome = () =>{
         <div>
             <div className="mb-4">
                 <h4 className="fw-bold mb-1">
-                    Xin chào, bác sĩ {user.name}
+                    Xin chào, Bác sĩ {user.name}
                 </h4>
                 <p>
                     Hôm nay: {new Date().toLocaleString("vi-VN", {weekday: "long", year: "numeric", month:"long", day:"numeric"})}

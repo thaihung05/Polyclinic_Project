@@ -1,10 +1,10 @@
 import { NavLink, Outlet } from "react-router-dom";
 import Header from "../../components/Header";
-import "./DoctorDashboard.css";
+import "../Doctor/DoctorDashboard.css";
 import cookies from 'react-cookies';
 
-const DoctorDashboard = () => {
-    const user = cookies.load('user') || {};
+const PharmacistDashboard = () => {
+    const user = cookies.load('user');
 
     return (
         <>
@@ -13,24 +13,19 @@ const DoctorDashboard = () => {
                 <aside className="doctor-sidebar">
                     <div className="sidebar-header">
                         {user.name && (
-                            <div className="sidebar-username">Trang bác sĩ</div>
+                            <div className="sidebar-username">Dược sĩ {user.name}</div>
                         )}
                     </div>
                     <nav className="sidebar-nav">
-                        <NavLink to="/doctor/dashboard" end
+                        <NavLink to="/pharmacist/dashboard" end
                             className={({ isActive }) => isActive ? "sidebar-link active" : "sidebar-link"}
                         >
                             <i className="bi bi-speedometer2 me-2"></i>Tổng quan
                         </NavLink>
-                        <NavLink to="/doctor/dashboard/appointments"
+                        <NavLink to="/pharmacist/dashboard/medicines"
                             className={({ isActive }) => isActive ? "sidebar-link active" : "sidebar-link"}
                         >
-                            <i className="bi bi-calendar-check me-2"></i>Lịch hẹn bệnh nhân
-                        </NavLink>
-                        <NavLink to="/doctor/dashboard/schedules"
-                            className={({ isActive }) => isActive ? "sidebar-link active" : "sidebar-link"}
-                        >
-                            <i className="bi bi-clock me-2"></i>Lịch làm việc
+                            <i className="bi bi-capsule me-2"></i>Quản lý kho thuốc
                         </NavLink>
 
                         <div className="sidebar-divider"></div>
@@ -50,4 +45,4 @@ const DoctorDashboard = () => {
     );
 };
 
-export default DoctorDashboard;
+export default PharmacistDashboard;

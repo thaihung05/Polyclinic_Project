@@ -17,10 +17,10 @@ export const endpoints = {
     'change-password': '/secure/profile/change-password',
     'doctor-appointments': '/secure/doctor/appointments',
     'appointment-status': (id) => `/secure/appointments/${id}/status`,
-    // 'appointment-meeting': (id) => `/${id}/meeting`,
 
     'doctor-schedules': (doctorId) => `/secure/doctors/${doctorId}/schedules`,
     'doctor-schedule-item': (doctorId, scheduleId) => `/secure/doctors/${doctorId}/schedules/${scheduleId}`,
+    'my-doctor': '/secure/doctors/me',
 
 
     'medicines': '/medicines',
@@ -42,7 +42,7 @@ export const endpoints = {
     'appointment-detail': (id) => `/${id}`,
     'appointment-medical-record': (appointmentId) => `/appointments/${appointmentId}/medical-record`,
     'create-medical-record': (appointmentId) => `/secure/appointments/${appointmentId}/medical-record`,
-    'update-medical-record': (recordId) => `/secure/medical-record/${recordId}`,
+    'update-medical-record': (recordId) => `/secure/medical-records/${recordId}`,
 
     'prescriptions-by-record': (recordId) => `/medical-records/${recordId}/prescriptions`,
     'create-prescription':     (recordId) => `/secure/medical-records/${recordId}/prescriptions`,

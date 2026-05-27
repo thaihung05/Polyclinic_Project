@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { authApis, endpoints } from "../../configs/Api";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
-import { Spinner, Tab, Table, Tabs } from "react-bootstrap";
+import { Button, Spinner, Tab, Table, Tabs } from "react-bootstrap";
 import Swal from "sweetalert2";
 
 
@@ -81,6 +81,7 @@ const MedicalHistory = () => {
                                             <th>Kế hoạch điều trị</th>
                                             <th>Ngày tái khám</th>
                                             <th>Ghi chú</th>
+                                            <th>Đơn thuốc</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -95,6 +96,7 @@ const MedicalHistory = () => {
                                                 <td>{rec.treatmentPlan}</td>
                                                 <td>{formatDateTime(rec.followUpDate) || "—"}</td>
                                                 <td>{rec.notes || "—"}</td>
+                                                <td><Button>Click me</Button></td>
                                             </tr>
                                         ))}
                                     </tbody>

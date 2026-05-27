@@ -1,9 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import {
-    Alert, Badge, Button, Card, Col, Container,
-    Form, Modal, Nav, Row, Spinner, Tab, Table
-} from "react-bootstrap";
+import { Alert, Badge, Button, Card, Col, Container, Form, Modal, Nav, Row, Spinner, Tab, Table } from "react-bootstrap";
 import Swal from "sweetalert2";
 import Apis, { authApis, endpoints } from "../../../configs/Api";
 
@@ -13,7 +10,7 @@ const statusVariant = (s) => ({
     COMPLETED: "success",
     CANCELLED: "danger",
     NO_SHOW: "secondary",
-}[s] || "secondary");
+}[s]);
 
 const statusLabel = (s) => ({
     PENDING: "Chờ xác nhận",
@@ -21,7 +18,7 @@ const statusLabel = (s) => ({
     COMPLETED: "Hoàn thành",
     CANCELLED: "Đã hủy",
     NO_SHOW: "Vắng khám",
-}[s] || s);
+}[s]);
 
 const AppointmentDetail = () => {
     const { appointmentId } = useParams();
@@ -34,108 +31,129 @@ const AppointmentDetail = () => {
     const [record, setRecord] = useState(null);
     const [recordLoading, setRecordLoading] = useState(true);
     const [recordForm, setRecordForm] = useState({
-        chiefComplaint: "", diagnosis: "", treatmentPlan: "", followUpDate: "", notes: ""
+        chiefComplaint: "", 
+        diagnosis: "", 
+        treatmentPlan: "", 
+        followUpDate: "", 
+        notes: ""
     });
     const [savingRecord, setSavingRecord] = useState(false);
 
-    // ── Prescription state ──
     const [prescriptions, setPrescriptions] = useState([]);
     const [medicines, setMedicines] = useState([]);
     const [showPrescModal, setShowPrescModal] = useState(false);
     const [prescNote, setPrescNote] = useState("");
     const [prescItems, setPrescItems] = useState([
-        { medicineId: "", quantity: 1, dosage: "", durationDays: 1, instructions: "", unitPrice: 0 }
+        { 
+            medicineId: "", 
+            quantity: 1, dosage: "", 
+            durationDays: 1, 
+            instructions: "", 
+            unitPrice: 0 }
     ]);
     const [savingPresc, setSavingPresc] = useState(false);
 
-    // ── Lab Result state ──
     const [labResults, setLabResults] = useState([]);
     const [showLabModal, setShowLabModal] = useState(false);
     const [editingLab, setEditingLab] = useState(null);
     const [labForm, setLabForm] = useState({
-        testName: "", testCode: "", result: "", unit: "", isAbnormal: false, performedAt: ""
+        testName: "", 
+        testCode: "", 
+        result: "", 
+        unit: "", 
+        isAbnormal: false, 
+        performedAt: ""
     });
     const [savingLab, setSavingLab] = useState(false);
 
-    useEffect(() => {
-        const fetchAppt = async () => {
-            try {
-                setLoading(true);
-                const res = await Apis.get(endpoints["appointment-detail"](appointmentId));
-                setAppt(res.data);
-            } catch (err) {
-                console.error("Fetch appointment error:", err);
-                setError("Không tìm thấy cuộc hẹn.");
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchAppt();
-    }, [appointmentId]);
-
-    useEffect(() => {
-        const fetchRecord = async () => {
-            try {
-                setRecordLoading(true);
-                const res = await Apis.get(endpoints["appointment-medical-record"](appointmentId));
-                setRecord(res.data);
-                setRecordForm({
-                    chiefComplaint: res.data.chiefComplaint || "",
-                    diagnosis: res.data.diagnosis || "",
-                    treatmentPlan: res.data.treatmentPlan || "",
-                    followUpDate: res.data.followUpDate
-                        ? new Date(res.data.followUpDate).toISOString().slice(0, 16)
-                        : "",
-                    notes: res.data.notes || ""
-                });
-            } catch {
-                
-            } finally {
-                setRecordLoading(false);
-            }
-        };
-        fetchRecord();
-    }, [appointmentId]);
-
-    const fetchPrescriptions = async (recordId) => {
+    const fetchAppt = async () => {
         try {
-            const res = await Apis.get(endpoints["prescriptions-by-record"](recordId));
-            setPrescriptions(res.data || []);
-        } catch { setPrescriptions([]); }
+            setLoading(true);
+            const res = await Apis.get(endpoints["appointment-detail"](appointmentId));
+            setAppt(res.data);
+        } catch (err) {
+            setError("Không tìm thấy cuộc hẹn.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const fetchRecord = async () => {
+        try {
+            setRecordLoading(true);
+            const res = await Apis.get(endpoints["appointment-medical-record"](appointmentId));
+            setRecord(res.data);
+            setRecordForm({
+                chiefComplaint: res.data.chiefComplaint || "",
+                diagnosis: res.data.diagnosis || "",
+                treatmentPlan: res.data.treatmentPlan || "",
+                followUpDate: new Date(res.data.followUpDate).toISOString().slice(0, 16),
+                notes: res.data.notes || ""
+            });
+        } catch {
+            
+        } finally {
+            setRecordLoading(false);
+        }
+    };
+
+    const fetchLabResults = async () => {
+        try {
+            const res = await Apis.get(endpoints["lab-results-by-appointment"](appointmentId));
+            setLabResults(res.data);
+        } catch { 
+            setLabResults([]); 
+        }
     };
 
     const fetchMedicines = async () => {
         try {
             const res = await Apis.get(endpoints["medicines"]);
-            setMedicines(res.data || []);
-        } catch { setMedicines([]); }
+            setMedicines(res.data);
+        } catch { 
+            setMedicines([]);
+        }
     };
 
-    useEffect(() => { fetchMedicines(); }, []);
+    const fetchPrescriptions = async (recordId) => {
+        try {
+            const res = await Apis.get(endpoints["prescriptions-by-record"](recordId));
+            setPrescriptions(res.data);
+        } catch { 
+            setPrescriptions([]); 
+        }
+    };
 
     useEffect(() => {
-        if (record?.id) fetchPrescriptions(record.id);
+        fetchAppt();
+        fetchRecord();
+        fetchLabResults();
+    }, [appointmentId]);
+
+    useEffect(() => { 
+        fetchMedicines(); 
+    }, []);
+
+    useEffect(() => {
+        if (record?.id) 
+            fetchPrescriptions(record.id);
     }, [record]);
-
-    const fetchLabResults = async () => {
-        try {
-            const res = await Apis.get(endpoints["lab-results-by-appointment"](appointmentId));
-            setLabResults(res.data || []);
-        } catch { setLabResults([]); }
-    };
-
-    useEffect(() => { fetchLabResults(); }, [appointmentId]);
 
     const openLabModal = (lab = null) => {
         setEditingLab(lab);
         setLabForm(lab ? {
-            testName: lab.testName || "",
-            testCode: lab.testCode || "",
-            result: lab.result || "",
-            unit: lab.unit || "",
+            testName: lab.testName,
+            testCode: lab.testCode,
+            result: lab.result,
+            unit: lab.unit,
             isAbnormal: lab.isAbnormal || false,
             performedAt: lab.performedAt ? new Date(lab.performedAt).toISOString().slice(0, 16) : ""
-        } : { testName: "", testCode: "", result: "", unit: "", isAbnormal: false, performedAt: "" });
+        } : { 
+            testName: "", 
+            testCode: "", 
+            result: "", unit: "", 
+            isAbnormal: false, 
+            performedAt: "" });
         setShowLabModal(true);
     };
 
@@ -156,10 +174,18 @@ const AppointmentDetail = () => {
             };
             if (editingLab) {
                 await authApis().put(endpoints["update-lab-result"](editingLab.id), payload);
-                Swal.fire({ icon: "success", title: "Đã cập nhật kết quả xét nghiệm", timer: 1500, showConfirmButton: false });
+                Swal.fire({ 
+                    icon: "success", 
+                    title: "Đã cập nhật kết quả xét nghiệm", 
+                    timer: 1500, 
+                    showConfirmButton: false });
             } else {
                 await authApis().post(endpoints["create-lab-result"](appointmentId), payload);
-                Swal.fire({ icon: "success", title: "Đã thêm kết quả xét nghiệm", timer: 1500, showConfirmButton: false });
+                Swal.fire({ 
+                    icon: "success", 
+                    title: "Đã thêm kết quả xét nghiệm", 
+                    timer: 1500, 
+                    showConfirmButton: false });
             }
             setShowLabModal(false);
             fetchLabResults();
@@ -171,7 +197,13 @@ const AppointmentDetail = () => {
     };
 
     const addPrescItem = () => setPrescItems(prev => [...prev,
-        { medicineId: "", quantity: 1, dosage: "", durationDays: 1, instructions: "", unitPrice: 0 }
+        { 
+            medicineId: "", 
+            quantity: 1, 
+            dosage: "", 
+            durationDays: 1, 
+            instructions: "", 
+            unitPrice: 0 }
     ]);
 
     const removePrescItem = (idx) => setPrescItems(prev => prev.filter((_, i) => i !== idx));
@@ -215,7 +247,13 @@ const AppointmentDetail = () => {
             Swal.fire({ icon: "success", title: "Đã kê đơn thuốc", timer: 1500, showConfirmButton: false });
             setShowPrescModal(false);
             setPrescNote("");
-            setPrescItems([{ medicineId: "", quantity: 1, dosage: "", durationDays: 1, instructions: "", unitPrice: 0 }]);
+            setPrescItems([{ 
+                medicineId: "", 
+                quantity: 1, 
+                dosage: "", 
+                durationDays: 1, 
+                instructions: "", 
+                unitPrice: 0 }]);
             fetchPrescriptions(record.id);
             fetchMedicines();
         } catch (err) {
@@ -235,18 +273,24 @@ const AppointmentDetail = () => {
         try {
             const payload = {
                 ...recordForm,
-                followUpDate: recordForm.followUpDate
-                    ? recordForm.followUpDate.replace('T', ' ') + ':00'
-                    : null
+                followUpDate: recordForm.followUpDate.replace('T', ' ') + ':00'
             };
             if (record) {
                 const res = await authApis().put(endpoints["update-medical-record"](record.id), payload);
                 setRecord(res.data);
-                Swal.fire({ icon: "success", title: "Đã cập nhật hồ sơ bệnh án", timer: 1500, showConfirmButton: false });
+                Swal.fire({ 
+                    icon: "success", 
+                    title: "Đã cập nhật hồ sơ bệnh án", 
+                    timer: 1500, 
+                    showConfirmButton: false });
             } else {
                 const res = await authApis().post(endpoints["create-medical-record"](appointmentId), payload);
                 setRecord(res.data);
-                Swal.fire({ icon: "success", title: "Đã tạo hồ sơ bệnh án", timer: 1500, showConfirmButton: false });
+                Swal.fire({ 
+                    icon: "success", 
+                    title: "Đã tạo hồ sơ bệnh án", 
+                    timer: 1500, 
+                    showConfirmButton: false });
             }
         } catch (err) {
             console.error(err);
@@ -266,7 +310,7 @@ const AppointmentDetail = () => {
     if (error) return (
         <Container className="mt-4">
             <Alert variant="danger">{error}</Alert>
-            <Button variant="secondary" onClick={() => navigate(-1)}>← Quay lại</Button>
+            <Button variant="secondary" onClick={() => navigate(-1)}>Quay lại</Button>
         </Container>
     );
 
@@ -276,7 +320,7 @@ const AppointmentDetail = () => {
         <Container fluid className="mt-3">
             <div className="d-flex align-items-center gap-3 mb-4">
                 <Button variant="outline-secondary" size="sm" onClick={() => navigate(-1)}>
-                    ← Quay lại
+                    Quay lại
                 </Button>
                 <h4 className="mb-0 fw-bold">
                     Chi tiết cuộc hẹn #{appt.id}{" "}
@@ -291,7 +335,7 @@ const AppointmentDetail = () => {
                     </Nav.Item>
                     <Nav.Item>
                         <Nav.Link eventKey="record">
-                            Hồ sơ bệnh án {record && <Badge bg="success" pill>✓</Badge>}
+                            Hồ sơ bệnh án {record && <i class="bi bi-bookmark-check-fill"></i>}
                         </Nav.Link>
                     </Nav.Item>
                     <Nav.Item>
@@ -301,13 +345,12 @@ const AppointmentDetail = () => {
                     </Nav.Item>
                     <Nav.Item>
                         <Nav.Link eventKey="lab">
-                            Kết quả xét nghiệm {labResults.length > 0 && <Badge bg="info" pill>{labResults.length}</Badge>}
+                            Kết quả xét nghiệm {labResults.length > 0 && <Badge bg="primary" pill>{labResults.length}</Badge>}
                         </Nav.Link>
                     </Nav.Item>
                 </Nav>
 
                 <Tab.Content>
-                    {/* ── Tab 1: Thông tin hẹn ── */}
                     <Tab.Pane eventKey="info">
                         <Card>
                             <Card.Body>
@@ -323,9 +366,7 @@ const AppointmentDetail = () => {
                                     <Col md={6}>
                                         <p className="mb-1 text-muted small">Thời gian hẹn</p>
                                         <p className="fw-semibold">
-                                            {appt.scheduledAt
-                                                ? new Date(appt.scheduledAt).toLocaleString("vi-VN")
-                                                : "—"}
+                                            {appt.scheduledAt ? new Date(appt.scheduledAt).toLocaleString("vi-VN") : "—"}
                                         </p>
                                     </Col>
                                     <Col md={6}>
@@ -355,7 +396,6 @@ const AppointmentDetail = () => {
                         </Card>
                     </Tab.Pane>
 
-                    {/* ── Tab 2: Hồ sơ bệnh án ── */}
                     <Tab.Pane eventKey="record">
                         <Card>
                             <Card.Header className="fw-semibold">
@@ -373,9 +413,15 @@ const AppointmentDetail = () => {
                                                 <Form.Group className="mb-3">
                                                     <Form.Label>Lý do khám <span className="text-danger">*</span></Form.Label>
                                                     <Form.Control
-                                                        as="textarea" rows={3}
+                                                        as="textarea" 
+                                                        rows={3}
                                                         value={recordForm.chiefComplaint}
-                                                        onChange={e => setRecordForm(p => ({ ...p, chiefComplaint: e.target.value }))}
+                                                        onChange={e => 
+                                                            setRecordForm(p => ({ 
+                                                                ...p, 
+                                                                chiefComplaint: e.target.value 
+                                                            }))
+                                                        }
                                                         placeholder="Bệnh nhân đến khám vì..."
                                                     />
                                                 </Form.Group>
@@ -425,8 +471,7 @@ const AppointmentDetail = () => {
                                             </Col>
                                         </Row>
                                         <Button type="submit" variant="primary" disabled={savingRecord}>
-                                            {savingRecord
-                                                ? <><Spinner size="sm" animation="border" className="me-2" />Đang lưu...</>
+                                            {savingRecord ? <><Spinner size="sm" animation="border" className="me-2" />Đang lưu...</>
                                                 : (record ? "Cập nhật hồ sơ" : "Tạo hồ sơ")}
                                         </Button>
                                     </Form>
@@ -587,7 +632,6 @@ const AppointmentDetail = () => {
                         </Modal>
                     </Tab.Pane>
 
-                    {/* ── Tab 4: Kết quả xét nghiệm ── */}
                     <Tab.Pane eventKey="lab">
                         <Card>
                             <Card.Header className="d-flex justify-content-between align-items-center">
@@ -645,7 +689,6 @@ const AppointmentDetail = () => {
                             </Card.Body>
                         </Card>
 
-                        {/* Modal thêm/sửa xét nghiệm */}
                         <Modal show={showLabModal} onHide={() => setShowLabModal(false)}>
                             <Modal.Header closeButton>
                                 <Modal.Title>{editingLab ? "Sửa kết quả xét nghiệm" : "Thêm kết quả xét nghiệm"}</Modal.Title>
@@ -714,8 +757,7 @@ const AppointmentDetail = () => {
                             <Modal.Footer>
                                 <Button variant="secondary" onClick={() => setShowLabModal(false)}>Huỷ</Button>
                                 <Button variant="primary" onClick={handleSaveLab} disabled={savingLab}>
-                                    {savingLab
-                                        ? <><Spinner size="sm" animation="border" className="me-2" />Đang lưu...</>
+                                    {savingLab ? <><Spinner size="sm" animation="border" className="me-2" />Đang lưu...</>
                                         : (editingLab ? "Cập nhật" : "Thêm")}
                                 </Button>
                             </Modal.Footer>
