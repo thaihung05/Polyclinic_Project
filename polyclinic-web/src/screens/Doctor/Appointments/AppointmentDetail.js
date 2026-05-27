@@ -555,7 +555,8 @@ const AppointmentDetail = () => {
                                             <th style={{ width: 80 }}>Số ngày</th>
                                             <th style={{ width: 80 }}>Số lượng</th>
                                             <th style={{ minWidth: 160 }}>Hướng dẫn</th>
-                                            <th style={{ width: 110 }}>Đơn giá (đ)</th>
+                                            <th style={{ width: 120 }}>Đơn giá (đ)</th>
+                                            <th style={{ width: 130 }}>Thành tiền (đ)</th>
                                             <th style={{ width: 40 }}></th>
                                         </tr>
                                     </thead>
@@ -601,11 +602,11 @@ const AppointmentDetail = () => {
                                                         onChange={e => updatePrescItem(idx, "instructions", e.target.value)}
                                                     />
                                                 </td>
-                                                <td>
-                                                    <Form.Control type="number" min={0}
-                                                        value={item.unitPrice}
-                                                        onChange={e => updatePrescItem(idx, "unitPrice", e.target.value)}
-                                                    />
+                                                <td className="align-middle text-end">
+                                                    {Number(item.unitPrice || 0).toLocaleString("vi-VN")}đ
+                                                </td>
+                                                <td className="align-middle text-end fw-semibold text-primary">
+                                                    {(Number(item.unitPrice || 0) * Number(item.quantity || 0)).toLocaleString("vi-VN")}đ
                                                 </td>
                                                 <td className="text-center">
                                                     {prescItems.length > 1 && (
