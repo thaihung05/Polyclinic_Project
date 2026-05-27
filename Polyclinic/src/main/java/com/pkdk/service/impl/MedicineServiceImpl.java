@@ -53,6 +53,15 @@ public class MedicineServiceImpl implements MedicineService{
 
     @Override
     public void deductStock(int medicineId, int quantity) {
+        Medicines m = this.medicineRepo.getById(medicineId);
+        
+        if (m == null)
+            throw new RuntimeException("Không tìm thấy thuốc với id: " + medicineId);
+        
+        if(m.getStockQuantity() < quantity){
+            throw new RuntimeException("Thuốc '" + m.getName() + "' không đủ số lượng trong kho. Tồn kho: " + m.getStockQuantity());
+        }
+        
         this.medicineRepo.deductStock(medicineId, quantity);
     }
     

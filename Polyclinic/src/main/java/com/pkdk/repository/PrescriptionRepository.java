@@ -15,4 +15,5 @@ public interface PrescriptionRepository {
     List<Prescriptions> getByMedicalRecordId(int medicalRecordId);
     Prescriptions getById(int id);
     void save(Prescriptions prescriptions);
+    List<Prescriptions> getByPatientId(int id);
 }
