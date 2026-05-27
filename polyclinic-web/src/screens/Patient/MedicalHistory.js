@@ -2,14 +2,18 @@ import { useEffect, useState } from "react";
 import { authApis, endpoints } from "../../configs/Api";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
-import { Spinner, Tab, Table, Tabs } from "react-bootstrap";
+import { Badge, Button, Modal, Spinner, Tab, Table, Tabs } from "react-bootstrap";
 import Swal from "sweetalert2";
+import Moment from "react-moment";
 
 
 const MedicalHistory = () => {
 
     const [medicalRecords, setMedicalRecords] = useState([]);
     const [labResults, setLabResults] = useState([]);
+    const [prescriptions, setPrescriptions] = useState([]);
+    const [paymentData, setPaymentData] = useState({});
+    const [selectedRecord, setSelectedRecord] = useState(null);
     const [loading, setLoading] = useState(false);
 
     const formatDateTime = (dateStr) => {
@@ -28,12 +32,14 @@ const MedicalHistory = () => {
     const loadHistory = async () => {
         try {
             setLoading(true);
-            const [recordRes, labRes] = await Promise.all([
+            const [recordRes, labRes, prescriptionRes] = await Promise.all([
                 authApis().get(endpoints['medical-records']),
-                authApis().get(endpoints['lab-results'])
+                authApis().get(endpoints['lab-results']),
+                authApis().get(endpoints['patient-prescriptions'])
             ]);
             setLabResults(labRes.data);
             setMedicalRecords(recordRes.data);
+            setPrescriptions(prescriptionRes.data);
         }
         catch (err) {
             Swal.fire("Lỗi", "Không tải được lịch sử khám bệnh", "error");
@@ -48,6 +54,42 @@ const MedicalHistory = () => {
     }, []);
 
 
+    const createPrescriptionPayment = async (prescriptionId) => {
+        try {
+            const res = await authApis().post(endpoints['prescription-payment-create'](prescriptionId));
+            setPaymentData(prev => ({ ...prev, [prescriptionId]: res.data }));
+        } catch (err) {
+            Swal.fire("Lỗi", err.response?.data || "Không tạo được thanh toán", "error");
+        }
+    }
+
+    const confirmPrescriptionPayment = async (prescriptionId) => {
+        const confirm = await Swal.fire({
+            title: "Xác nhận thanh toán",
+            text: "Bạn đã thanh toán đơn thuốc này chưa?",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonText: "Tôi đã thanh toán",
+            cancelButtonText: "Hủy"
+        });
+        if (confirm.isConfirmed) {
+            try {
+                await authApis().post(endpoints['prescription-payment-confirm'](prescriptionId));
+                Swal.fire("Thành công", "Thanh toán xác nhận thành công. Đến quầy dược để lấy thuốc!", "success");
+                setSelectedRecord(null);
+                loadHistory();
+            }
+            catch (err) {
+                Swal.fire("Lỗi", err.response?.data || "Không xác nhận được thanh toán", "error");
+            }
+        }
+
+    }
+
+    const calcTotal = (items) => (items || []).reduce((sum, item) => sum + item.unitPrice * item.quantity, 0);
+
+    const formatCurrency = (amount) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+    const selectedPrescriptions = prescriptions.filter(p => p.medicalRecordId?.id === selectedRecord?.id);
 
     if (loading) {
         return (
@@ -81,22 +123,37 @@ const MedicalHistory = () => {
                                             <th>Kế hoạch điều trị</th>
                                             <th>Ngày tái khám</th>
                                             <th>Ghi chú</th>
+                                            <th>Đơn thuốc</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {(medicalRecords || []).map((rec, idx) => (
-                                            <tr key={rec.id}>
-                                                <td>{idx + 1}</td>
-                                                <td>{rec.appointmentId?.doctorId?.userId?.name || "—"}</td>
-                                                <td>{rec.appointmentId?.doctorId?.specialtyId?.name || "—"}</td>
-                                                <td>{formatDateTime(rec.appointmentId?.scheduledAt) || "—"}</td>
-                                                <td>{rec.chiefComplaint || "—"}</td>
-                                                <td>{rec.diagnosis || "—"}</td>
-                                                <td>{rec.treatmentPlan}</td>
-                                                <td>{formatDateTime(rec.followUpDate) || "—"}</td>
-                                                <td>{rec.notes || "—"}</td>
-                                            </tr>
-                                        ))}
+                                        {(medicalRecords || []).map((rec, idx) => {
+                                            const hasPrescription = prescriptions.some(p => p.medicalRecordId?.id === rec.id);
+                                            return (
+                                                <tr key={rec.id}>
+                                                    <td>{idx + 1}</td>
+                                                    <td>{rec.appointmentId?.doctorId?.userId?.name || "—"}</td>
+                                                    <td>{rec.appointmentId?.doctorId?.specialtyId?.name || "—"}</td>
+                                                    <td>{formatDateTime(rec.appointmentId?.scheduledAt) || "—"}</td>
+                                                    <td>{rec.chiefComplaint || "—"}</td>
+                                                    <td>{rec.diagnosis || "—"}</td>
+                                                    <td>{rec.treatmentPlan}</td>
+                                                    <td>{formatDateTime(rec.followUpDate) || "—"}</td>
+                                                    <td>{rec.notes || "—"}</td>
+                                                    <td className="text-center">
+                                                        {hasPrescription ? (
+                                                            <Button variant="outline-primary" size="sm"
+                                                                onClick={() => setSelectedRecord(rec)}>
+                                                                Xem đơn thuốc
+                                                            </Button>
+                                                        ) : (
+                                                            <span className="text-muted small">Không có</span>
+                                                        )}
+                                                    </td>
+                                                </tr>
+                                            )
+                                        }
+                                        )}
                                     </tbody>
                                 </Table>
                             )}
@@ -134,6 +191,99 @@ const MedicalHistory = () => {
                     </Tabs>
                 </main>
                 <Footer />
+
+                <Modal show={selectedRecord != null} onHide={() => setSelectedRecord(null)} size="lg" centered>
+                    <Modal.Header closeButton>
+                        <Modal.Title>
+                            Đơn thuốc - {selectedRecord?.appointmentId?.doctorId?.userId?.name || 'Bác sĩ'}
+                            <span className="text-muted fs-6 ms-2">
+                                <Moment format="DD/MM/YYYY">
+                                    {selectedRecord?.appointmentId?.scheduledAt}
+                                </Moment>
+                            </span>
+                        </Modal.Title>
+                    </Modal.Header>
+
+                    <Modal.Body>
+                        {selectedPrescriptions.length === 0 ? (
+                            <p className="text-muted mb-0">Hồ sơ này không có đơn thuốc.</p>
+                        ) : (
+                            selectedPrescriptions.map((p, idx) => (
+                                <div key={p.id} className={idx > 0 ? "mt-3 pt-3 border-top" : ""}>
+                                    <div className="d-flex justify-content-between align-items-center mb-2">
+                                        <span className="fw-semibold">
+                                            Đơn thuốc #{idx + 1} - <Moment format="DD/MM/YYYY">{p.ngayTao}</Moment>
+                                        </span>
+                                        {p.isPaid ? <Badge bg="success">Đã thanh toán</Badge> : <Badge bg="warning" text="dark">Chưa thanh toán</Badge>}
+                                    </div>
+
+
+                                    {p.note && <p className="text-muted small mb-2">Ghi chú bác sĩ: {p.note}</p>}
+                                    <Table bordered size="sm" className="mb-2">
+                                        <thead className="table-light">
+                                            <tr>
+                                                <th>Tên thuốc</th>
+                                                <th>Số lượng</th>
+                                                <th>Đơn giá</th>
+                                                <th>Thành tiền</th>
+                                                {p.isPaid && <><th>Liều dùng</th><th>Số ngày</th><th>Hướng dẫn</th></>}
+                                            </tr>
+                                        </thead>
+
+                                        <tbody>
+                                            {(p.prescriptionItemsCollection || []).map(item => (
+                                                <tr key={item.id}>
+                                                    <td>{item.medicineId?.name || "—"}</td>
+                                                    <td>{item.quantity}</td>
+                                                    <td>{formatCurrency(item.unitPrice)}</td>
+                                                    <td>{formatCurrency(item.unitPrice * item.quantity)}</td>
+                                                    {p.isPaid && (
+                                                        <>
+                                                            <td>{item.dosage}</td>
+                                                            <td>{item.durationDays} ngày</td>
+                                                            <td>{item.instructions || '-'}</td>
+                                                        </>
+                                                    )}
+
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <td colSpan={3} className="text-end fw-bold">Tổng cộng:</td>
+                                                <td className="fw-bold">{formatCurrency(calcTotal(p.prescriptionItemsCollection))}</td>
+                                                {p.isPaid && <td colSpan={3}></td>}
+                                            </tr>
+                                        </tfoot>
+                                    </Table>
+
+                                    {!p.isPaid && (
+                                        <div className="mt-2">
+                                            {!paymentData[p.id] ? (
+                                                <Button variant="primary" size="sm" onClick={() => createPrescriptionPayment(p.id)}>
+                                                    Tạo QR thanh toán
+                                                </Button>
+                                            ) : (
+                                                <div className="d-flex flex-column align-items-center gap-2">
+                                                    <p className="mb-1 text-muted small">Quét mã QR để thanh toán:</p>
+                                                    <img src={paymentData[p.id].qrUrl} alt="QR thanh toán" style={{ width: 180, height: 180, border: '1px solid #ddd' }} />
+                                                    <Button variant="success" size="sm" onClick={() => confirmPrescriptionPayment(p.id)}>
+                                                        Xác nhận thanh toán
+                                                    </Button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+
+
+                            ))
+                        )}
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={() => setSelectedRecord(null)}>Đóng</Button>
+                    </Modal.Footer>
+                </Modal>
             </>
         );
     }

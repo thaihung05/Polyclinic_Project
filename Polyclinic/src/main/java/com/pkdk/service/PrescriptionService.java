@@ -15,4 +15,7 @@ public interface PrescriptionService {
     List<Prescriptions> getByMedicalRecordId(int medicalRecordId);
     Prescriptions getById(int id);
     void save(Prescriptions prescription);
+    List<Prescriptions> getByPatientId(int id);
+    void confirmPayment(int prescriptionId, int paymentId);
+    void deductStock(int prescriptionId);
 }
