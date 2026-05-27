@@ -75,7 +75,7 @@ public class Users implements Serializable {
     private String name;
     @Basic(optional = false)
     @NotNull
-    @Size(min = 1, max = 12)
+    @Size(min = 1, max = 20)
     @Column(name = "role")
     private String role;
     @Basic(optional = false)

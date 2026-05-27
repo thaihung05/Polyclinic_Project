@@ -56,7 +56,7 @@ public class ApiMedicineController {
     @PostMapping("/api/secure/medicines")
     public ResponseEntity<?> create(@RequestBody Medicines medicine, Principal principal){
         
-        if (!isDoctorOrAdmin(principal))
+        if (!isPharmacistOrAdmin(principal))
             return new ResponseEntity<>("Không có quyền tạo thuốc",HttpStatus.FORBIDDEN);
             
         if (medicine.getName() == null)
@@ -73,7 +73,7 @@ public class ApiMedicineController {
     public ResponseEntity<?> update(@PathVariable("id") int id,
             @RequestBody Medicines medicine, Principal principal){
         
-        if (!isDoctorOrAdmin(principal))
+        if (!isPharmacistOrAdmin(principal))
             return new ResponseEntity<>("Không có quyền cập nhật thuốc", HttpStatus.FORBIDDEN);
         
         Medicines m = this.medicineService.getById(id);
@@ -98,7 +98,7 @@ public class ApiMedicineController {
     @DeleteMapping("/api/secure/medicines/{id}")
     public ResponseEntity<?> delete(@PathVariable("id") int id, Principal principal){
         
-        if (!isDoctorOrAdmin(principal))
+        if (!isPharmacistOrAdmin(principal))
             return new ResponseEntity<>("Không có quyền xóa thuốc", HttpStatus.FORBIDDEN);
         
         Medicines m = this.medicineService.getById(id);
@@ -113,7 +113,7 @@ public class ApiMedicineController {
     public ResponseEntity<?> lowStockAlert(@RequestParam(name = "threshold", defaultValue = "10") int threshold,
             Principal principal){
         
-        if (!isDoctorOrAdmin(principal))
+        if (!isPharmacistOrAdmin(principal))
             return new ResponseEntity<>("Không có quyền xem cảnh báo tồn kho",HttpStatus.FORBIDDEN);
         
         List<Medicines> list = this.medicineService.getLowStock(threshold);
@@ -124,19 +124,18 @@ public class ApiMedicineController {
     public ResponseEntity<?> nearExpiryAlert(@RequestParam(name = "days", defaultValue = "30") int days,
             Principal principal){
         
-        if (!isDoctorOrAdmin(principal))
+        if (!isPharmacistOrAdmin(principal))
             return new ResponseEntity<>("Không có quyền xem cảnh báo thuốc sắp hết hạn", HttpStatus.FORBIDDEN);
         List<Medicines> list = this.medicineService.getNearExiry(days);
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
     
     
-    private boolean isDoctorOrAdmin(Principal principal){
+    private boolean isPharmacistOrAdmin(Principal principal) {
         Users caller = this.userService.getUserByUserName(principal.getName());
-        if (caller == null)
-            return false;
+        if (caller == null) return false;
         String role = caller.getRole();
-        return UserRole.ROLE_DOCTOR.name().equals(role) || UserRole.ROLE_ADMIN.name().equals(role);
+        return UserRole.ROLE_PHARMACIST.name().equals(role) || UserRole.ROLE_ADMIN.name().equals(role);
     }
     
 }

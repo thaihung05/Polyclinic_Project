@@ -19,6 +19,8 @@ import { MyUserContext } from "./configs/Contexts";
 import MedicineManager from "./screens/Doctor/Medicines/MedicineManager";
 import AppointmentDetail from "./screens/Doctor/Appointments/AppointmentDetail";
 import Notification from "./screens/Notification/Notification";
+import PharmacistDashboard from "./screens/Pharmacist/PharmacistDashboard";
+import PharmacistHome from "./screens/Pharmacist/PharmacistHome";
 
 
 function App() {
@@ -43,11 +45,16 @@ function App() {
                         <Route path="appointments" element={<AppointmentList />} />
                         <Route path="appointments/:appointmentId" element={<AppointmentDetail />} />
                         <Route path="schedules" element={<ScheduleManager />} />
+                    </Route>
+
+                    <Route path="/pharmacist/dashboard" element={
+                        <ProtectedRoute requiredRole="ROLE_PHARMACIST"><PharmacistDashboard /></ProtectedRoute>
+                    }>
+                        <Route index element={<PharmacistHome />} />
                         <Route path="medicines" element={<MedicineManager />} />
                     </Route>
-                    <Route path="/profile" element={
-                        <ProtectedRoute><Profile /></ProtectedRoute>
-                    } />
+
+                    <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
                     <Route path="/patient/appointments" element={<ProtectedRoute><PatientAppointment /></ProtectedRoute>}></Route>
                     <Route path="/patient/medical-history" element={<ProtectedRoute><MedicalHistory /></ProtectedRoute>}></Route>
                 </Routes>
