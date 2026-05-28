@@ -62,6 +62,11 @@ public class Prescriptions implements Serializable {
     @JoinColumn(name = "medical_record_id", referencedColumnName = "id")
     @ManyToOne(optional = false)
     private MedicalRecords medicalRecordId;
+    @Column(name = "is_paid", columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private Boolean isPaid = false;
+    @JoinColumn(name = "payment_id", referencedColumnName = "id")
+    @ManyToOne(optional = true)
+    private Payments paymentId;
 
     public Prescriptions() {
     }
@@ -115,6 +120,22 @@ public class Prescriptions implements Serializable {
         this.medicalRecordId = medicalRecordId;
     }
 
+    public Boolean getIsPaid() {
+        return isPaid;
+    }
+
+    public void setIsPaid(Boolean isPaid) {
+        this.isPaid = isPaid;
+    }
+
+    public Payments getPaymentId() {
+        return paymentId;
+    }
+
+    public void setPaymentId(Payments paymentId) {
+        this.paymentId = paymentId;
+    }
+
     @Override
     public int hashCode() {
         int hash = 0;
@@ -139,5 +160,5 @@ public class Prescriptions implements Serializable {
     public String toString() {
         return "com.pkdk.pojo.Prescriptions[ id=" + id + " ]";
     }
-    
+
 }

@@ -47,4 +47,12 @@ public class PrescriptionRepositoryImpl implements PrescriptionRepository{
         else
             s.merge(prescriptions);
     }  
+
+    @Override
+    public List<Prescriptions> getByPatientId(int id) {
+        Session s = this.factory.getObject().getCurrentSession();
+        Query q = s.createQuery("FROM Prescriptions p WHERE p.medicalRecordId.appointmentId.patientId.id = :patientId", Prescriptions.class)
+                .setParameter("patientId", id);
+        return q.getResultList();
+    }
 }

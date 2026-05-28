@@ -53,7 +53,11 @@ export const endpoints = {
 
 
     'notifications':'/secure/notifications',
-    'read-notifications':(id) => `/secure/notifications/${id}/read`
+    'read-notifications':(id) => `/secure/notifications/${id}/read`,
+
+    'patient-prescriptions': '/secure/patient/prescriptions',
+    'prescription-payment-create': (id) => `/secure/prescriptions/${id}/payment/create`,
+    'prescription-payment-confirm': (id) => `/secure/prescriptions/${id}/payment/confirm`
 
 };
 
