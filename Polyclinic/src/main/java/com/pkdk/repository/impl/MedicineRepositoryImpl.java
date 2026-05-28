@@ -84,9 +84,8 @@ public class MedicineRepositoryImpl implements MedicineRepository{
     public void deductStock(int medicineId, int quantity) {
         Session s = this.factory.getObject().getCurrentSession();
         Medicines m = s.get(Medicines.class, medicineId);
-        if (m!=null){
-            int newQuatity = m.getStockQuantity() - quantity;
-            m.setStockQuantity(Math.max(newQuatity, 0));
+        if (m != null) {
+            m.setStockQuantity(m.getStockQuantity() - quantity);
             s.merge(m);
         }
     }

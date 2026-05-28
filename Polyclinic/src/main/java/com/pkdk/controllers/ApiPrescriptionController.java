@@ -81,7 +81,11 @@ public class ApiPrescriptionController {
             for (PrescriptionItems item : prescription.getPrescriptionItemsCollection())
                 item.setPrescriptionId(prescription);
         
-        this.prescriptionService.save(prescription);
+        try {
+            this.prescriptionService.save(prescription);
+        } catch (IllegalArgumentException ex) {
+            return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+        }
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
     

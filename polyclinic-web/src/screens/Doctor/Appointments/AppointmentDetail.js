@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Alert, Badge, Button, Card, Col, Container, Form, Modal, Nav, Row, Spinner, Tab, Table } from "react-bootstrap";
 import Swal from "sweetalert2";
@@ -66,7 +66,7 @@ const AppointmentDetail = () => {
     });
     const [savingLab, setSavingLab] = useState(false);
 
-    const fetchAppt = async () => {
+    const fetchAppt = useCallback(async () => {
         try {
             setLoading(true);
             const res = await Apis.get(endpoints["appointment-detail"](appointmentId));
@@ -76,9 +76,9 @@ const AppointmentDetail = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [appointmentId]);
 
-    const fetchRecord = async () => {
+    const fetchRecord = useCallback(async () => {
         try {
             setRecordLoading(true);
             const res = await Apis.get(endpoints["appointment-medical-record"](appointmentId));
@@ -91,20 +91,20 @@ const AppointmentDetail = () => {
                 notes: res.data.notes || ""
             });
         } catch {
-            
+
         } finally {
             setRecordLoading(false);
         }
-    };
+    }, [appointmentId]);
 
-    const fetchLabResults = async () => {
+    const fetchLabResults = useCallback(async () => {
         try {
             const res = await Apis.get(endpoints["lab-results-by-appointment"](appointmentId));
             setLabResults(res.data);
-        } catch { 
-            setLabResults([]); 
+        } catch {
+            setLabResults([]);
         }
-    };
+    }, [appointmentId]);
 
     const fetchMedicines = async () => {
         try {
@@ -128,7 +128,7 @@ const AppointmentDetail = () => {
         fetchAppt();
         fetchRecord();
         fetchLabResults();
-    }, [appointmentId]);
+    }, [fetchAppt, fetchRecord, fetchLabResults]);
 
     useEffect(() => { 
         fetchMedicines(); 
@@ -228,6 +228,15 @@ const AppointmentDetail = () => {
         const invalid = prescItems.find(it => !it.medicineId || !it.dosage.trim());
         if (invalid) {
             Swal.fire("Thiếu thông tin", "Vui lòng chọn thuốc và nhập liều lượng", "warning");
+            return;
+        }
+        const overStock = prescItems.find(it => {
+            const med = medicines.find(m => String(m.id) === String(it.medicineId));
+            return med && Number(it.quantity) > med.stockQuantity;
+        });
+        if (overStock) {
+            const med = medicines.find(m => String(m.id) === String(overStock.medicineId));
+            Swal.fire("Vượt tồn kho", `Thuốc "${med.name}" chỉ còn ${med.stockQuantity} ${med.unit}, không thể kê ${overStock.quantity}`, "error");
             return;
         }
         setSavingPresc(true);
@@ -553,9 +562,10 @@ const AppointmentDetail = () => {
                                             <th style={{ minWidth: 200 }}>Thuốc *</th>
                                             <th style={{ minWidth: 160 }}>Liều dùng *</th>
                                             <th style={{ width: 80 }}>Số ngày</th>
-                                            <th style={{ width: 80 }}>Số lượng</th>
+                                            <th style={{ width: 200 }}>Số lượng</th>
                                             <th style={{ minWidth: 160 }}>Hướng dẫn</th>
-                                            <th style={{ width: 110 }}>Đơn giá (đ)</th>
+                                            <th style={{ width: 120 }}>Đơn giá (đ)</th>
+                                            <th style={{ width: 130 }}>Thành tiền (đ)</th>
                                             <th style={{ width: 40 }}></th>
                                         </tr>
                                     </thead>
@@ -590,8 +600,13 @@ const AppointmentDetail = () => {
                                                 </td>
                                                 <td>
                                                     <Form.Control type="number" min={1}
+                                                        max={medicines.find(m => String(m.id) === String(item.medicineId))?.stockQuantity || undefined}
                                                         value={item.quantity}
                                                         onChange={e => updatePrescItem(idx, "quantity", e.target.value)}
+                                                        isInvalid={
+                                                            item.medicineId &&
+                                                            Number(item.quantity) > (medicines.find(m => String(m.id) === String(item.medicineId))?.stockQuantity || Infinity)
+                                                        }
                                                     />
                                                 </td>
                                                 <td>
@@ -601,11 +616,11 @@ const AppointmentDetail = () => {
                                                         onChange={e => updatePrescItem(idx, "instructions", e.target.value)}
                                                     />
                                                 </td>
-                                                <td>
-                                                    <Form.Control type="number" min={0}
-                                                        value={item.unitPrice}
-                                                        onChange={e => updatePrescItem(idx, "unitPrice", e.target.value)}
-                                                    />
+                                                <td className="align-middle text-end">
+                                                    {Number(item.unitPrice || 0).toLocaleString("vi-VN")}đ
+                                                </td>
+                                                <td className="align-middle text-end fw-semibold text-primary">
+                                                    {(Number(item.unitPrice || 0) * Number(item.quantity || 0)).toLocaleString("vi-VN")}đ
                                                 </td>
                                                 <td className="text-center">
                                                     {prescItems.length > 1 && (
