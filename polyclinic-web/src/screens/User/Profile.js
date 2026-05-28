@@ -6,7 +6,7 @@ import { MyUserContext } from "../../configs/Contexts";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import Swal from "sweetalert2";
-import { Alert, Button, Col, Form, Row } from "react-bootstrap";
+import { Button, Col, Form, Row } from "react-bootstrap";
 
 const Profile = () => {
 
@@ -15,9 +15,10 @@ const Profile = () => {
     const [avatarPreview, setAvatarPreview] = useState(null);
     const [tab, setTab] = useState("infoTab");
     const [info, setInfo] = useState({});
+    const [originalInfo, setOriginalInfo] = useState({});
     const [error, setError] = useState('');
     const avatar = useRef();
-    const [passwordForm, setPasswordForm] = useState({});
+    const [passwordForm, setPasswordForm] = useState({ oldPassword: "", newPassword: "", confirmNewPassword: "" });
 
     const formatDateOfBirth = (rawDate) => {
         if (!rawDate) return "";
@@ -29,21 +30,24 @@ const Profile = () => {
     };
 
     const loadProfile = async () => {
+        
         try {
             const res = await authApis().get(endpoints["profile"]);
             const u = res.data;
 
-            setInfo({
+            const profileData = {
                 name: u.name || "",
                 phone: u.phone || "",
                 email: u.email || "",
                 address: u.address || "",
                 gender: u.gender || "",
                 dateOfBirth: formatDateOfBirth(u.dateOfBirth) || "",
-                avatar: null
-            });
+            };
+            setInfo(profileData);
+            setOriginalInfo(profileData);
             setAvatarPreview(u.avatar);
         } catch (err) {
+            console.log(err);
             Swal.fire("Lỗi", "Không tải được thông tin", "error");
         }
     };
@@ -63,84 +67,108 @@ const Profile = () => {
         setPasswordForm({ ...passwordForm, [e.target.name]: e.target.value });
     };
 
-    const validateInfo = () => {
-        if (!info.name || info.name.trim() === '') {
-            setError('Họ và tên không được để trống!');
-            return false;
+    const validatePatch = (changedFields) => {
+        if ('name' in changedFields) {
+            if (!changedFields.name || changedFields.name.trim() === '') {
+                setError('Họ và tên không được để trống!');
+                return false;
+            }
+            if (changedFields.name.trim().length < 2) {
+                setError('Họ và tên phải có ít nhất 2 ký tự!');
+                return false;
+            }
         }
-        if (info.name.trim().length < 2) {
-            setError('Họ và tên phải có ít nhất 2 ký tự!');
-            return false;
+        if ('phone' in changedFields) {
+            if (!changedFields.phone || changedFields.phone.trim() === '') {
+                setError('Số điện thoại không được để trống!');
+                return false;
+            }
+            if (!/^0[0-9]{9}$/.test(changedFields.phone.trim())) {
+                setError('Số điện thoại không hợp lệ (phải có 10 số)!');
+                return false;
+            }
         }
-
-        if (!info.gender || info.gender === '') {
-            setError('Vui lòng chọn giới tính!');
-            return false;
+        if ('email' in changedFields) {
+            if (!changedFields.email || changedFields.email.trim() === '') {
+                setError('Email không được để trống!');
+                return false;
+            }
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(changedFields.email.trim())) {
+                setError('Email không hợp lệ!');
+                return false;
+            }
         }
-
-        if (!info.address || info.address.trim() === '') {
-            setError('Địa chỉ không được để trống!');
-            return false;
-        }
-
-        if (!info.email || info.email.trim() === '') {
-            setError('Email không được để trống!');
-            return false;
-        }
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(info.email.trim())) {
-            setError('Email không hợp lệ!');
-            return false;
-        }
-
-        if (!info.phone || info.phone.trim() === '') {
-            setError('Số điện thoại không được để trống!');
-            return false;
-        }
-        if (!/^0[0-9]{9}$/.test(info.phone.trim())) {
-            setError('Số điện thoại không hợp lệ (phải có 10 số)!');
-            return false;
-        }
-
-        // if (!dobDate) {
-        //     setError('Vui lòng chọn ngày sinh!');
-        //     return false;
-        // }
         return true;
+    };
 
-    }
+    const handleAvatarChange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        setAvatarPreview(URL.createObjectURL(file));
+
+        const form = new FormData();
+        form.append("avatar", file);
+        try {
+            setLoading(true);
+            const res = await authApis().patch(endpoints["update-profile"], form, {
+                headers: { "Content-Type": "multipart/form-data" }
+            });
+            const updated = { ...cookies.load('info'), ...res.data };
+            cookies.save('info', updated);
+            dispatch({ type: "LOGIN", payload: updated });
+            Swal.fire("Thành công!", "Đổi ảnh đại diện thành công!", "success");
+            loadProfile();
+        } catch (err) {
+            Swal.fire("Lỗi", err.response?.data || "Đổi ảnh thất bại!", "error");
+            loadProfile();
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const updateInfo = async (e) => {
         e.preventDefault();
-        if (validateInfo()) {
-            let form = new FormData();
-            for (let key of Object.keys(info)) {
-                form.append(key, info[key]);
-            }
-            if (avatar.current.files.length > 0)
-                form.append("avatar", avatar.current.files[0]);
-            try {
-                setLoading(true);
+        setError('');
 
-                const res = await authApis().put(endpoints["update-profile"], form, {
-                    headers: { "Content-Type": "multipart/form-data" }
-                });
-
-                const updated = { ...cookies.load('info'), ...res.data };
-                cookies.save('info', updated);
-                dispatch({ type: "LOGIN", payload: updated });
-
-                Swal.fire("Thành công!", "Cập nhật thông tin thành công!", "success");
-                loadProfile();
+        const textFields = ['name', 'phone', 'email', 'gender', 'address', 'dateOfBirth'];
+        const changedFields = {};
+        for (let key of textFields) {
+            if (info[key] !== originalInfo[key]) {
+                changedFields[key] = info[key];
             }
-            catch (err) {
-                Swal.fire("Lỗi", err.response?.data || "Cập nhật thất bại!", "error");
-            }
-            finally {
-                setLoading(false);
-            }
-
         }
 
+        if (Object.keys(changedFields).length === 0) {
+            setError('Không có thông tin nào thay đổi!');
+            return;
+        }
+
+        if (!validatePatch(changedFields)) return;
+
+        const form = new FormData();
+        for (let [key, value] of Object.entries(changedFields)) {
+            form.append(key, value);
+        }
+
+        try {
+            setLoading(true);
+
+            const res = await authApis().patch(endpoints["update-profile"], form, {
+                headers: { "Content-Type": "multipart/form-data" }
+            });
+
+            const updated = { ...cookies.load('info'), ...res.data };
+            cookies.save('info', updated);
+            dispatch({ type: "LOGIN", payload: updated });
+
+            Swal.fire("Thành công!", "Cập nhật thông tin thành công!", "success");
+            loadProfile();
+        } catch (err) {
+            Swal.fire("Lỗi", err.response?.data || "Cập nhật thất bại!", "error");
+        } finally {
+            setLoading(false);
+        }
     };
 
 
@@ -167,12 +195,6 @@ const Profile = () => {
             setError('Mật khẩu xác nhận không được để trống!');
             return false;
         }
-
-        if (passwordForm.newPassword === passwordForm.oldPassword) {
-            setError('Mật khẩu mới trùng với mật khẩu cũ!');
-            return false;
-        }
-
         if (passwordForm.newPassword !== passwordForm.confirmNewPassword) {
             setError('Mật khẩu xác nhận không khớp!');
             return false;
@@ -186,13 +208,6 @@ const Profile = () => {
     const changePassword = async (e) => {
         e.preventDefault();
         if (validatePassword()) {
-            let form = new FormData();
-            for (let key of Object.keys(passwordForm)) {
-                if (key !== 'confirmNewPassword' || key!=='oldPassword') {
-                    form.append(key, passwordForm[key]);
-                }
-            }
-
             try {
                 setLoading(true);
                 await authApis().patch(endpoints["change-password"], passwordForm);
@@ -215,27 +230,35 @@ const Profile = () => {
             <main className="profile-wrapper">
                 <div className="profile-container">
                     <div className="avatar-wrapper">
-                        <img src={avatarPreview} alt="avatar" className="profile-avatar" />
-
-                        <label className="avatar-change-btn" htmlFor="avatar-input">
+                        <div style={{ position: 'relative', display: 'inline-block' }}>
+                            <img src={avatarPreview} alt="avatar" className="profile-avatar" style={loading ? { opacity: 0.5 } : {}} />
+                            {loading && (
+                                <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <span className="spinner-border text-primary" />
+                                </div>
+                            )}
+                        </div>
+                        <label className="avatar-change-btn"
+                            htmlFor={loading ? undefined : "avatar-input"}
+                            style={loading ? { pointerEvents: 'none', opacity: 0.6 } : {}}>
                             <i className="bi bi-camera-fill me-1"></i>Đổi ảnh
                         </label>
-                        <input id="avatar-input" type="file" name="avatar" accept="image/*" hidden ref={avatar} />
+                        <input id="avatar-input" type="file" name="avatar" accept="image/*" hidden ref={avatar} onChange={handleAvatarChange} />
                     </div>
                     <h4 className="mt-3 fw-bold">{info.name}</h4>
                     <p className="text-muted">{info.email}</p>
                 </div>
 
                 <div className="tab-bar mb-4">
-                    <Button className={`tab-btn ${tab === "infoTab" ? "active" : ""}`} onClick={() => {setTab("infoTab"); setError('');}}>
+                    <Button className={`tab-btn ${tab === "infoTab" ? "active" : ""}`} onClick={() => { setTab("infoTab"); setError(''); }}>
                         <i className="bi bi-person-fill me-2"></i>Thông tin cá nhân
                     </Button>
 
-                    <Button className={`tab-btn ${tab === "changeInfoTab" ? "active" : ""}`} onClick={() => {setTab("changeInfoTab"); setError('');}}>
+                    <Button className={`tab-btn ${tab === "changeInfoTab" ? "active" : ""}`} onClick={() => { setTab("changeInfoTab"); setError(''); }}>
                         <i className="bi bi-person-fill me-2"></i>Thay đổi thông tin
                     </Button>
 
-                    <Button className={`tab-btn ${tab === "changePasswordTab" ? "active" : ""}`} onClick={() => {setTab("changePasswordTab"); setError('');}}>
+                    <Button className={`tab-btn ${tab === "changePasswordTab" ? "active" : ""}`} onClick={() => { setTab("changePasswordTab"); setError(''); }}>
                         <i className="bi bi-lock-fill me-2"></i>Đổi mật khẩu
                     </Button>
                 </div>
@@ -277,13 +300,13 @@ const Profile = () => {
                     </div>
                 )}
                 {tab === "changeInfoTab" && (
-                    
+
                     <Form onSubmit={updateInfo} className="profile-card">
-                        {error && <Alert variant="danger">{error}</Alert>}
+                        {error && <div className="alert alert-danger">{error}</div>}
                         <Row>
                             <Col md={6}>
                                 <Form.Label>Họ và tên</Form.Label>
-                                <Form.Control size="lg" type="text" name="name" value={info.name} onChange={changeInfo}  />
+                                <Form.Control size="lg" type="text" name="name" value={info.name} onChange={changeInfo} required />
                             </Col>
                             <Col md={6}>
                                 <Form.Label>Giới tính</Form.Label>
@@ -315,8 +338,8 @@ const Profile = () => {
                 )}
 
                 {tab === "changePasswordTab" && (
-                    <Form onSubmit={changePassword} className="profile-card">
-                        {error && <Alert variant="danger">{error}</Alert>}
+                    <Form onSubmit={changePassword} className="profile-card" noValidate>
+                        {error && <div className="alert alert-danger">{error}</div>}
                         <Form.Group className="mb-3">
                             <Form.Label>Mật khẩu hiện tại</Form.Label>
                             <Form.Control size="lg" type="password" name="oldPassword" value={passwordForm.oldPassword} onChange={changePw} />
@@ -326,7 +349,6 @@ const Profile = () => {
                             <Form.Label>Mật khẩu mới</Form.Label>
                             <Form.Control size="lg" type="password" name="newPassword" value={passwordForm.newPassword} onChange={changePw} />
                         </Form.Group>
-
 
                         <Form.Group className="mb-3">
                             <Form.Label>Nhập lại mật khẩu mới</Form.Label>
