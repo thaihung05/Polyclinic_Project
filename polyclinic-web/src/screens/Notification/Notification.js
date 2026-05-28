@@ -97,7 +97,6 @@ const Notification = () => {
                 <div className="d-flex justify-content-between align-items-center mb-4">
                     <div className="d-flex align-items-center gap-3">
                         <h4 className="mb-0 fw-bold">
-                            <i className="bi bi-bell-fill me-2 noti-title-icon"></i>
                             Thông báo
                         </h4>
                         {unreadCount > 0 && (
@@ -147,7 +146,7 @@ const Notification = () => {
                                 className={`noti-item ${n.isRead ? "noti-item--read" : "noti-item--unread"}`}
                             >
 
-                                <div className="d-flex align-items-start gap-3">
+                                <div className="d-flex align-items-start gap-3 mb-3">
                                     <div className={`noti-icon-wrap ${n.isRead ? "noti-icon-wrap--read" : "noti-icon-wrap--unread"}`}>
                                         <i
                                             className={`bi ${getIconForTitle(n.title)} noti-icon`}
@@ -160,7 +159,7 @@ const Notification = () => {
                                                 {n.title}
                                             </span>
                                             <div className="d-flex align-items-center gap-2 ms-2 flex-shrink-0">
-                                                <small className="text-muted">{<Moment format="DD/MM/YYYY">{n.ngayTao}</Moment>}</small>
+                                                <small className="text-muted">{<Moment fromNow>{n.ngayTao}</Moment>}</small>
                                                 {!n.isRead && (
                                                     <span className="noti-dot"></span>
                                                 )}

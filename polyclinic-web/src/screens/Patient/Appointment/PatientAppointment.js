@@ -1,22 +1,27 @@
 import { useContext, useEffect, useState } from "react";
 import { authApis, endpoints } from "../../../configs/Api";
 import Swal from "sweetalert2";
-import { Badge, Button, Spinner, Table } from "react-bootstrap";
+import { Badge, Button, Pagination, Spinner, Table } from "react-bootstrap";
 import Header from "../../../components/Header";
 import Footer from "../../../components/Footer";
 import { MyUserContext } from "../../../configs/Contexts";
+import Moment from "react-moment";
 
+const PAGE_SIZE = 5;
 
 const PatientAppointment = () => {
     const [user] = useContext(MyUserContext);
     const [appointments, setAppointments] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [page, setPage] = useState(1);
 
     const loadAppointments = async () => {
         try {
             setLoading(true);
             const res = await authApis().get(endpoints["patient-appointments"]);
-            setAppointments(res.data);
+            const sorted = [...res.data].sort((a, b) => new Date(b.scheduledAt) - new Date(a.scheduledAt));
+            setAppointments(sorted);
+            setPage(1);
         } catch (err) {
             console.log(err);
         } finally {
@@ -39,8 +44,6 @@ const PatientAppointment = () => {
             return <Badge bg="secondary">Hoàn thành</Badge>
     };
 
-    
-
     const formatDateTime = (dateStr) => {
         if (!dateStr) return "—";
         const date = new Date(dateStr);
@@ -52,8 +55,8 @@ const PatientAppointment = () => {
         return `${day}-${month}-${year} ${hours}:${minutes}`;
     };
 
-    const cancelAppointment = async (appointment) =>{
-        const {value: cancelReason, isConfirmed} = await Swal.fire({
+    const cancelAppointment = async (appointment) => {
+        const { value: cancelReason, isConfirmed } = await Swal.fire({
             title: "Hủy lịch hẹn",
             input: "textarea",
             inputLabel: "Lý do hủy",
@@ -61,23 +64,26 @@ const PatientAppointment = () => {
             showCancelButton: true,
             confirmButtonText: "Xác nhận hủy",
             cancelButtonText: "Đóng",
-            confirmButtonColor: "#d33"
+            confirmButtonColor: "#d33",
         });
 
         if (!isConfirmed) return;
 
-        try{
-            await authApis().patch(endpoints["appointment-status"](appointment.id),{
+        try {
+            await authApis().patch(endpoints["appointment-status"](appointment.id), {
                 status: "CANCELLED",
-                cancelReason: cancelReason || "Bệnh nhân tự hủy lịch hẹn",
-                cancelledBy: user?.role
+                cancelReason: cancelReason || "",
+                cancelledBy: user?.role,
             });
             await Swal.fire("Đã hủy!", "Lịch hẹn đã được hủy thành công.", "success");
             loadAppointments();
-        }catch(err){
+        } catch (err) {
             Swal.fire("Lỗi!", err?.response?.data || "Không thể hủy lịch hẹn.", "error");
         }
     };
+
+    const totalPages = Math.ceil(appointments.length / PAGE_SIZE);
+    const displayed = appointments.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
     return (
         <>
@@ -109,25 +115,25 @@ const PatientAppointment = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {appointments.map((appointment, idx) => (
+                                {displayed.map((appointment, idx) => (
                                     <tr key={appointment.id}>
                                         <td>{idx + 1}</td>
                                         <td>{appointment.doctorId?.userId?.name || ""}</td>
                                         <td>{appointment.doctorId?.specialtyId?.name || ""}</td>
-                                        <td>{formatDateTime(appointment.scheduledAt)}</td>
+                                        <td>
+                                            <Moment format="DD/MM/YYYY - HH:mm">{appointment.scheduledAt}</Moment>
+                                        </td>
                                         <td>{appointment.symptoms || ""}</td>
                                         <td>{appointment.cancelReason || ""}</td>
                                         <td>
-                                            {appointment.meetingUrl && appointment.status !== "CANCELLED" ? <a href={appointment.meetingUrl} target="_blank" rel="noreferrer">Tham gia</a> : ""}
+                                            {appointment.meetingUrl && appointment.status !== "CANCELLED"
+                                                ? <a href={appointment.meetingUrl} target="_blank" rel="noreferrer">Tham gia</a>
+                                                : ""}
                                         </td>
                                         <td>{renderStatus(appointment.status)}</td>
                                         <td>
                                             {(appointment.status === "PENDING" || appointment.status === "CONFIRMED") && (
-                                                <Button
-                                                    variant="danger"
-                                                    size="sm"
-                                                    onClick={() => cancelAppointment(appointment)}
-                                                >
+                                                <Button variant="danger" size="sm" onClick={() => cancelAppointment(appointment)}>
                                                     Hủy
                                                 </Button>
                                             )}
@@ -136,9 +142,20 @@ const PatientAppointment = () => {
                                 ))}
                             </tbody>
                         </Table>
+
+                        {totalPages > 1 && (
+                            <Pagination className="justify-content-center mt-3">
+                                <Pagination.Prev onClick={() => setPage(p => p - 1)} disabled={page === 1} />
+                                {Array.from({ length: totalPages }, (_, i) => (
+                                    <Pagination.Item key={i + 1} active={page === i + 1} onClick={() => setPage(i + 1)}>
+                                        {i + 1}
+                                    </Pagination.Item>
+                                ))}
+                                <Pagination.Next onClick={() => setPage(p => p + 1)} disabled={page === totalPages} />
+                            </Pagination>
+                        )}
                     </div>
                 )}
-
             </main>
             <Footer />
         </>
