@@ -306,7 +306,7 @@ const Appointment = () => {
 
                                         <div className="sc-row">
                                             <div className="sc-label">Bác sĩ</div>
-                                            <div className="sc-value">{selectedDoctor?.name || "Chưa chọn"}</div>
+                                            <div className="sc-value">{selectedDoctor?.userId?.name || "Chưa chọn"}</div>
                                         </div>
 
                                         <div className="sc-row">

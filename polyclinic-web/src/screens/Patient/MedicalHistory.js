@@ -250,7 +250,7 @@ const MedicalHistory = () => {
                                         </tbody>
                                         <tfoot>
                                             <tr>
-                                                <td colSpan={3} className="text-end fw-bold">Tổng cộng:</td>
+                                                <td colSpan={5} className="text-end fw-bold">Tổng cộng:</td>
                                                 <td className="fw-bold">{formatCurrency(calcTotal(p.prescriptionItemsCollection))}</td>
                                                 {p.isPaid && <td colSpan={3}></td>}
                                             </tr>
