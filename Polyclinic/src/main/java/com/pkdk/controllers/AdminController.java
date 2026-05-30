@@ -34,7 +34,7 @@ public class AdminController {
     public String adminHome(Model model) {
         model.addAttribute("activePage", "dashboard");
 
-        model.addAttribute("totalUsers", this.userService.getUsers(null).size());
+        model.addAttribute("totalUsers", this.userService.countUsers(""));
         model.addAttribute("totalAppointments", this.statsService.countAppointments());
         model.addAttribute("totalSpecialties", this.specialtyService.getSpecs().size());
         model.addAttribute("totalRevenue", this.statsService.totalRevenue());

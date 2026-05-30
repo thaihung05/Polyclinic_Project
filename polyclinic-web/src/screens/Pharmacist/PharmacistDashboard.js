@@ -27,6 +27,11 @@ const PharmacistDashboard = () => {
                         >
                             <i className="bi bi-capsule me-2"></i>Quản lý kho thuốc
                         </NavLink>
+                        <NavLink to="/pharmacist/dashboard/prescriptions"
+                            className={({ isActive }) => isActive ? "sidebar-link active" : "sidebar-link"}
+                        >
+                            <i className="bi bi-file-earmark-medical me-2"></i>Đơn thuốc chờ cấp
+                        </NavLink>
 
                         <div className="sidebar-divider"></div>
                         <NavLink to="/profile"

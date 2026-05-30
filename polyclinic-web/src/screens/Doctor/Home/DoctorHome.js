@@ -138,7 +138,7 @@ const DoctorHome = () =>{
                                         </td>
                                         <td>
                                             {(a.status === "CONFIRMED" || a.status === "COMPLETED") && (
-                                                <button className="btn btn-sm btn-outline-info" onClick={() => navigate(`/doctor/dashboard/medical-records/${a.id}`)}>
+                                                <button className="btn btn-sm btn-outline-info" onClick={() => navigate(`/doctor/dashboard/appointments/${a.id}`)}>
                                                     <i className="bi bi-file-medical me-1"></i>Hồ sơ
                                                 </button>
                                             )}

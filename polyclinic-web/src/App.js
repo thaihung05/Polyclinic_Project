@@ -21,6 +21,7 @@ import AppointmentDetail from "./screens/Doctor/Appointments/AppointmentDetail";
 import Notification from "./screens/Notification/Notification";
 import PharmacistDashboard from "./screens/Pharmacist/PharmacistDashboard";
 import PharmacistHome from "./screens/Pharmacist/PharmacistHome";
+import PrescriptionDispensing from "./screens/Pharmacist/Prescriptions/PrescriptionDispensing";
 
 
 function App() {
@@ -52,6 +53,7 @@ function App() {
                     }>
                         <Route index element={<PharmacistHome />} />
                         <Route path="medicines" element={<MedicineManager />} />
+                        <Route path="prescriptions" element={<PrescriptionDispensing />} />
                     </Route>
 
                     <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />

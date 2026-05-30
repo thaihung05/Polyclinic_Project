@@ -388,9 +388,10 @@ const AppointmentDetail = () => {
                                     </Col>
                                     {appt.meetingUrl && (
                                         <Col md={12}>
-                                            <p className="mb-1 text-muted small">Link khám online</p>
-                                            <a href={appt.meetingUrl} target="_blank" rel="noreferrer">
-                                                {appt.meetingUrl}
+                                            <p className="mb-1 text-muted small">Khám online</p>
+                                            <a href={appt.meetingUrl} target="_blank" rel="noreferrer"
+                                               className="btn btn-success btn-sm">
+                                                <i className="bi bi-camera-video-fill me-1"></i>Vào phòng khám
                                             </a>
                                         </Col>
                                     )}

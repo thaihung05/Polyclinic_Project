@@ -57,7 +57,7 @@ export const endpoints = {
 
     'patient-prescriptions': '/secure/patient/prescriptions',
     'prescription-payment-create': (id) => `/secure/prescriptions/${id}/payment/create`,
-    'prescription-payment-confirm': (id) => `/secure/prescriptions/${id}/payment/confirm`
+    'prescription-payment-confirm': (id) => `/secure/prescriptions/${id}/payment/confirm`,
 
 };
 

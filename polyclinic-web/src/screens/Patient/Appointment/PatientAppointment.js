@@ -126,8 +126,11 @@ const PatientAppointment = () => {
                                         <td>{appointment.symptoms || ""}</td>
                                         <td>{appointment.cancelReason || ""}</td>
                                         <td>
-                                            {appointment.meetingUrl && appointment.status !== "CANCELLED"
-                                                ? <a href={appointment.meetingUrl} target="_blank" rel="noreferrer">Tham gia</a>
+                                            {appointment.meetingUrl && appointment.status === "CONFIRMED"
+                                                ? <a href={appointment.meetingUrl} target="_blank" rel="noreferrer"
+                                                     className="btn btn-success btn-sm">
+                                                    <i className="bi bi-camera-video-fill me-1"></i>Vào phòng khám
+                                                  </a>
                                                 : ""}
                                         </td>
                                         <td>{renderStatus(appointment.status)}</td>
