@@ -317,4 +317,9 @@ public class UserServiceImpl implements UserService {
         this.userRepo.saveOrUpdate(u);
     }
 
+    @Override
+    public long countUsers(String kw) {
+        return this.userRepo.countUsers(kw);
+    }
+
 }

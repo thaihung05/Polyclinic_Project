@@ -27,6 +27,11 @@ public class MedicineServiceImpl implements MedicineService{
     }
 
     @Override
+    public List<Medicines> getAll(String kw, String status) {
+        return this.medicineRepo.getAll(kw, status);
+    }
+
+    @Override
     public Medicines getById(int id) {
         return this.medicineRepo.getById(id);
     }

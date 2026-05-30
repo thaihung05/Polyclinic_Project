@@ -14,6 +14,7 @@ import java.util.Map;
  */
 public interface UserRepository {
     List<Users> getUsers(Map<String, String> params);
+    long countUsers(String kw);
     Users getUserById(int id);
     Users getUserByUsername(String username);
     void saveOrUpdate(Users u);

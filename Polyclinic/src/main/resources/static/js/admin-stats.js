@@ -1,147 +1,81 @@
-function createChart(canvasId, config) {
-    const canvas = document.getElementById(canvasId);
-    if (!canvas) return null;
-    return new Chart(canvas, config);
-}
-
-function toNumber(value) {
-    if (value === null || value === undefined || value === '') return 0;
-    return Number(value);
-}
+const stats = window.statsData || {};
 
 document.addEventListener('DOMContentLoaded', function () {
-    const stats = window.statsData || {};
     const patientStats = stats.patientStats || [];
-    const patientLabels = patientStats.map(item => `${item[0]} | ${item[1]} | ${item[2]}`);
-    const patientData = patientStats.map(item => toNumber(item[3]));
-
-    createChart('patientChart', {
+    new Chart(document.getElementById('patientChart'), {
         type: 'bar',
         data: {
-            labels: patientLabels,
+            labels: patientStats.map(r => r[0] + ' | ' + r[1] + ' | ' + r[2]),
             datasets: [{
-                label: 'Số lượng bệnh nhân',
-                data: patientData,
-                borderWidth: 1
+                label: 'Số lượt',
+                data: patientStats.map(r => Number(r[3]))
             }]
         },
         options: {
             responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: true
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        precision: 0
-                    }
-                }
-            }
+            aspectRatio: 4,
+            scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
         }
     });
 
     const serviceUsageStats = stats.serviceUsageStats || [];
-    const serviceLabels = serviceUsageStats.map(item => item[0]);
-    const serviceData = serviceUsageStats.map(item => toNumber(item[1]));
-
-    createChart('serviceChart', {
+    new Chart(document.getElementById('serviceChart'), {
         type: 'pie',
         data: {
-            labels: serviceLabels,
+            labels: serviceUsageStats.map(r => r[0]),
             datasets: [{
-                label: 'Số lượt sử dụng',
-                data: serviceData,
-                borderWidth: 1
+                data: serviceUsageStats.map(r => Number(r[1]))
             }]
         },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false
-        }
+        options: { responsive: true, aspectRatio: 3 }
     });
 
     const commonDiseaseStats = stats.commonDiseaseStats || [];
-    const diseaseLabels = commonDiseaseStats.map(item => item[0]);
-    const diseaseData = commonDiseaseStats.map(item => toNumber(item[1]));
-
-    createChart('diseaseChart', {
+    new Chart(document.getElementById('diseaseChart'), {
         type: 'doughnut',
         data: {
-            labels: diseaseLabels,
+            labels: commonDiseaseStats.map(r => r[0]),
             datasets: [{
-                label: 'Số ca bệnh',
-                data: diseaseData,
-                borderWidth: 1
+                data: commonDiseaseStats.map(r => Number(r[1]))
             }]
         },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false
-        }
+        options: { responsive: true, aspectRatio: 3 }
     });
 
     const revenueSummaryStats = stats.revenueSummaryStats || [];
-    const revenueSummaryLabels = revenueSummaryStats.map(item => item[0]);
-    const revenueSummaryData = revenueSummaryStats.map(item => toNumber(item[2]));
-
-    createChart('revenueSummaryChart', {
+    new Chart(document.getElementById('revenueSummaryChart'), {
         type: 'bar',
         data: {
-            labels: revenueSummaryLabels,
+            labels: revenueSummaryStats.map(r => r[0]),
             datasets: [{
-                label: 'Tổng doanh thu',
-                data: revenueSummaryData,
-                borderWidth: 1
+                label: 'Tổng tiền (VNĐ)',
+                data: revenueSummaryStats.map(r => Number(r[2]))
             }]
         },
         options: {
             responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: true
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            }
+            aspectRatio: 4,
+            scales: { y: { beginAtZero: true } }
         }
     });
-    const revenueDetailStats = stats.revenueDetailStats || [];
-    const revenueDetailLabels = revenueDetailStats.map(item => `Pay-${item[0]}`);
-    const revenueDetailData = revenueDetailStats.map(item => toNumber(item[6]));
 
-    createChart('revenueDetailChart', {
+    const revenueDetailStats = stats.revenueDetailStats || [];
+    new Chart(document.getElementById('revenueDetailChart'), {
         type: 'line',
         data: {
-            labels: revenueDetailLabels,
+            labels: revenueDetailStats.map(r => r[1]),
             datasets: [{
-                label: 'Doanh thu từng giao dịch',
-                data: revenueDetailData,
+                label: 'Số tiền (VNĐ)',
+                data: revenueDetailStats.map(r => Number(r[6])),
                 tension: 0.3,
-                fill: false,
-                borderWidth: 2
+                fill: false
             }]
         },
         options: {
             responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: true
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            }
+            aspectRatio: 4,
+            scales: { y: { beginAtZero: true } }
         }
     });
+
 });

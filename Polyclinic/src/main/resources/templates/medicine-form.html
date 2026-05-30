@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+    <head th:replace="base :: head('Thông tin thuốc', null)"></head>
+
+    <body>
+
+        <div th:replace="base :: siteHeader(${activePage})"></div>
+
+        <main class="admin-page">
+            <div class="container py-4">
+
+                <div class="page-banner mb-4">
+                    <h2 class="mb-1 fw-bold">Thông tin thuốc</h2>
+                    <p class="mb-0 text-muted">Nhập thông tin thuốc</p>
+                </div>
+
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0 fw-bold">Chi tiết thuốc</h5>
+                    </div>
+                    <div class="card-body">
+                        <form th:action="@{/admin/medicines}" method="post" th:object="${medicine}">
+
+                            <input type="hidden" th:field="*{id}" />
+
+                            <div class="row g-3">
+
+                                <div class="col-md-4">
+                                    <label class="form-label">Mã thuốc <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" th:field="*{code}" required />
+                                </div>
+
+                                <div class="col-md-8">
+                                    <label class="form-label">Tên thuốc <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" th:field="*{name}" required />
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label">Hoạt chất (tên generic)</label>
+                                    <input type="text" class="form-control" th:field="*{genericName}" />
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label">Nhóm thuốc</label>
+                                    <input type="text" class="form-control" th:field="*{category}" />
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label class="form-label">Đơn vị <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" th:field="*{unit}" placeholder="viên, chai, ống..." required />
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label class="form-label">Hàm lượng / nồng độ</label>
+                                    <input type="text" class="form-control" th:field="*{concentration}" placeholder="500mg, 10mg/ml..." />
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label class="form-label">Nhà sản xuất</label>
+                                    <input type="text" class="form-control" th:field="*{manufacturer}" />
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label class="form-label">Số lượng tồn kho <span class="text-danger">*</span></label>
+                                    <input type="number" class="form-control" th:field="*{stockQuantity}" min="0" required />
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label class="form-label">Giá (VNĐ) <span class="text-danger">*</span></label>
+                                    <input type="number" class="form-control" th:field="*{price}" min="0" step="100" required />
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label class="form-label">Ngày hết hạn</label>
+                                    <!-- Dùng expiryDateStr thay vì bind trực tiếp Date -->
+                                    <input type="date" class="form-control" name="expiryDateStr"
+                                           th:value="${medicine.expiryDate != null ? #dates.format(medicine.expiryDate, 'yyyy-MM-dd') : ''}" />
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label d-block">Trạng thái</label>
+                                    <div class="form-check form-switch mt-2">
+                                        <input class="form-check-input" type="checkbox" th:field="*{isActive}" />
+                                        <label class="form-check-label">Hoạt động</label>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div class="mt-4 d-flex gap-2">
+                                <button type="submit" class="btn btn-primary">Lưu</button>
+                                <a th:href="@{/admin/medicines}" class="btn btn-secondary">Quay lại</a>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+        <div th:replace="base :: Footer"></div>
+        <div th:replace="base :: commonScripts"></div>
+
+    </body>
+</html>

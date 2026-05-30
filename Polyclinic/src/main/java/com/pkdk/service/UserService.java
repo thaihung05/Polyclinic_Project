@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
  */
 public interface UserService extends UserDetailsService {
     List<Users> getUsers(Map<String, String> params);
+    long countUsers(String kw);
     Users getUserById(int id);
     void deleteUser(int id);
     void addOrUpdate(Users u, String rawPassword, Integer specialtyId);

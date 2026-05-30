@@ -5,7 +5,6 @@
 package com.pkdk.controllers;
 
 import com.pkdk.service.StatsService;
-import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -24,18 +23,20 @@ public class AdminStatsController {
     private StatsService statsService;
 
     @GetMapping
-    public String statsView(Model model, @RequestParam Map<String, String> params) {
+    public String statsView(Model model, 
+            @RequestParam( value = "fromDate", defaultValue = "") String fromDate,
+            @RequestParam( value = "toDate", defaultValue = "") String toDate) {
+        
+        model.addAttribute("fromDate", fromDate);
+        model.addAttribute("toDate", toDate);
+        
+        model.addAttribute("patientStats", this.statsService.patientStats(fromDate, toDate));
+        model.addAttribute("revenueDetailStats", this.statsService.revenueDetailStats(fromDate, toDate));
+        model.addAttribute("serviceUsageStats", this.statsService.serviceUsageStats(fromDate, toDate));
+        model.addAttribute("revenueSummaryStats", this.statsService.revenueSummaryStats(fromDate, toDate));
+        model.addAttribute("commonDiseaseStats", this.statsService.commonDiseaseStats(fromDate, toDate));
+        
         model.addAttribute("activePage", "stats");
-
-        model.addAttribute("fromDate", params.getOrDefault("fromDate", ""));
-        model.addAttribute("toDate", params.getOrDefault("toDate", ""));
-
-        model.addAttribute("patientStats", this.statsService.patientStats(params));
-        model.addAttribute("serviceUsageStats", this.statsService.serviceUsageStats(params));
-        model.addAttribute("commonDiseaseStats", this.statsService.commonDiseaseStats(params));
-        model.addAttribute("revenueSummaryStats", this.statsService.revenueSummaryStats(params));
-        model.addAttribute("revenueDetailStats", this.statsService.revenueDetailStats(params));
-
         return "admin-stats";
     }
 }

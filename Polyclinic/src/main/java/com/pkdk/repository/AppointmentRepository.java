@@ -12,11 +12,12 @@ import java.util.List;
  * @author Admin
  */
 public interface AppointmentRepository {
+    List<Appointments> getAll(String kw, String status, String fromDate, String toDate, int page);
+    long countAll(String kw, String status, String fromDate, String toDate);
     List<Appointments> getByDoctorId(int doctorId);
     List<Appointments> getByPatientId(int patientId);
     Appointments getById(int id);
     void save(Appointments appointment);
-//    void delete(int id);
     boolean existsByPatientAndTime(int patientId, java.util.Date scheduledAt);
 }
 

@@ -11,6 +11,8 @@ import java.util.List;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,10 +23,14 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Repository
 @Transactional
+@PropertySource("classpath:configs.properties")
 public class DoctorRepositoryImpl implements DoctorRepository {
 
     @Autowired
     private LocalSessionFactoryBean factory;
+    
+    @Autowired
+    private Environment env;
 
     @Override
     public Doctors getDoctorByUserId(int userId) {
@@ -74,6 +80,38 @@ public class DoctorRepositoryImpl implements DoctorRepository {
     public Doctors getDoctorById(int id) {
         Session s = this.factory.getObject().getCurrentSession();
         return s.get(Doctors.class, id);
+    }
+
+    @Override
+    public List<Doctors> getAll(String kw, int page) {
+        Session s = this.factory.getObject().getCurrentSession();
+        String hql = "FROM Doctors d WHERE 1=1 ";
+        if (kw != null && !kw.trim().isEmpty())
+            hql += "AND (LOWER(d.userId.name) LIKE :kw OR LOWER(d.specialtyId.name) LIKE :kw) ";
+        hql += "ORDER BY d.userId.name ASC";
+        
+        Query q = s.createQuery(hql, Doctors.class);
+        if (kw != null && !kw.trim().isEmpty())
+            q.setParameter("kw", "%" + kw.trim().toLowerCase() + "%");
+        
+        int pageSize = this.env.getProperty("PAGE_SIZE", Integer.class);
+        q.setMaxResults(pageSize);
+        q.setFirstResult((page-1) * pageSize);
+        
+        return q.getResultList();
+    }
+
+    @Override
+    public long countAll(String kw) {
+        Session s = this.factory.getObject().getCurrentSession();
+        String hql = "SELECT COUNT(d) FROM Doctors d WHERE 1=1 ";
+        if (kw != null && !kw.trim().isEmpty())
+            hql += "AND (LOWER(d.userId.name) LIKE :kw OR LOWER(d.specialtyId.name) LIKE :kw) ";
+
+        Query<Long> q = s.createQuery(hql, Long.class);
+        if (kw != null && !kw.trim().isEmpty())
+            q.setParameter("kw", "%" + kw.trim().toLowerCase() + "%");
+        return q.getSingleResult();
     }
 
 }

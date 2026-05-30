@@ -30,7 +30,25 @@ public class MedicineRepositoryImpl implements MedicineRepository{
     @Override
     public List<Medicines> getAll() {
         Session s = this.factory.getObject().getCurrentSession();
-        Query q = s.createQuery("FROM Medicines m WHERE m.isActive = True",Medicines.class);
+        Query q = s.createQuery("FROM Medicines m ORDER BY m.isActive DESC, m.name ASC", Medicines.class);
+        return q.getResultList();
+    }
+
+    @Override
+    public List<Medicines> getAll(String kw, String status) {
+        Session s = this.factory.getObject().getCurrentSession();
+        String hql = "FROM Medicines m WHERE 1=1";
+        if (kw != null && !kw.trim().isEmpty())
+            hql += " AND (LOWER(m.name) LIKE :kw OR LOWER(m.code) LIKE :kw)";
+        if ("active".equals(status))
+            hql += " AND m.isActive = true";
+        else if ("inactive".equals(status))
+            hql += " AND m.isActive = false";
+        hql += " ORDER BY m.isActive DESC, m.name ASC";
+
+        Query q = s.createQuery(hql, Medicines.class);
+        if (kw != null && !kw.trim().isEmpty())
+            q.setParameter("kw", "%" + kw.trim().toLowerCase() + "%");
         return q.getResultList();
     }
 

@@ -39,14 +39,23 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public List<Users> getUsers(Map<String, String> params) {
         Session s = this.factory.getObject().getCurrentSession();
-        Query q = s.createQuery("FROM Users u ORDER BY u.id DESC", Users.class);
+        String kw = params != null ? params.getOrDefault("kw", ""):"";
+        
+        String hql = "FROM Users u WHERE 1=1 ";
+        
+        if (kw != null && !kw.trim().isEmpty())
+            hql += "AND (LOWER(u.name) LIKE :kw OR LOWER(u.username) LIKE :kw) ";
+        hql += "ORDER BY u.id DESC";
+        
+        Query q = s.createQuery(hql, Users.class);
+        if (!kw.trim().isEmpty())
+            q.setParameter("kw", "%" + kw.trim().toLowerCase() + "%");
 
         if (params != null) {
             int pageSize = this.env.getProperty("PAGE_SIZE", Integer.class);
             int page = Integer.parseInt(params.getOrDefault("page", "1"));
-            int start = (page - 1) * pageSize;
             q.setMaxResults(pageSize);
-            q.setFirstResult(start);
+            q.setFirstResult((page-1)*pageSize);
         }
 
         return q.getResultList();
@@ -87,23 +96,21 @@ public class UserRepositoryImpl implements UserRepository {
         }
     }
     
-//    @Override
-//    public Users addUser(Users u){
-//        Session s = this.factory.getObject().getCurrentSession();
-//        s.persist(u);
-//        return u;
-//    }
-
     @Override
     public boolean authenticate(String username, String password) {
         Users u = this.getUserByUsername(username);
         return this.passwordEncoder.matches(password, u.getPassword());
     }
 
-//    @Override
-//    public Users updateUser(Users u) {
-//        Session s = this.factory.getObject().getCurrentSession();
-//        return s.merge(u);
-//    }
-
+    @Override
+    public long countUsers(String kw) {
+        Session s = this.factory.getObject().getCurrentSession();
+        String hql = "SELECT COUNT(u.id) FROM Users u WHERE 1=1 ";
+        if (kw != null && !kw.trim().isEmpty())
+            hql += "AND (LOWER(u.name) LIKE :kw OR LOWER(u.username) LIKE :kw)";
+        Query<Long> q = s.createQuery(hql, Long.class);
+        if (kw != null && !kw.trim().isEmpty())
+            q.setParameter("kw", "%" + kw.trim().toLowerCase() + "%");
+        return q.getSingleResult();
+    }
 }

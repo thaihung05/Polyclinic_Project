@@ -54,11 +54,18 @@
                                 </div>
 
                                 <div class="col-md-6">
+                                    <label class="form-label">Email <span class="text-danger">*</span></label>
+                                    <input type="email" class="form-control" th:field="*{email}" required
+                                           placeholder="example@email.com" />
+                                </div>
+
+                                <div class="col-md-6">
                                     <label class="form-label">Vai trò</label>
                                     <select class="form-select" th:field="*{role}" id="roleSelect">
                                         <option value="ROLE_ADMIN">ROLE_ADMIN</option>
                                         <option value="ROLE_DOCTOR">ROLE_DOCTOR</option>
                                         <option value="ROLE_PATIENT">ROLE_PATIENT</option>
+                                        <option value="ROLE_PHARMACIST">ROLE_PHARMACIST</option>
                                     </select>
                                 </div>
 

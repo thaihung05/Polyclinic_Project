@@ -13,6 +13,7 @@ import java.util.List;
  */
 public interface MedicineService {
     List<Medicines> getAll();
+    List<Medicines> getAll(String kw, String status);
     Medicines getById(int id);
     void save(Medicines medicine);
     void delete(int id);

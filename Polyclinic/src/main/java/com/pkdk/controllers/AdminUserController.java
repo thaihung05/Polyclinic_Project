@@ -46,13 +46,12 @@ public class AdminUserController {
 
     @GetMapping
     public String listUser(Model model, @RequestParam Map<String, String> params) {
-        List<Users> users = this.userService.getUsers(params);
+        String kw = params.getOrDefault("kw", "");
         int pageSize = this.env.getProperty("PAGE_SIZE", Integer.class);
         int currentPage = Integer.parseInt(params.getOrDefault("page", "1"));
-        int totalPages = (int) Math.ceil(
-                (double) this.userService.getUsers(null).size() / pageSize
-        );
-        model.addAttribute("users", users);
+        int totalPages = (int) Math.ceil((double) this.userService.countUsers(kw) / pageSize);
+        model.addAttribute("users", this.userService.getUsers(params));
+        model.addAttribute("kw", kw);
         model.addAttribute("currentPage", currentPage);
         model.addAttribute("totalPages", totalPages);
         model.addAttribute("activePage", "users");

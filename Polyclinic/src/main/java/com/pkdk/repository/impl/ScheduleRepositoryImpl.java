@@ -86,7 +86,8 @@ public class ScheduleRepositoryImpl implements ScheduleRepository {
                 .setParameter("doctorId", doctorId)
                 .setParameter("startTime", startTime)
                 .setMaxResults(1);
-        return (DoctorSchedules) q.uniqueResult();
+        List<DoctorSchedules> list = q.getResultList();
+        return list.isEmpty() ? null : list.get(0);
     }
 
 }

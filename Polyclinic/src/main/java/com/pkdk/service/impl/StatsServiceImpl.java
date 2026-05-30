@@ -8,7 +8,6 @@ import com.pkdk.repository.StatsRepository;
 import com.pkdk.service.StatsService;
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,28 +22,28 @@ public class StatsServiceImpl implements StatsService {
     private StatsRepository statsRepository;
 
     @Override
-    public List<Object[]> patientStats(Map<String, String> params) {
-        return this.statsRepository.patientStats(params);
+    public List<Object[]> patientStats(String fromDate, String toDate) {
+        return this.statsRepository.patientStats(fromDate, toDate);
     }
 
     @Override
-    public List<Object[]> serviceUsageStats(Map<String, String> params) {
-        return this.statsRepository.serviceUsageStats(params);
+    public List<Object[]> serviceUsageStats(String fromDate, String toDate) {
+        return this.statsRepository.serviceUsageStats(fromDate, toDate);
     }
 
     @Override
-    public List<Object[]> commonDiseaseStats(Map<String, String> params) {
-        return this.statsRepository.commonDiseaseStats(params);
+    public List<Object[]> commonDiseaseStats(String fromDate, String toDate) {
+        return this.statsRepository.commonDiseaseStats(fromDate, toDate);
     }
 
     @Override
-    public List<Object[]> revenueSummaryStats(Map<String, String> params) {
-        return this.statsRepository.revenueSummaryStats(params);
+    public List<Object[]> revenueSummaryStats(String fromDate, String toDate) {
+        return this.statsRepository.revenueSummaryStats(fromDate, toDate);
     }
 
     @Override
-    public List<Object[]> revenueDetailStats(Map<String, String> params) {
-        return this.statsRepository.revenueDetailStats(params);
+    public List<Object[]> revenueDetailStats(String fromDate, String toDate) {
+        return this.statsRepository.revenueDetailStats(fromDate, toDate);
     }
 
     @Override
