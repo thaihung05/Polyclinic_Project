@@ -9,6 +9,8 @@ import com.pkdk.pojo.Specialties;
 import com.pkdk.service.DoctorService;
 import com.pkdk.service.SpecialtyService;
 import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
@@ -67,13 +69,25 @@ public class AdminDoctorController {
             @RequestParam("bio") String bio,
             @RequestParam("consultationFee") BigDecimal consultationFee,
             @RequestParam(value = "availableOnline", defaultValue = "false") boolean availableOnline,
-            @RequestParam("specialtyId") int specialtyId) {
+            @RequestParam("specialtyId") int specialtyId,
+            @RequestParam(value = "gender", required = false) String gender,
+            @RequestParam(value = "address", required = false) String address,
+            @RequestParam(value = "dateOfBirthStr", required = false) String dateOfBirthStr) {
         
         Doctors d = this.doctorService.getDoctorById(id);
         if (d!=null){
             d.setBio(bio);
             d.setConsultationFee(consultationFee);
             d.setAvailableOnline(availableOnline);
+            d.setGender(gender);
+            d.setAddress(address);
+            if (dateOfBirthStr != null && !dateOfBirthStr.trim().isEmpty()){
+                try{
+                    d.setDateOfBirth(new SimpleDateFormat("yyyy-MM-dd").parse(dateOfBirthStr));
+                } catch (ParseException e) {
+                    
+                }
+            }
             Specialties s = new Specialties();
             s.setId(specialtyId);
             d.setSpecialtyId(s);

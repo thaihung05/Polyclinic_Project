@@ -40,6 +40,28 @@
                                     <textarea name="bio" class="form-control" rows="4"
                                               th:text="${doctor.bio}"></textarea>
                                 </div>
+                                
+                                <div class="col-md-6">
+                                    <label class="form-label">Giới tính</label>
+                                    <select class="form-select" name="gender">
+                                        <option value="">---Chọn---</option>
+                                        <option value="MALE" th:selected="${doctor.gender == 'MALE'}">Nam</option>
+                                        <option value="FEMALE" th:selected="${doctor.gender == 'FEMALE'}">Nữ</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <label class="form-label">Ngày sinh</label>
+                                    <input type="date" name="dateOfBirthStr" class="form-control"
+                                           th:value="${doctor.dateOfBirth != null ? #dates.format(doctor.dateOfBirth, 'yyyy-MM-dd') : ''}" />
+                                </div>
+                                
+                                <div class="col-md-12">
+                                    <label class="form-label">Địa chỉ</label>
+                                    <input type="text" name="address" class="form-control"
+                                           th:value="${doctor.address}" placeholder="Nơi công tác/ Địa chỉ"/>
+                                </div>
+                                
                                 <div class="col-md-6">
                                     <label class="form-label d-block">Khám online</label>
                                     <div class="form-check form-switch">

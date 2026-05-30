@@ -35,8 +35,11 @@
                                         <th>#</th>
                                         <th>Tên bác sĩ</th>
                                         <th>Chuyên khoa</th>
+                                        <th>Giới tính</th>
+                                        <th>Ngày sinh</th>
+                                        <th>Địa chỉ</th>
                                         <th>Phí khám</th>
-                                        <th>Tư vấn online</th>
+                                        <th>Khám online</th>
                                         <th>Rating</th>
                                         <th></th>
                                     </tr>
@@ -46,6 +49,9 @@
                                         <td th:text="${d.id}"></td>
                                         <td th:text="${d.userId.name}"></td>
                                         <td th:text="${d.specialtyId.name}"></td>
+                                        <td th:text="${d.gender == 'MALE' ? 'Nam' : d.gender == 'FEMALE' ? 'Nữ' : '-'}"></td>
+                                        <td th:text="${d.dateOfBirth != null ? #dates.format(d.dateOfBirth, 'dd/MM/yyyy') : '-'}"></td>
+                                        <td th:text="${d.address != null ? d.address : '-'}"></td>
                                         <td th:text="${#numbers.formatDecimal(d.consultationFee, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></td>
                                         <td>
                                             <span th:if="${d.availableOnline}" class="badge bg-success">Online</span>
@@ -58,7 +64,7 @@
                                         </td>
                                     </tr>
                                     <tr th:if="${#lists.isEmpty(doctors)}">
-                                        <td colspan="7" class="text-center text-muted py-4">Không có bác sĩ nào</td>
+                                        <td colspan="10" class="text-center text-muted py-4">Không có bác sĩ nào</td>
                                     </tr>
                                 </tbody>
                             </table>

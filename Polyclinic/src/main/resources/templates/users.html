@@ -46,8 +46,10 @@
                                         <th>Tài khoản</th>
                                         <th>Họ tên</th>
                                         <th>Vai trò</th>
+                                        <th>Giới tính</th>
+                                        <th>Ngày sinh</th>
+                                        <th>Địa chỉ</th>
                                         <th>SĐT</th>
-                                        <th>Trạng thái</th>
                                         <th width="180">Thao tác</th>
                                     </tr>
                                 </thead>
@@ -57,11 +59,10 @@
                                         <td th:text="${u.username}"></td>
                                         <td th:text="${u.name}"></td>
                                         <td th:text="${u.role}"></td>
+                                        <td th:text="${(u.patients?.gender ?: u.doctors?.gender) ?: '-'}"></td>
+                                        <td th:text="${(u.patients?.dateOfBirth ?: u.doctors?.dateOfBirth) != null ? #dates.format((u.patients?.dateOfBirth ?: u.doctors?.dateOfBirth), 'dd/MM/yyyy') : '-'}"></td>
+                                        <td th:text="${(u.patients?.address ?: u.doctors?.address) ?: '-'}"></td>
                                         <td th:text="${u.phone}"></td>
-                                        <td>
-                                            <span th:if="${u.isActive}" class="badge bg-success">Hoạt động</span>
-                                            <span th:unless="${u.isActive}" class="badge bg-secondary">Khóa</span>
-                                        </td>
                                         <td>
                                             <a th:href="@{/admin/users/{id}(id=${u.id})}" class="btn btn-sm btn-warning">
                                                 Sửa
@@ -75,7 +76,7 @@
                                     </tr>
 
                                     <tr th:if="${#lists.isEmpty(users)}">
-                                        <td colspan="7" class="text-center text-muted">Chưa có dữ liệu người dùng.</td>
+                                        <td colspan="9" class="text-center text-muted">Chưa có dữ liệu người dùng.</td>
                                     </tr>
                                 </tbody>
                             </table>

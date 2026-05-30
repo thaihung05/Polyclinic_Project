@@ -5,20 +5,24 @@
 package com.pkdk.controllers;
 
 import com.pkdk.pojo.Doctors;
+import com.pkdk.pojo.Patients;
 import com.pkdk.pojo.Users;
 import com.pkdk.service.DoctorService;
+import com.pkdk.service.PatientService;
+import com.pkdk.service.SpecialtyService;
 import com.pkdk.service.UserService;
+import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import com.pkdk.service.SpecialtyService;
-import java.util.List;
-import java.util.Map;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -43,6 +47,9 @@ public class AdminUserController {
 
     @Autowired
     private DoctorService doctorService;
+    
+    @Autowired
+    private PatientService patientService;
 
     @GetMapping
     public String listUser(Model model, @RequestParam Map<String, String> params) {
@@ -65,15 +72,7 @@ public class AdminUserController {
         model.addAttribute("activePage", "users");
         return "user-form";
     }
-
-    @PostMapping
-    public String addUser(@ModelAttribute("user") Users u,
-            @RequestParam(name = "rawPassword", required = false) String rawPassword,
-            @RequestParam(name = "specialtyId", required = false) Integer specialtyId) {
-        this.userService.addOrUpdate(u, rawPassword, specialtyId);
-        return "redirect:/admin/users";
-    }
-
+    
     @GetMapping("/{id}")
     public String updateView(Model model, @PathVariable("id") int id) {
         Users u = this.userService.getUserById(id);
@@ -84,11 +83,57 @@ public class AdminUserController {
 
         if ("ROLE_DOCTOR".equals(u.getRole())) {
             Doctors d = this.doctorService.getDoctorByUserId(id);
-            if (d != null && d.getSpecialtyId() != null) {
-                model.addAttribute("specialtyId", d.getSpecialtyId().getId());
+            if (d != null) {
+                model.addAttribute("doctor", d);
+                if (d.getSpecialtyId() != null){
+                    model.addAttribute("specialtyId",d.getSpecialtyId().getId());
+                }
             }
+        } else if ("ROLE_PATIENT".equals(u.getRole())) {
+            model.addAttribute("patient", this.patientService.getPatientByUserId(id));
         }
         return "user-form";
+    }
+    
+    @PostMapping
+    public String addUser(@ModelAttribute("user") Users u,
+            @RequestParam(name = "rawPassword", required = false) String rawPassword,
+            @RequestParam(name = "specialtyId", required = false) Integer specialtyId,
+            @RequestParam(name = "gender", required = false) String gender,
+            @RequestParam(name = "address", required = false) String address,
+            @RequestParam(name = "dateOfBirthStr", required = false) String dateOfBirthStr,
+            @RequestParam(name = "bio", required = false) String bio,
+            @RequestParam(name = "consultationFee", required = false) BigDecimal consultationFee,
+            @RequestParam(name = "availableOnline", defaultValue = "false") boolean availableOnline){
+        
+        this.userService.addOrUpdate(u, rawPassword, specialtyId);
+        if ("ROLE_DOCTOR".equals(u.getRole())) {
+            Doctors d = this.doctorService.getDoctorByUserId(u.getId());
+            if (d != null){
+                if (bio != null) d.setBio(bio);
+                if (consultationFee != null) d.setConsultationFee(consultationFee);
+                d.setAvailableOnline(availableOnline);
+                d.setGender(gender);
+                d.setAddress(address);
+                if (dateOfBirthStr != null && !dateOfBirthStr.isEmpty()) {
+                    try { d.setDateOfBirth(new SimpleDateFormat("yyyy-MM-dd").parse(dateOfBirthStr)); }
+                    catch (ParseException e) { }
+                }
+                this.doctorService.addOrUpdate(d);
+            }
+        } else if ("ROLE_PATIENT".equals(u.getRole())) {
+            Patients p = this.patientService.getPatientByUserId(u.getId());
+            if (p != null){
+                p.setGender(gender);
+                p.setAddress(address);
+                if (dateOfBirthStr != null && !dateOfBirthStr.isEmpty()) {
+                    try { p.setDateOfBirth(new SimpleDateFormat("yyyy-MM-dd").parse(dateOfBirthStr)); }
+                    catch (ParseException e) { }
+                }
+                this.patientService.addOrUpdate(p);
+            }
+        }
+        return "redirect:/admin/users";
     }
 
     @GetMapping("/delete/{id}")

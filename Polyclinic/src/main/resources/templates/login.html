@@ -21,6 +21,10 @@
                                 <div th:if="${param.error}" class="alert alert-danger">
                                     Sai tên đăng nhập hoặc mật khẩu!
                                 </div>
+                                
+                                <div th:if="${param.forbidden}" class="alert alert-warning">
+                                    Bạn không có quyền truy cập vào trang này!
+                                </div>
 
                                 <div th:if="${param.logout}" class="alert alert-success">
                                     Đăng xuất thành công.

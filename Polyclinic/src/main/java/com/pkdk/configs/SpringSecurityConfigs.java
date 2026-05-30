@@ -85,6 +85,7 @@ public class SpringSecurityConfigs {
                 .permitAll()
                 )
                 .userDetailsService(userDetailsService)
+                .exceptionHandling(ex -> ex.accessDeniedPage("/login?forbidden"))
                 .logout((logout) -> logout
                 .logoutSuccessUrl("/login")
                 .permitAll()

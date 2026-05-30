@@ -66,8 +66,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteUser(int id) {
-        this.doctorService.deleteByUserId(id);
-        this.patientService.deleteByUserId(id);
         this.userRepo.deleteUser(id);
     }
 
@@ -114,7 +112,7 @@ public class UserServiceImpl implements UserService {
             this.saveDoctorRole(u, specialtyId);
         } else if ("ROLE_PATIENT".equals(u.getRole())) {
             this.savePatientRole(u);
-        } else if ("ROLE_ADMIN".equals(u.getRole())) {
+        } else if ("ROLE_ADMIN".equals(u.getRole()) || "ROLE_PHARMACIST".equals(u.getRole())) {
             this.doctorService.deleteByUserId(u.getId());
             this.patientService.deleteByUserId(u.getId());
         }
