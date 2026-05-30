@@ -10,7 +10,7 @@ import { Button, Col, Form, Row } from "react-bootstrap";
 
 const Profile = () => {
 
-    const [, dispatch] = useContext(MyUserContext);
+    const [user, dispatch] = useContext(MyUserContext);
     const [loading, setLoading] = useState(false);
     const [avatarPreview, setAvatarPreview] = useState(null);
     const [tab, setTab] = useState("infoTab");
@@ -19,6 +19,8 @@ const Profile = () => {
     const [error, setError] = useState('');
     const avatar = useRef();
     const [passwordForm, setPasswordForm] = useState({ oldPassword: "", newPassword: "", confirmNewPassword: "" });
+
+    const isDoctor = user?.role === "ROLE_DOCTOR" || user?.role === "ROLE_PHARMACIST";
 
     const formatDateOfBirth = (rawDate) => {
         if (!rawDate) return "";
@@ -30,7 +32,7 @@ const Profile = () => {
     };
 
     const loadProfile = async () => {
-        
+
         try {
             const res = await authApis().get(endpoints["profile"]);
             const u = res.data;
@@ -42,6 +44,7 @@ const Profile = () => {
                 address: u.address || "",
                 gender: u.gender || "",
                 dateOfBirth: formatDateOfBirth(u.dateOfBirth) || "",
+                specialty: u.specialty || "",
             };
             setInfo(profileData);
             setOriginalInfo(profileData);
@@ -66,6 +69,24 @@ const Profile = () => {
     const changePw = (e) => {
         setPasswordForm({ ...passwordForm, [e.target.name]: e.target.value });
     };
+
+    const changeDOB = (e) => {
+        const value = e.target.value;
+        if (!value) {
+            setInfo({ ...info, dateOfBirth: '' });
+        }
+        else {
+            const [year, month, day] = value.split('-');
+            setInfo({ ...info, dateOfBirth: `${day}-${month}-${year}` });
+        }
+    }
+
+    const dobToInputValue = (dob) => {
+        if (!dob) return '';
+        const [day, month, year] = dob.split('-');
+        if (!day || !month || !year) return "";
+        return `${year}-${month}-${day}`;
+    }
 
     const validatePatch = (changedFields) => {
         if ('name' in changedFields) {
@@ -95,6 +116,15 @@ const Profile = () => {
             }
             if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(changedFields.email.trim())) {
                 setError('Email không hợp lệ!');
+                return false;
+            }
+        }
+
+        if ('dateOfBirth' in changedFields && changedFields.dateOfBirth) {
+            const [day, month, year] = changedFields.dateOfBirth.split('-');
+            const today = new Date().toISOString().split('T')[0];
+            if (`${year}-${month}-${day}` >= today) {
+                setError('Ngày sinh không hợp lệ (phải trước ngày hôm nay)!');
                 return false;
             }
         }
@@ -292,6 +322,13 @@ const Profile = () => {
                                 <p>{info.dateOfBirth || "Chưa cập nhật"}</p>
                             </Col>
 
+                            {isDoctor && (
+                                <Col md={6}>
+                                    <strong>Chuyên khoa:</strong>
+                                    <p>{info.specialty || "Chưa cập nhật"}</p>
+                                </Col>
+                            )}
+
                             <Col md={12}>
                                 <strong>Địa chỉ:</strong>
                                 <p>{info.address || "Chưa cập nhật"}</p>
@@ -325,7 +362,20 @@ const Profile = () => {
                                 <Form.Label>Số điện thoại</Form.Label>
                                 <Form.Control size="lg" type="text" name="phone" value={info.phone} onChange={changeInfo} />
                             </Col>
-                            <Col md={12}>
+
+                            <Col md={6}>
+                                <Form.Label>Ngày sinh</Form.Label>
+                                <Form.Control
+                                    size="lg"
+                                    type="date"
+                                    name="dateOfBirth"
+                                    value={dobToInputValue(info.dateOfBirth)}
+                                    max={new Date().toISOString().split("T")[0]}
+                                    onChange={changeDOB}
+                                />
+                            </Col>
+
+                            <Col md={6}>
                                 <Form.Label>Địa chỉ</Form.Label>
                                 <Form.Control size="lg" type="text" name="address" value={info.address} onChange={changeInfo} />
                             </Col>

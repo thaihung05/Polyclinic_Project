@@ -4,8 +4,11 @@
  */
 package com.pkdk.controllers;
 
+import com.pkdk.enums.UserRole;
+import com.pkdk.pojo.Doctors;
 import com.pkdk.pojo.Patients;
 import com.pkdk.pojo.Users;
+import com.pkdk.service.DoctorService;
 import com.pkdk.service.PatientService;
 import com.pkdk.service.UserService;
 import com.pkdk.utils.JwtUtils;
@@ -42,6 +45,8 @@ public class ApiUserController {
     private UserService userService;
     @Autowired
     private PatientService patientService;
+    @Autowired
+    private DoctorService doctorService;
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestParam Map<String, String> info,
@@ -165,10 +170,8 @@ public class ApiUserController {
 
     @RequestMapping("/secure/profile")
     @ResponseBody
-    @CrossOrigin
     public ResponseEntity<?> getProfile(Principal principal) {
         Users u = this.userService.getUserByUserName(principal.getName());
-        Patients p = this.patientService.getPatientByUserId(u.getId());
 
         Map<String, Object> info = new HashMap<>();
         info.put("id", u.getId());
@@ -180,15 +183,32 @@ public class ApiUserController {
         info.put("role", u.getRole());
         info.put("isActive", u.getIsActive());
 
-        if (p != null) {
-            info.put("gender", p.getGender());
-            info.put("address", p.getAddress());
-            info.put("dateOfBirth", p.getDateOfBirth());
-        } else {
-            info.put("gender", null);
-            info.put("address", null);
-            info.put("dateOfBirth", null);
+        if (UserRole.ROLE_PATIENT.name().equals(u.getRole())) {
+            Patients p = this.patientService.getPatientByUserId(u.getId());
+            if (p != null) {
+                info.put("gender", p.getGender());
+                info.put("address", p.getAddress());
+                info.put("dateOfBirth", p.getDateOfBirth());
+            } else {
+                info.put("gender", null);
+                info.put("address", null);
+                info.put("dateOfBirth", null);
+            }
+        } else if (UserRole.ROLE_DOCTOR.name().equals(u.getRole())) {
+            Doctors d = this.doctorService.getDoctorByUserId(u.getId());
+            if (d != null) {
+                info.put("gender", d.getGender());
+                info.put("address", d.getAddress());
+                info.put("dateOfBirth", d.getDateOfBirth());
+                info.put("specialty", d.getSpecialtyId() != null ? d.getSpecialtyId().getName() : null);
+            } else {
+                info.put("gender", null);
+                info.put("address", null);
+                info.put("dateOfBirth", null);
+                info.put("specialty", null);
+            }
         }
+
         return new ResponseEntity<>(info, HttpStatus.OK);
     }
 
@@ -200,10 +220,12 @@ public class ApiUserController {
 
         String name = info.get("name");
         String phone = info.get("phone");
+        String email = info.get("email");
         name = name != null ? name.trim() : null;
         phone = phone != null ? phone.trim() : null;
+        email = email != null ? email.trim() : null;
 
-        if (phone != null && !phone.trim().isEmpty()) {
+        if (phone != null && !phone.isEmpty()) {
             if (!phone.matches("^\\d{10}$")) {
                 return new ResponseEntity<>("Số điện thoại phải có 10 số", HttpStatus.BAD_REQUEST);
             }
@@ -215,6 +237,16 @@ public class ApiUserController {
                 return new ResponseEntity<>("Họ và tên không được để trống", HttpStatus.BAD_REQUEST);
             }
             info.put("name", name);
+        }
+
+        if (email != null) {
+            if (email.isEmpty()){
+                return new ResponseEntity<>("Email không được để trống", HttpStatus.BAD_REQUEST);
+            }
+            if (!email.matches("^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,}$")) {
+                return new ResponseEntity<>("Email không hợp lệ", HttpStatus.BAD_REQUEST);
+            }
+            info.put("email", email);
         }
 
         try {
@@ -268,5 +300,13 @@ public class ApiUserController {
         }
 
         return new ResponseEntity<>("Đổi mật khẩu thành công", HttpStatus.OK);
+    }
+
+    private void updatePatientProfile() {
+
+    }
+
+    private void updateDoctorProfile() {
+
     }
 }

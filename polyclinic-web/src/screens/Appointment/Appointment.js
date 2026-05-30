@@ -1,11 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import Apis, { authApis, endpoints } from "../../configs/Api";
 import "../../styles/base.css";
 import "./appointment.css";
 import Swal from "sweetalert2";
-import { Button, Form, Modal, Spinner } from "react-bootstrap";
+import MySpinner from "../../components/MySpinner";
+import { Button, Form, Modal } from "react-bootstrap";
+import Moment from "react-moment";
 
 
 const BANK_CONFIG = {
@@ -23,6 +25,7 @@ const Appointment = () => {
     const [selectedDate, setSelectedDate] = useState(null);
     const [selectedSchedule, setSelectedSchedule] = useState(null);
     const [symptoms, setSymptoms] = useState("");
+    const [step, setStep] = useState(0);
 
     const [paymentMethod, setPaymentMethod] = useState("BANKING");
     const [showPaymentModal, setShowPaymentModal] = useState(false);
@@ -31,6 +34,8 @@ const Appointment = () => {
     const [paymentConfirming, setPaymentConfirming] = useState(false);
 
     const [loading, setLoading] = useState(false);
+    const slideRefs = useRef([]);
+    const [wrapperHeight, setWrapperHeight] = useState("auto");
 
     const loadSpecialties = async () => {
         try {
@@ -49,6 +54,16 @@ const Appointment = () => {
         loadSpecialties();
     }, []);
 
+
+    useEffect(() => {
+        const active = slideRefs.current[step];
+        if (!active) return;
+        const id = setTimeout(() => {
+            setWrapperHeight(active.scrollHeight + "px");
+        }, 0);
+        return () => clearTimeout(id);
+    }, [step, selectedDate, selectedSchedule, doctors, specialties, schedules]);
+
     const chooseSpecialty = async (specialty) => {
         try {
             setSelectedDoctor(null);
@@ -58,6 +73,7 @@ const Appointment = () => {
             const res = await Apis.get(`${endpoints.doctors}?specialtyId=${specialty.id}`);
             setDoctors(res.data);
             setSelectedSpecialty(specialty);
+            setStep(1);
         } catch (err) {
             Swal.fire("Lỗi", "Không tải được các bác sĩ", "error");
         }
@@ -70,6 +86,7 @@ const Appointment = () => {
             const res = await Apis.get(endpoints.schedules(doctor.id));
             setSelectedDoctor(doctor);
             setSchedules(res.data.filter(s => s.isActive));
+            setStep(2);
         }
         catch (err) {
             Swal.fire('Lỗi', 'Không tải được lịch làm của các bác sĩ', 'error');
@@ -85,15 +102,6 @@ const Appointment = () => {
         })
         return groups;
     }
-    const formatDate = (dateStr) => {
-        const [year, month, day] = dateStr.split("-");
-        return `${day}/${month}/${year}`;
-    };
-    const formatTimeRange = (startTime, endTime) => {
-        const start = startTime.split(" ")[1].slice(0, 5);
-        const end = endTime.split(" ")[1].slice(0, 5);
-        return `${start} - ${end}`;
-    };
 
     const buildPreviewQrUrl = () => {
         if (!selectedDoctor?.consultationFee) return null;
@@ -113,6 +121,7 @@ const Appointment = () => {
         setSymptoms("");
         setDoctors([]);
         setPaymentMethod("BANKING");
+        setStep(0);
     }
 
     const handleOpenPaymentModal = () => {
@@ -166,7 +175,7 @@ const Appointment = () => {
         return (
             <>
                 <Header />
-                <div className="text-center py-5"><Spinner animation="border" /></div>
+                <div className="text-center py-5"><MySpinner /></div>
                 <Footer />
             </>
         );
@@ -180,97 +189,117 @@ const Appointment = () => {
                         <div className="row g-4">
                             <div className="col-lg-8">
                                 <div className="booking-card">
-                                    <div className="step-header mb-4">
-                                        <h4>Chọn Chuyên Khoa</h4>
-                                        <p>Chọn chuyên khoa muốn khám</p>
-                                    </div>
+                                    <div className="slides-wrapper" style={{ height: wrapperHeight }}>
+                                        <div className="slides-track" style={{ transform: `translateX(-${step * 100}%)` }}>
 
-                                    <div className="specialty-grid mb-4">
-                                        {specialties.map(s => (
-                                            <div
-                                                key={s.id}
-                                                className={`specialty-tile ${selectedSpecialty?.id === s.id ? "selected" : ""}`}
-                                                onClick={() => chooseSpecialty(s)}
-                                            >
-                                                <div className="sp-icon">
-                                                    <i className="bi bi-hospital-fill"></i>
+                                            <div className="slide" ref={el => slideRefs.current[0] = el}>
+                                                <div className="step-header mb-4">
+                                                    <h4>Chọn Chuyên Khoa</h4>
+                                                    <p>Chọn chuyên khoa muốn khám</p>
                                                 </div>
-                                                <div className="sp-name">{s.name}</div>
-                                                <div className="sp-desc">{s.description}</div>
+                                                <div className="specialty-grid mb-4">
+                                                    {specialties.map(s => (
+                                                        <div
+                                                            key={s.id}
+                                                            className={`specialty-tile ${selectedSpecialty?.id === s.id ? "selected" : ""}`}
+                                                            onClick={() => chooseSpecialty(s)}
+                                                        >
+                                                            <div className="sp-icon">
+                                                                <i className="bi bi-hospital-fill"></i>
+                                                            </div>
+                                                            <div className="sp-name">{s.name}</div>
+                                                            <div className="sp-desc">{s.description}</div>
+                                                        </div>
+                                                    ))}
+                                                </div>
                                             </div>
-                                        ))}
+
+                                            <div className="slide" ref={el => slideRefs.current[1] = el}>
+                                                <div className="step-header mb-4 d-flex align-items-center gap-2">
+                                                    <button className="btn-back" onClick={() => {
+                                                        setStep(0);
+                                                        setSelectedDoctor(null);
+                                                        setSchedules([]);
+                                                        setSelectedDate(null);
+                                                        setSelectedSchedule(null);
+                                                    }}>
+                                                        <i className="bi bi-arrow-left"></i>
+                                                    </button>
+                                                    <h4 className="mb-0">Chọn bác sĩ</h4>
+                                                </div>
+                                                <div className="doctor-list mb-4">
+                                                    {doctors.length === 0 ? (
+                                                        <div className="text-muted">Không có bác sĩ nào trong chuyên khoa này.</div>
+                                                    ) : doctors.map(d => (
+                                                        <div key={d.id} onClick={() => chooseDoctor(d)}
+                                                            className={`doctor-card ${selectedDoctor?.id === d.id ? "selected" : ""}`}>
+                                                            <div className="dc-avatar">
+                                                                <img src={d.userId?.avatar} alt={d.userId?.name} />
+                                                            </div>
+                                                            <div className="dc-info">
+                                                                <div className="dc-name">{d.userId?.name}</div>
+                                                                <div className="dc-title">Bác sĩ chuyên khoa {d.specialtyId?.name}</div>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+
+                                            <div className="slide" ref={el => slideRefs.current[2] = el}>
+                                                <div className="step-header mb-4 d-flex align-items-center gap-2">
+                                                    <button className="btn-back" onClick={() => {
+                                                        setStep(1);
+                                                        setSelectedDate(null);
+                                                        setSelectedSchedule(null);
+                                                    }}>
+                                                        <i className="bi bi-arrow-left"></i>
+                                                    </button>
+                                                    <h4 className="mb-0">Chọn ngày khám</h4>
+                                                </div>
+                                                <div className="date-grid mb-4">
+                                                    {availableDate.map(date => (
+                                                        <div key={date}
+                                                            className={`date-tile ${selectedDate === date ? "selected" : ""}`}
+                                                            onClick={() => {
+                                                                setSelectedDate(date);
+                                                                setSelectedSchedule(null);
+                                                            }}
+                                                        >
+                                                            <Moment format="DD/MM/YYYY">{date}</Moment>
+                                                        </div>
+                                                    ))}
+                                                </div>
+
+                                                {selectedDate && (
+                                                    <>
+                                                        <hr className="my-3" />
+                                                        <div className="step-header mb-4">
+                                                            <h4>Chọn ca khám</h4>
+                                                        </div>
+                                                        <div className="schedule-grid mb-4">
+                                                            {schedulesOfSelectedDate.map(s => (
+                                                                <div key={s.id}
+                                                                    className={`schedule-tile ${selectedSchedule?.id === s.id ? "selected" : ""}`}
+                                                                    onClick={() => setSelectedSchedule(s)}
+                                                                >
+                                                                    <i className="bi bi-clock me-2"></i>
+                                                                    <Moment format="HH:mm">{s.startTime}</Moment>
+                                                                    {" - "}
+                                                                    <Moment format="HH:mm">{s.endTime}</Moment>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </>
+                                                )}
+                                            </div>
+
+                                        </div>
                                     </div>
-
-                                    {selectedSpecialty && (
-                                        <>
-                                            <div className="step-header mb-4">
-                                                <h4>Chọn bác sĩ</h4>
-                                            </div>
-
-                                            <div className="doctor-list mb-4">
-                                                {doctors.length === 0 ? (
-                                                    <div className="text-muted">Không có bác sĩ nào trong chuyên khoa này.</div>
-                                                ) : doctors.map(d => (
-                                                    <div key={d.id} onClick={() => chooseDoctor(d)}
-                                                        className={`doctor-card ${selectedDoctor?.id === d.id ? "selected" : ""}`}>
-                                                        <div className="dc-avatar">
-                                                            <img src={d.userId?.avatar} alt={d.userId?.name} />
-                                                        </div>
-                                                        <div className="dc-info">
-                                                            <div className="dc-name">{d.userId?.name}</div>
-                                                            <div className="dc-title">Bác sĩ chuyên khoa {d.specialtyId?.name}</div>
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </>
-                                    )}
-
-                                    {selectedDoctor && availableDate.length > 0 && (
-                                        <>
-                                            <div className="step-header mb-4">
-                                                <h4>Chọn ngày khám</h4>
-                                            </div>
-                                            <div className="date-grid mb-4">
-                                                {availableDate.map(date => (
-                                                    <div key={date}
-                                                        className={`date-tile ${selectedDate === date ? "selected" : ""}`}
-                                                        onClick={() => {
-                                                            setSelectedDate(date);
-                                                            setSelectedSchedule(null);
-                                                        }}
-                                                    >
-                                                        {formatDate(date)}
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </>
-                                    )}
-
-
-                                    {selectedDate && (
-                                        <>
-                                            <div className="step-header mb-4">
-                                                <h4>Chọn ca khám</h4>
-                                            </div>
-                                            <div className="schedule-grid mb-4">
-                                                {schedulesOfSelectedDate.map(s => (
-                                                    <div key={s.id}
-                                                        className={`schedule-tile ${selectedSchedule?.id === s.id ? "selected" : ""}`}
-                                                        onClick={() => setSelectedSchedule(s)}
-                                                    >
-                                                        <i className="bi bi-clock me-2"></i>
-                                                        {formatTimeRange(s.startTime, s.endTime)}
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </>
-                                    )}
-
 
                                     {selectedSchedule && (
                                         <>
-                                            <div className="step-header mb-4">
+                                            <hr className="my-3" />
+                                            <div className="step-header mb-3">
                                                 <h4>Mô tả triệu chứng</h4>
                                             </div>
                                             <Form.Group className="mb-4">
@@ -282,10 +311,6 @@ const Appointment = () => {
                                                     onChange={e => setSymptoms(e.target.value)}
                                                 />
                                             </Form.Group>
-                                            <Button variant="primary" className="w-100" onClick={handleOpenPaymentModal} >
-                                                Thanh toán
-                                            </Button>
-
                                         </>
                                     )}
                                 </div>
@@ -311,14 +336,19 @@ const Appointment = () => {
 
                                         <div className="sc-row">
                                             <div className="sc-label">Ngày khám</div>
-                                            <div className="sc-value">{selectedDate ? formatDate(selectedDate) : "Chưa chọn"}</div>
+                                            <div className="sc-value">{selectedDate ? <Moment format="DD/MM/YYYY">{selectedDate}</Moment> : "Chưa chọn"}</div>
                                         </div>
 
                                         <div className="sc-row">
                                             <div className="sc-label">Ca khám</div>
                                             <div className="sc-value">
                                                 {selectedSchedule
-                                                    ? formatTimeRange(selectedSchedule.startTime, selectedSchedule.endTime)
+                                                    ?
+                                                    <>
+                                                        <Moment format="HH:mm">{selectedSchedule.startTime}</Moment>
+                                                        {" - "}
+                                                        <Moment format="HH:mm">{selectedSchedule.endTime}</Moment>
+                                                    </>
                                                     : "Chưa chọn"}
                                             </div>
                                         </div>
@@ -328,6 +358,14 @@ const Appointment = () => {
                                             <div className="sc-value">{symptoms || "Chưa nhập"}</div>
                                         </div>
                                     </div>
+
+                                    {selectedSchedule && (
+                                        <div className="p-3">
+                                            <Button variant="primary" className="w-100" onClick={handleOpenPaymentModal}>
+                                                Thanh toán
+                                            </Button>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -360,7 +398,7 @@ const Appointment = () => {
                             />
                         )}
                         <p className="mt-3 text-muted small">
-                            Quét mã QR để chuyển khoản, sau đó bấm <strong>Xác nhận thanh toán</strong>.<br/>
+                            Quét mã QR để chuyển khoản, sau đó bấm <strong>Xác nhận thanh toán</strong>.<br />
                             Sau khi thanh toán, sẽ không hoàn trả tiền vì bất kể lí do nào.
                         </p>
 
@@ -372,7 +410,7 @@ const Appointment = () => {
                             Đóng
                         </Button>
                         <Button variant="success" onClick={confirmPayment} disabled={paymentConfirming}>
-                            {paymentConfirming ? <Spinner animation="border" size="sm" /> : "Xác nhận thanh toán"}
+                            {paymentConfirming ? <MySpinner /> : "Xác nhận thanh toán"}
                         </Button>
                     </Modal.Footer>
                 </Modal>

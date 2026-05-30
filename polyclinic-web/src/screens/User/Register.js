@@ -7,8 +7,6 @@ import Swal from "sweetalert2";
 import "./user.css";
 import "../../styles/base.css";
 import { Alert, Button, Col, Form, Row } from "react-bootstrap";
-import Calendar from "react-calendar";
-import "react-calendar/dist/Calendar.css";
 
 const Register = () => {
     const nav = useNavigate();
@@ -16,22 +14,22 @@ const Register = () => {
     const [user, setUser] = useState({});
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
-    const [dobDate, setDobDate] = useState(null);
-    const [showCalendar, setShowCalendar] = useState(false);
     const avatar = useRef();
 
     const change = (e) => {
         setUser({ ...user, [e.target.name]: e.target.value });
     };
 
-    const onDobChange = (date) => {
-        setDobDate(date);
-        const d = String(date.getDate()).padStart(2, "0");
-        const m = String(date.getMonth() + 1).padStart(2, "0");
-        const y = date.getFullYear();
-        setUser({ ...user, dateOfBirth: `${d}-${m}-${y}` });
-        setShowCalendar(false);
-    };
+    const changeDOB = (e) => {
+        const value = e.target.value;
+        if (!value) {
+            setUser({ ...user, dateOfBirth: '' });
+            return;
+        }
+        const [year, month, day] = value.split('-');
+        setUser({ ...user, dateOfBirth: `${day}-${month}-${year}` });
+    }
+
 
     const validate = () => {
         if (!user.name || user.name.trim() === '') {
@@ -71,8 +69,15 @@ const Register = () => {
             return false;
         }
 
-        if (!dobDate) {
+        if (!user.dateOfBirth) {
             setError('Vui lòng chọn ngày sinh!');
+            return false;
+        }
+
+        const [day, month, year] = user.dateOfBirth.split('-');
+        const today = new Date().toISOString().split('T')[0];
+        if (`${year}-${month}-${day}` >= today) {
+            setError('Ngày sinh không hợp lệ (phải trước ngày hôm nay)!');
             return false;
         }
 
@@ -113,12 +118,12 @@ const Register = () => {
 
     const register = async (e) => {
         e.preventDefault();
-        
+
         if (validate()) {
-            
+
             let form = new FormData();
             for (let key of Object.keys(user)) {
-                    form.append(key, user[key]);
+                form.append(key, user[key]);
             }
             if (avatar.current.files.length > 0)
                 form.append("avatar", avatar.current.files[0]);
@@ -176,7 +181,7 @@ const Register = () => {
                             <Col>
                                 <div className="mb-3">
                                     <label className="form-label">Họ và tên</label>
-                                    <input type="text" name="name" className="form-control input-custom"  onChange={change} />
+                                    <input type="text" name="name" className="form-control input-custom" onChange={change} />
                                 </div>
                             </Col>
                             <Col>
@@ -218,33 +223,11 @@ const Register = () => {
                             <Col>
                                 <div className="mb-3" style={{ position: "relative" }}>
                                     <label className="form-label">Ngày sinh</label>
-                                    <input
-                                        type="text"
-                                        readOnly
-                                        className="form-control input-custom"
-                                        placeholder="Chọn ngày sinh"
-                                        value={dobDate ? dobDate.toLocaleDateString("vi-VN") : ""}
-                                        onClick={() => setShowCalendar(!showCalendar)}
-                                        style={{ cursor: "pointer" }}
+                                    <Form.Control
+                                        type="date"
+                                        name="dateOfBirth"
+                                        onChange={changeDOB}
                                     />
-                                    {showCalendar && (
-                                        <div style={{
-                                            position: "absolute",
-                                            zIndex: 999,
-                                            top: "100%",
-                                            left: 0,
-                                            boxShadow: "0 4px 16px rgba(0,0,0,0.15)",
-                                            borderRadius: "8px",
-                                            overflow: "hidden",
-                                            background: "#fff"
-                                        }}>
-                                            <Calendar
-                                                onChange={onDobChange}
-                                                value={dobDate}
-                                                maxDate={new Date()}
-                                            />
-                                        </div>
-                                    )}
                                 </div>
                             </Col>
                         </Row>
