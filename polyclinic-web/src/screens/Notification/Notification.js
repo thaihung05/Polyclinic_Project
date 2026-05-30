@@ -5,6 +5,7 @@ import Header from "../../components/Header";
 import { Badge, Button, Pagination, Spinner } from "react-bootstrap";
 import Moment from "react-moment";
 import Footer from "../../components/Footer";
+import MySpinner from "../../components/MySpinner";
 const Notification = () => {
     const [user] = useContext(MyUserContext);
     const [notifications, setNotifications] = useState([]);
@@ -23,7 +24,7 @@ const Notification = () => {
             setNotifications(sorted);
             setPage(1);
         } catch (err) {
-            setError('Lỗi ! Tải thông báo thất bại!');
+            console.error(err);
         }
         finally {
             setLoading(false);
@@ -129,13 +130,12 @@ const Notification = () => {
 
                 {loading ? (
                     <div className="text-center py-5">
-                        <Spinner animation="border" variant="primary" />
+                        <MySpinner/>
                         <p className="mt-2 text-muted">Đang tải thông báo...</p>
                     </div>
 
                 ) : notifications.length === 0 ? (
                     <div className="text-center py-5 text-muted">
-                        <i className="bi bi-bell-slash noti-empty-icon"></i>
                         <p className="mt-3">Bạn chưa có thông báo nào.</p>
                     </div>
                 ) : (
@@ -182,7 +182,7 @@ const Notification = () => {
                     <div className="d-flex justify-content-center mt-5">
                         <Pagination>
                             <Pagination.Prev disabled={page === 1} onClick={() => setPage(page - 1)} />
-                            {[...Array(totalPages)].map((_, i) => (
+                            {[...Array(totalPages)].map((p, i) => (
                                 <Pagination.Item
                                     key={i + 1}
                                     active={page === i + 1}

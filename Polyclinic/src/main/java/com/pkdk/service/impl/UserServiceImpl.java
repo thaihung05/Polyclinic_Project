@@ -215,11 +215,15 @@ public class UserServiceImpl implements UserService {
 
         String name = info.get("name");
         String phone = info.get("phone");
+        String email = info.get("email");
         if (name != null && !name.isEmpty()) {
             u.setName(name);
         }
         if (phone != null && !phone.isEmpty()) {
             u.setPhone(phone);
+        }
+        if (email != null && !email.isEmpty()) {
+            u.setEmail(email);
         }
         if (avatar != null && !avatar.isEmpty()) {
             try {
@@ -263,6 +267,29 @@ public class UserServiceImpl implements UserService {
             }
 
             this.patientService.addOrUpdate(p);
+        } else if (UserRole.ROLE_DOCTOR.name().equals(u.getRole())) {
+            Doctors d = this.doctorService.getDoctorByUserId(u.getId());
+            String dateOfBirthStr = info.get("dateOfBirth");
+            if (dateOfBirthStr != null && !dateOfBirthStr.isEmpty()) {
+                try {
+                    SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+                    d.setDateOfBirth(sdf.parse(dateOfBirthStr));
+                } catch (ParseException e) {
+                    throw new RuntimeException("Sai định dạng ngày sinh (dd-MM-yyyy)");
+                }
+            }
+
+            String gender = info.get("gender");
+            if (gender != null && !gender.isEmpty()) {
+                d.setGender(gender);
+            }
+
+            String address = info.get("address");
+            if (address != null) {
+                d.setAddress(address);
+            }
+
+            this.doctorService.addOrUpdate(d);
         }
 
         return u;
