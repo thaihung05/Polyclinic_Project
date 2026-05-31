@@ -12,6 +12,8 @@ import java.util.List;
  * @author Admin
  */
 public interface DoctorRepository {
+    List<Doctors> getAll(String kw, int page);
+    long countAll(String kw);
     Doctors getDoctorByUserId(int Id);
     void addOrUpdate(Doctors d);
     void deleteByUserId(int id);

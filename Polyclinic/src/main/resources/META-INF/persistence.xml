@@ -15,5 +15,6 @@
     <class>com.pkdk.pojo.LabResults</class>
     <class>com.pkdk.pojo.Doctors</class>
     <class>com.pkdk.pojo.PrescriptionItems</class>
+    <class>com.pkdk.pojo.PrescriptionReservations</class>
   </persistence-unit>
 </persistence>

@@ -32,7 +32,7 @@
                 <div class="collapse navbar-collapse" id="mainNav">
                     <ul class="navbar-nav ms-auto align-items-lg-center">
 
-                        <li class="nav-item" sec:authorize="isAuthenticated()">
+                        <li class="nav-item" sec:authorize="hasRole('ADMIN')">
                             <a class="nav-link"
                                th:classappend="${activePage == 'dashboard'} ? ' active' : ''"
                                th:href="@{/admin}">
@@ -40,7 +40,7 @@
                             </a>
                         </li>
 
-                        <li class="nav-item" sec:authorize="isAuthenticated()">
+                        <li class="nav-item" sec:authorize="hasRole('ADMIN')">
                             <a class="nav-link"
                                th:classappend="${activePage == 'users'} ? ' active' : ''"
                                th:href="@{/admin/users}">
@@ -48,23 +48,39 @@
                             </a>
                         </li>
 
-                        <li class="nav-item" sec:authorize="isAuthenticated()">
+                        <li class="nav-item" sec:authorize="hasRole('ADMIN')">
+                            <a class="nav-link"
+                               th:classappend="${activePage == 'doctors'} ? ' active' : ''"
+                               th:href="@{/admin/doctors}">
+                                Bác sĩ
+                            </a>
+                        </li>
+
+                        <li class="nav-item" sec:authorize="hasRole('ADMIN')">
+                            <a class="nav-link"
+                               th:classappend="${activePage == 'appointments'} ? ' active' : ''"
+                               th:href="@{/admin/appointments}">
+                               Lịch hẹn
+                            </a>
+                        </li>
+
+                        <li class="nav-item" sec:authorize="hasRole('ADMIN')">
                             <a class="nav-link"
                                th:classappend="${activePage == 'specialties'} ? ' active' : ''"
                                th:href="@{/admin/specialties}">
                                 Chuyên khoa
                             </a>
                         </li>
-                        
-                        <li class="nav-item" sec:authorize="isAuthenticated()">
+
+                        <li class="nav-item" sec:authorize="hasRole('ADMIN')">
                             <a class="nav-link"
-                               th:classappend="${activePage == ''} ? ' active' : ''"
-                               th:href="@{/admin/}">
+                               th:classappend="${activePage == 'medicines'} ? ' active' : ''"
+                               th:href="@{/admin/medicines}">
                                 Thuốc men
                             </a>
                         </li>
 
-                        <li class="nav-item" sec:authorize="isAuthenticated()">
+                        <li class="nav-item" sec:authorize="hasRole('ADMIN')">
                             <a class="nav-link"
                                th:classappend="${activePage == 'stats'} ? ' active' : ''"
                                th:href="@{/admin/stats}">
@@ -72,7 +88,7 @@
                             </a>
                         </li>
 
-                        <li class="nav-item dropdown ms-lg-3" sec:authorize="isAuthenticated()">
+                        <li class="nav-item dropdown ms-lg-3" sec:authorize="hasRole('ADMIN')">
                             <a class="nav-link dropdown-toggle text-white" href="#" role="button" data-bs-toggle="dropdown">
                                 <i class="bi bi-person-circle me-1"></i>
                                 <span sec:authentication="name">Quản trị viên</span>
@@ -93,7 +109,6 @@
                                 Đăng nhập
                             </a>
                         </li>
-                        
 
                     </ul>
                 </div>

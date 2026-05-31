@@ -95,31 +95,65 @@
                                  id="patient-pane"
                                  role="tabpanel"
                                  aria-labelledby="patient-tab">
-                                <h5 class="mb-3">1. Bệnh nhân theo độ tuổi, giới tính, chuyên khoa</h5>
 
-                                <div class="mb-4">
-                                    <canvas id="patientChart" height="90"></canvas>
+                                <h5 class="mb-3">1. Bệnh nhân theo nhóm tuổi</h5>
+                                <div class="mb-3">
+                                    <canvas id="patientAgeChart" height="90"></canvas>
                                 </div>
-
-                                <div class="table-responsive">
+                                <div class="table-responsive mb-4">
                                     <table class="table table-bordered table-hover align-middle">
                                         <thead class="table-light">
-                                            <tr>
-                                                <th>Nhóm tuổi</th>
-                                                <th>Giới tính</th>
-                                                <th>Chuyên khoa</th>
-                                                <th>Số lượng</th>
-                                            </tr>
+                                            <tr><th>Nhóm tuổi</th><th>Số bệnh nhân</th></tr>
                                         </thead>
                                         <tbody>
-                                            <tr th:each="r : ${patientStats}">
+                                            <tr th:each="r : ${patientByAgeStats}">
                                                 <td th:text="${r[0]}"></td>
                                                 <td th:text="${r[1]}"></td>
-                                                <td th:text="${r[2]}"></td>
-                                                <td th:text="${r[3]}"></td>
                                             </tr>
-                                            <tr th:if="${#lists.isEmpty(patientStats)}">
-                                                <td colspan="4" class="text-center text-muted">Chưa có dữ liệu</td>
+                                            <tr th:if="${#lists.isEmpty(patientByAgeStats)}">
+                                                <td colspan="2" class="text-center text-muted">Chưa có dữ liệu</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <h5 class="mb-3">2. Bệnh nhân theo giới tính</h5>
+                                <div class="mb-3">
+                                    <canvas id="patientGenderChart" height="90"></canvas>
+                                </div>
+                                <div class="table-responsive mb-4">
+                                    <table class="table table-bordered table-hover align-middle">
+                                        <thead class="table-light">
+                                            <tr><th>Giới tính</th><th>Số bệnh nhân</th></tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr th:each="r : ${patientByGenderStats}">
+                                                <td th:text="${r[0]}"></td>
+                                                <td th:text="${r[1]}"></td>
+                                            </tr>
+                                            <tr th:if="${#lists.isEmpty(patientByGenderStats)}">
+                                                <td colspan="2" class="text-center text-muted">Chưa có dữ liệu</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <h5 class="mb-3">3. Bệnh nhân theo chuyên khoa</h5>
+                                <div class="mb-3">
+                                    <canvas id="patientSpecialtyChart" height="90"></canvas>
+                                </div>
+                                <div class="table-responsive mb-4">
+                                    <table class="table table-bordered table-hover align-middle">
+                                        <thead class="table-light">
+                                            <tr><th>Chuyên khoa</th><th>Số bệnh nhân</th></tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr th:each="r : ${patientBySpecialtyStats}">
+                                                <td th:text="${r[0]}"></td>
+                                                <td th:text="${r[1]}"></td>
+                                            </tr>
+                                            <tr th:if="${#lists.isEmpty(patientBySpecialtyStats)}">
+                                                <td colspan="2" class="text-center text-muted">Chưa có dữ liệu</td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -275,7 +309,9 @@
 
         <script th:inline="javascript">
             window.statsData = {
-                patientStats: /*[[${patientStats}]]*/ [],
+                patientByAgeStats: /*[[${patientByAgeStats}]]*/ [],
+                patientByGenderStats: /*[[${patientByGenderStats}]]*/ [],
+                patientBySpecialtyStats: /*[[${patientBySpecialtyStats}]]*/ [],
                 serviceUsageStats: /*[[${serviceUsageStats}]]*/ [],
                 commonDiseaseStats: /*[[${commonDiseaseStats}]]*/ [],
                 revenueSummaryStats: /*[[${revenueSummaryStats}]]*/ [],

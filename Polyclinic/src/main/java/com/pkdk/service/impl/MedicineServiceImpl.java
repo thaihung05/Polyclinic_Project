@@ -27,6 +27,11 @@ public class MedicineServiceImpl implements MedicineService{
     }
 
     @Override
+    public List<Medicines> getAll(String kw, String status) {
+        return this.medicineRepo.getAll(kw, status);
+    }
+
+    @Override
     public Medicines getById(int id) {
         return this.medicineRepo.getById(id);
     }
@@ -63,6 +68,15 @@ public class MedicineServiceImpl implements MedicineService{
         }
         
         this.medicineRepo.deductStock(medicineId, quantity);
+    }
+
+    @Override
+    public void restoreStock(int medicineId, int quantity) {
+        Medicines m = this.medicineRepo.getById(medicineId);
+        if (m == null) {
+            throw new RuntimeException("Không tìm thấy thuốc với id: " + medicineId);
+        }
+        this.medicineRepo.restoreStock(medicineId, quantity);
     }
     
 }

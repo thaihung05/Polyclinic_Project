@@ -43,12 +43,6 @@ import java.util.Date;
     @NamedQuery(name = "MedicalRecords.findByNotes", query = "SELECT m FROM MedicalRecords m WHERE m.notes = :notes")})
 public class MedicalRecords implements Serializable {
 
-    private static final long serialVersionUID = 1L;
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Basic(optional = false)
-    @Column(name = "id")
-    private Integer id;
     @Size(max = 500)
     @Column(name = "chief_complaint")
     private String chiefComplaint;
@@ -60,13 +54,20 @@ public class MedicalRecords implements Serializable {
     @Size(max = 500)
     @Column(name = "treatment_plan")
     private String treatmentPlan;
+    @Size(max = 200)
+    @Column(name = "notes")
+    private String notes;
+
+    private static final long serialVersionUID = 1L;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Basic(optional = false)
+    @Column(name = "id")
+    private Integer id;
     @Column(name = "follow_up_date")
     @Temporal(TemporalType.TIMESTAMP)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Ho_Chi_Minh")
     private Date followUpDate;
-    @Size(max = 200)
-    @Column(name = "notes")
-    private String notes;
     @JoinColumn(name = "appointment_id", referencedColumnName = "id")
     @ManyToOne(optional = false)
     private Appointments appointmentId;
@@ -102,13 +103,6 @@ public class MedicalRecords implements Serializable {
         this.chiefComplaint = chiefComplaint;
     }
 
-    public String getDiagnosis() {
-        return diagnosis;
-    }
-
-    public void setDiagnosis(String diagnosis) {
-        this.diagnosis = diagnosis;
-    }
 
     public String getTreatmentPlan() {
         return treatmentPlan;
@@ -126,13 +120,6 @@ public class MedicalRecords implements Serializable {
         this.followUpDate = followUpDate;
     }
 
-    public String getNotes() {
-        return notes;
-    }
-
-    public void setNotes(String notes) {
-        this.notes = notes;
-    }
 
     public Appointments getAppointmentId() {
         return appointmentId;
@@ -173,6 +160,22 @@ public class MedicalRecords implements Serializable {
     @Override
     public String toString() {
         return "com.pkdk.pojo.MedicalRecords[ id=" + id + " ]";
+    }
+
+    public String getDiagnosis() {
+        return diagnosis;
+    }
+
+    public void setDiagnosis(String diagnosis) {
+        this.diagnosis = diagnosis;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
     }
     
 }

@@ -190,7 +190,7 @@ const MedicineManager = () => {
         ...form,
         stockQuantity: Number(form.stockQuantity),
         price: Number(form.price),
-        expiryDate: form.expiryDate ? form.expiryDate + " 00:00:00" : null
+        expiryDate: form.expiryDate ? form.expiryDate + "T00:00:00" : null
     });
 
     const addMedicine = async () => {

@@ -16,6 +16,23 @@
                         <i class="bi bi-plus-circle me-2"></i>Thêm người dùng
                     </a>
                 </div>
+                
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body">
+                        <form method="get" th:action="@{/admin/users}" class="row g-3">
+                            <div class="col-md-6">
+                                <input type="text" name="kw" class="form-control" 
+                                       placeholder="Tên hoặc tên tài khoản"
+                                       th:value="${kw}"/>
+                            </div>
+                            <div class="col-md-6 d-flex gap-2">
+                                <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+                                <a th:href="@{/admin/users}" class="btn btn-outline-secondary">Xóa lọc</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
                 <div class="card border-0 shadow-sm">
                     <div class="card-header bg-white">
                         <h5 class="mb-0 fw-bold">Danh sách người dùng</h5>
@@ -29,8 +46,10 @@
                                         <th>Tài khoản</th>
                                         <th>Họ tên</th>
                                         <th>Vai trò</th>
+                                        <th>Giới tính</th>
+                                        <th>Ngày sinh</th>
+                                        <th>Địa chỉ</th>
                                         <th>SĐT</th>
-                                        <th>Trạng thái</th>
                                         <th width="180">Thao tác</th>
                                     </tr>
                                 </thead>
@@ -40,11 +59,10 @@
                                         <td th:text="${u.username}"></td>
                                         <td th:text="${u.name}"></td>
                                         <td th:text="${u.role}"></td>
+                                        <td th:text="${(u.patients?.gender ?: u.doctors?.gender) ?: '-'}"></td>
+                                        <td th:text="${(u.patients?.dateOfBirth ?: u.doctors?.dateOfBirth) != null ? #dates.format((u.patients?.dateOfBirth ?: u.doctors?.dateOfBirth), 'dd/MM/yyyy') : '-'}"></td>
+                                        <td th:text="${(u.patients?.address ?: u.doctors?.address) ?: '-'}"></td>
                                         <td th:text="${u.phone}"></td>
-                                        <td>
-                                            <span th:if="${u.isActive}" class="badge bg-success">Hoạt động</span>
-                                            <span th:unless="${u.isActive}" class="badge bg-secondary">Khóa</span>
-                                        </td>
                                         <td>
                                             <a th:href="@{/admin/users/{id}(id=${u.id})}" class="btn btn-sm btn-warning">
                                                 Sửa
@@ -58,7 +76,7 @@
                                     </tr>
 
                                     <tr th:if="${#lists.isEmpty(users)}">
-                                        <td colspan="7" class="text-center text-muted">Chưa có dữ liệu người dùng.</td>
+                                        <td colspan="9" class="text-center text-muted">Chưa có dữ liệu người dùng.</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -70,7 +88,7 @@
                                             th:each="i : ${#numbers.sequence(1, totalPages)}">
                                             <a class="page-link"
                                                th:classappend="${i == currentPage} ? ' active' : ''"
-                                               th:href="@{/admin/users(page=${i})}"
+                                               th:href="@{/admin/users(page=${i}, kw=${kw})}"
                                                th:text="${i}">
                                             </a>
                                         </li>

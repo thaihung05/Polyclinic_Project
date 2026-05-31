@@ -41,22 +41,17 @@ import java.util.Date;
     @NamedQuery(name = "Payments.findByNgayTao", query = "SELECT p FROM Payments p WHERE p.ngayTao = :ngayTao")})
 public class Payments implements Serializable {
 
-    private static final long serialVersionUID = 1L;
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Basic(optional = false)
-    @Column(name = "id")
-    private Integer id;
     // @Max(value=?)  @Min(value=?)//if you know range of your decimal fields consider using these annotations to enforce field validation
     @Basic(optional = false)
     @NotNull
     @Column(name = "amount")
-    private BigDecimal amount;
+private BigDecimal amount;
     @Basic(optional = false)
-    @NotNull
+    @NotNull()
     @Size(min = 1, max = 7)
     @Column(name = "method")
     private String method;
+    // @Max(value=?)  @Min(value=?)//if you know range of your decimal fields consider using these annotations to enforce field validation
     @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 9)
@@ -69,13 +64,22 @@ public class Payments implements Serializable {
     @Column(name = "description")
     private String description;
     @Basic(optional = false)
-    @NotNull
+    @NotNull()
     @Column(name = "ngay_tao")
     @Temporal(TemporalType.TIMESTAMP)
     private Date ngayTao;
     @Size(max = 500)
     @Column(name = "qr_url")
     private String qrUrl;
+    @JsonIgnore
+    @OneToMany(mappedBy = "paymentId")
+    private Collection<Prescriptions> prescriptionsCollection;
+    private static final long serialVersionUID = 1L;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Basic(optional = false)
+    @Column(name = "id")
+    private Integer id;
     @JsonIgnore
     @OneToMany(mappedBy = "paymentId")
     private Collection<Appointments> appointmentsCollection;
@@ -103,29 +107,6 @@ public class Payments implements Serializable {
         this.id = id;
     }
 
-    public BigDecimal getAmount() {
-        return amount;
-    }
-
-    public void setAmount(BigDecimal amount) {
-        this.amount = amount;
-    }
-
-    public String getMethod() {
-        return method;
-    }
-
-    public void setMethod(String method) {
-        this.method = method;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
 
     public String getTransactionId() {
         return transactionId;
@@ -135,13 +116,6 @@ public class Payments implements Serializable {
         this.transactionId = transactionId;
     }
 
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
 
     public Date getNgayTao() {
         return ngayTao;
@@ -190,6 +164,46 @@ public class Payments implements Serializable {
     @Override
     public String toString() {
         return "com.pkdk.pojo.Payments[ id=" + id + " ]";
+    }
+
+    public BigDecimal getAmount() {
+        return amount;
+    }
+
+    public void setAmount(BigDecimal amount) {
+        this.amount = amount;
+    }
+
+    public String getMethod() {
+        return method;
+    }
+
+    public void setMethod(String method) {
+        this.method = method;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Collection<Prescriptions> getPrescriptionsCollection() {
+        return prescriptionsCollection;
+    }
+
+    public void setPrescriptionsCollection(Collection<Prescriptions> prescriptionsCollection) {
+        this.prescriptionsCollection = prescriptionsCollection;
     }
 
 }

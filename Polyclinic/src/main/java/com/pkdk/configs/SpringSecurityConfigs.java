@@ -70,6 +70,7 @@ public class SpringSecurityConfigs {
                 .authorizeHttpRequests((requests) -> requests
                 .requestMatchers("/login").permitAll()
                 .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
+                .requestMatchers("/api/secure/pharmacist/**").authenticated()
                 .requestMatchers("/api/**").permitAll()
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers("/user/**").hasRole("PATIENT")
@@ -85,6 +86,7 @@ public class SpringSecurityConfigs {
                 .permitAll()
                 )
                 .userDetailsService(userDetailsService)
+                .exceptionHandling(ex -> ex.accessDeniedPage("/login?forbidden"))
                 .logout((logout) -> logout
                 .logoutSuccessUrl("/login")
                 .permitAll()

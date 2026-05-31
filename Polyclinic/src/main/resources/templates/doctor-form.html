@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head th:replace="base::head('Thông tin bác sĩ', null)"></head>
+    <body>
+        <div th:replace="base::siteHeader(${activePage})"></div>
+        <main class="admin-page">
+            <div class="container py-4">
+                <div class="page-banner mb-4">
+                    <h2 class="mb-1 fw-bold">Thông tin bác sĩ</h2>
+                    <p class="mb-0 text-muted">Cập nhập thông tin chuyên khoa</p>
+                </div>
+                
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0 fw-bold" th:text="${doctor.userId.name}"></h5>
+                    </div>
+                    
+                    <div class="card-body">
+                        <form method="post" th:action="@{/admin/doctors/{id}(id=${doctor.id})}">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Chuyên khoa</label>
+                                    <select class="form-select" name="specialtyId">
+                                        <option th:each="sp:${specialties}"
+                                                th:value="${sp.id}"
+                                                th:text="${sp.name}"
+                                                th:selected="${sp.id==doctor.specialtyId.id}">                                            
+                                        </option>
+                                    </select>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <label class="form-label">Phí khám (VNĐ)</label>
+                                    <input type="number" name="consultationFee" class="form-control"
+                                           th:value="${doctor.consultationFee}" min="0" required />
+                                </div>
+                                
+                                <div class="col-md-12">
+                                    <label class="form-label">Tiểu sử/ Kinh nghiệm</label>
+                                    <textarea name="bio" class="form-control" rows="4"
+                                              th:text="${doctor.bio}"></textarea>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <label class="form-label">Giới tính</label>
+                                    <select class="form-select" name="gender">
+                                        <option value="">---Chọn---</option>
+                                        <option value="MALE" th:selected="${doctor.gender == 'MALE'}">Nam</option>
+                                        <option value="FEMALE" th:selected="${doctor.gender == 'FEMALE'}">Nữ</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <label class="form-label">Ngày sinh</label>
+                                    <input type="date" name="dateOfBirthStr" class="form-control"
+                                           th:value="${doctor.dateOfBirth != null ? #dates.format(doctor.dateOfBirth, 'yyyy-MM-dd') : ''}" />
+                                </div>
+                                
+                                <div class="col-md-12">
+                                    <label class="form-label">Địa chỉ</label>
+                                    <input type="text" name="address" class="form-control"
+                                           th:value="${doctor.address}" placeholder="Nơi công tác/ Địa chỉ"/>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <label class="form-label d-block">Khám online</label>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox"
+                                               name="availableOnline"
+                                               th:checked="${doctor.availableOnline}"/>
+                                        <label class="form-check-label">Bác sĩ nhận khám trực tuyến (GOOGLE MEET)</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-4 d-flex gap-2">
+                                <button class="btn btn-primary" type="submit">Lưu</button>
+                                <a th:href="@{/admin/doctors}" class="btn btn-secondary">Quay lại</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <div th:replace="base :: Footer"></div>
+        <div th:replace="base :: commonScripts"></div>
+    </body>
+</html>

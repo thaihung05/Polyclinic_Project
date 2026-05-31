@@ -40,4 +40,14 @@ public class DoctorServiceImpl implements DoctorService{
     public Doctors getDoctorById(int id) {
         return this.doctorRepo.getDoctorById(id);
     }
+
+    @Override
+    public List<Doctors> getAll(String kw, int page) {
+        return this.doctorRepo.getAll(kw, page);
+    }
+
+    @Override
+    public long countAll(String kw) {
+        return this.doctorRepo.countAll(kw);
+    }
 }

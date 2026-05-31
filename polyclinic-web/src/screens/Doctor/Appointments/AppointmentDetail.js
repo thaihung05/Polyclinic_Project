@@ -87,7 +87,7 @@ const AppointmentDetail = () => {
                 chiefComplaint: res.data.chiefComplaint || "",
                 diagnosis: res.data.diagnosis || "",
                 treatmentPlan: res.data.treatmentPlan || "",
-                followUpDate: new Date(res.data.followUpDate).toISOString().slice(0, 16),
+                followUpDate: res.data.followUpDate ? new Date(res.data.followUpDate).toISOString().slice(0, 16) : "",
                 notes: res.data.notes || ""
             });
         } catch {
@@ -282,7 +282,7 @@ const AppointmentDetail = () => {
         try {
             const payload = {
                 ...recordForm,
-                followUpDate: recordForm.followUpDate.replace('T', ' ') + ':00'
+                followUpDate: recordForm.followUpDate ? recordForm.followUpDate.replace('T', ' ') + ':00' : null
             };
             if (record) {
                 const res = await authApis().put(endpoints["update-medical-record"](record.id), payload);
@@ -388,9 +388,10 @@ const AppointmentDetail = () => {
                                     </Col>
                                     {appt.meetingUrl && (
                                         <Col md={12}>
-                                            <p className="mb-1 text-muted small">Link khám online</p>
-                                            <a href={appt.meetingUrl} target="_blank" rel="noreferrer">
-                                                {appt.meetingUrl}
+                                            <p className="mb-1 text-muted small">Khám online</p>
+                                            <a href={appt.meetingUrl} target="_blank" rel="noreferrer"
+                                               className="btn btn-success btn-sm">
+                                                <i className="bi bi-camera-video-fill me-1"></i>Vào phòng khám
                                             </a>
                                         </Col>
                                     )}
@@ -463,6 +464,7 @@ const AppointmentDetail = () => {
                                                     <Form.Control
                                                         type="datetime-local"
                                                         value={recordForm.followUpDate}
+                                                        min={new Date().toISOString().slice(0, 16)}
                                                         onChange={e => setRecordForm(p => ({ ...p, followUpDate: e.target.value }))}
                                                     />
                                                 </Form.Group>

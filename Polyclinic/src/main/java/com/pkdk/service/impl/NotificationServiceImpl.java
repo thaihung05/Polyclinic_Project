@@ -10,6 +10,7 @@ import com.pkdk.repository.NotificationRepository;
 import com.pkdk.service.EmailService;
 import com.pkdk.service.NotificationService;
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -142,6 +143,50 @@ public class NotificationServiceImpl implements NotificationService {
         n.setNgayTao(new Date());
         this.save(n);
         this.sendEmailNoti(doctorUser, n);
+        return n;
+    }
+
+    @Override
+    public Notifications createPrescriptionDispensedNotification(Users user, String doctorName) {
+        Notifications n = new Notifications();
+        n.setUserId(user);
+        n.setTitle("Đơn thuốc đã sẵn sàng!");
+        n.setMessage(String.format("Đơn thuốc của bạn do bác sĩ %s kê, đã được dược sĩ cấp nhận cấp phát. Vui lòng đến quầy thuốc để nhận thuốc.", doctorName));
+        n.setNgayTao(new Date());
+        this.save(n);
+        this.sendEmailNoti(user, n);
+        return n;
+    }
+
+    @Override
+    public Notifications createPrescriptionCreatedNotification(Users user, String doctorName, Date expiresAt) {
+        Notifications n = new Notifications();
+        n.setUserId(user);
+        n.setTitle("Bác sĩ vừa kê đơn thuốc cho bạn!");
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss dd/MM/yyyy");
+        String deadline = sdf.format(expiresAt);
+        n.setMessage(String.format(
+            "Bác sĩ %s vừa kê đơn thuốc cho bạn. Vui lòng vào mục Lịch sử khám bệnh để xem và thanh toán trước %s để tránh bị hủy đơn.",
+            doctorName, deadline));
+        n.setNgayTao(new Date());
+        this.save(n);
+        this.sendEmailNoti(user, n);
+        return n;
+    }
+
+    @Override
+    public Notifications createPrescriptionExpiredNotification(Users user, Date expiresAt) {
+        Notifications n = new Notifications();
+        n.setUserId(user);
+        n.setTitle("Đơn thuốc đã hết hạn thanh toán");
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss dd/MM/yyyy");
+        String expiredTime = sdf.format(expiresAt);
+        n.setMessage(String.format(
+            "Đơn thuốc của bạn đã hết thời hạn thanh toán lúc %s và bị hủy. Vui lòng liên hệ bác sĩ để được kê đơn lại.",
+            expiredTime));
+        n.setNgayTao(new Date());
+        this.save(n);
+        this.sendEmailNoti(user, n);
         return n;
     }
 
