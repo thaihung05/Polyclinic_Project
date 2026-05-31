@@ -35,12 +35,6 @@ import java.util.Collection;
     @NamedQuery(name = "Specialties.findByIsActive", query = "SELECT s FROM Specialties s WHERE s.isActive = :isActive")})
 public class Specialties implements Serializable {
 
-    private static final long serialVersionUID = 1L;
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Basic(optional = false)
-    @Column(name = "id")
-    private Integer id;
     @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 100)
@@ -54,6 +48,13 @@ public class Specialties implements Serializable {
     @NotNull
     @Column(name = "is_active")
     private boolean isActive;
+
+    private static final long serialVersionUID = 1L;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Basic(optional = false)
+    @Column(name = "id")
+    private Integer id;
     @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "specialtyId")
     private Collection<Doctors> doctorsCollection;
@@ -79,21 +80,6 @@ public class Specialties implements Serializable {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
 
     public boolean getIsActive() {
         return isActive;
@@ -134,6 +120,22 @@ public class Specialties implements Serializable {
     @Override
     public String toString() {
         return "com.pkdk.pojo.Specialties[ id=" + id + " ]";
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
     
 }

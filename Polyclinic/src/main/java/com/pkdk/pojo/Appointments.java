@@ -4,7 +4,6 @@
  */
 package com.pkdk.pojo;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Basic;
@@ -46,20 +45,13 @@ import java.util.Date;
     @NamedQuery(name = "Appointments.findByNgayTao", query = "SELECT a FROM Appointments a WHERE a.ngayTao = :ngayTao")})
 public class Appointments implements Serializable {
 
-    private static final long serialVersionUID = 1L;
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Basic(optional = false)
-    @Column(name = "id")
-    private Integer id;
     @Basic(optional = false)
     @NotNull
     @Column(name = "scheduled_at")
     @Temporal(TemporalType.TIMESTAMP)
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Ho_Chi_Minh")
     private Date scheduledAt;
     @Basic(optional = false)
-    @NotNull
+    @NotNull()
     @Size(min = 1, max = 11)
     @Column(name = "status")
     private String status;
@@ -76,16 +68,21 @@ public class Appointments implements Serializable {
     @Column(name = "cancelled_by")
     private String cancelledBy;
     @Basic(optional = false)
-    @NotNull
+    @NotNull()
     @Column(name = "ngay_tao")
     @Temporal(TemporalType.TIMESTAMP)
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Ho_Chi_Minh")
     private Date ngayTao;
-    @JsonIgnoreProperties({"doctorSchedulesCollection", "appointmentsCollection"})
+    private static final long serialVersionUID = 1L;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Basic(optional = false)
+    @Column(name = "id")
+    private Integer id;
+    @JsonIgnoreProperties({"doctorSchedulesCollection", "appointmentsCollection", "prescriptionReservationsCollection"})
     @JoinColumn(name = "doctor_id", referencedColumnName = "id")
     @ManyToOne(optional = false)
     private Doctors doctorId;
-    @JsonIgnoreProperties({"appointmentsCollection"})
+    @JsonIgnoreProperties({"appointmentsCollection", "prescriptionReservationsCollection"})
     @JoinColumn(name = "patient_id", referencedColumnName = "id")
     @ManyToOne(optional = false)
     private Patients patientId;
@@ -130,21 +127,6 @@ public class Appointments implements Serializable {
         this.scheduledAt = scheduledAt;
     }
 
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public String getSymptoms() {
-        return symptoms;
-    }
-
-    public void setSymptoms(String symptoms) {
-        this.symptoms = symptoms;
-    }
 
     public String getMeetingUrl() {
         return meetingUrl;
@@ -242,5 +224,20 @@ public class Appointments implements Serializable {
     public String toString() {
         return "com.pkdk.pojo.Appointments[ id=" + id + " ]";
     }
-    
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getSymptoms() {
+        return symptoms;
+    }
+
+    public void setSymptoms(String symptoms) {
+        this.symptoms = symptoms;
+    }
 }

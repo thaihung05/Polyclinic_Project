@@ -27,6 +27,21 @@ public class StatsServiceImpl implements StatsService {
     }
 
     @Override
+    public List<Object[]> patientByAgeStats(String fromDate, String toDate) {
+        return this.statsRepository.patientByAgeStats(fromDate, toDate);
+    }
+
+    @Override
+    public List<Object[]> patientByGenderStats(String fromDate, String toDate) {
+        return this.statsRepository.patientByGenderStats(fromDate, toDate);
+    }
+
+    @Override
+    public List<Object[]> patientBySpecialtyStats(String fromDate, String toDate) {
+        return this.statsRepository.patientBySpecialtyStats(fromDate, toDate);
+    }
+
+    @Override
     public List<Object[]> serviceUsageStats(String fromDate, String toDate) {
         return this.statsRepository.serviceUsageStats(fromDate, toDate);
     }

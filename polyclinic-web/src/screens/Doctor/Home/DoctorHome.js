@@ -34,6 +34,7 @@ const DoctorHome = () =>{
             setLoading(true);
             const res = await authApis().get(endpoints['doctor-appointments']);
             setAppoiments(res.data || []);
+            console.log(res.data);
         } catch(ex){
             console.error(ex);
         } finally{
@@ -47,8 +48,13 @@ const DoctorHome = () =>{
 
     const today = new Date().toISOString().slice(0,10);
     const todayAppointments = appointments.filter(a=>{
-        const d = a.scheduledAt ? a.scheduledAt.slice(0, 10) : "";
-        return d === today;
+        if (!a.scheduledAt) return false;
+
+        const appointmentDate = new Date(a.scheduledAt)
+            .toISOString()
+            .slice(0, 10);
+
+        return appointmentDate === today;
     });
 
     const peding = appointments.filter(a=>
@@ -130,7 +136,12 @@ const DoctorHome = () =>{
                             <tbody>
                                 {todayAppointments.map(a=> (
                                     <tr key={a.id}>
-                                        <td className="fw-semibold">{a.scheduledAt.slice(11,16)}</td>
+                                        <td className="fw-semibold">
+                                            {new Date(a.scheduledAt).toLocaleTimeString("vi-VN", {
+                                                hour: "2-digit",
+                                                minute: "2-digit"
+                                            })}
+                                        </td>
                                         <td>{a.patientId.userId.name}</td>
                                         <td className="text-muted">{a.symptoms || "-"}</td>
                                         <td>

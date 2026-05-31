@@ -20,6 +20,7 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import java.util.Properties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  *
@@ -31,11 +32,13 @@ import org.springframework.core.env.Environment;
             "com.pkdk.controllers",
             "com.pkdk.repository",
             "com.pkdk.service",
-            "com.pkdk.configs"
+            "com.pkdk.configs",
+            "com.pkdk.jobs"
         }
 )
 @EnableWebMvc
 @EnableTransactionManagement
+@EnableScheduling
 public class WebAppContextConfigs implements WebMvcConfigurer {
 //
 //    @Autowired

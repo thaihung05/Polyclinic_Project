@@ -7,15 +7,20 @@ package com.pkdk.controllers;
 import com.pkdk.enums.PayMethodEnum;
 import com.pkdk.enums.PaymentStatus;
 import com.pkdk.enums.UserRole;
+import com.pkdk.pojo.Appointments;
+import com.pkdk.pojo.Doctors;
 import com.pkdk.pojo.MedicalRecords;
 import com.pkdk.pojo.Patients;
 import com.pkdk.pojo.Payments;
 import com.pkdk.pojo.PrescriptionItems;
+import com.pkdk.pojo.PrescriptionReservations;
 import com.pkdk.pojo.Prescriptions;
 import com.pkdk.pojo.Users;
 import com.pkdk.service.MedicalRecordService;
+import com.pkdk.service.NotificationService;
 import com.pkdk.service.PatientService;
 import com.pkdk.service.PaymentService;
+import com.pkdk.service.PrescriptionReservationService;
 import com.pkdk.service.PrescriptionService;
 import com.pkdk.service.QrService;
 import com.pkdk.service.UserService;
@@ -62,6 +67,12 @@ public class ApiPrescriptionController {
     @Autowired
     private QrService qrService;
     
+    @Autowired
+    private PrescriptionReservationService prescriptionReservationService; 
+    
+    @Autowired
+    private NotificationService notificationService;
+    
     @GetMapping("/api/medical-records/{recordId}/prescriptions")
     public ResponseEntity<?> getPrescriptions(@PathVariable("recordId") int recordId){
         MedicalRecords m = this.medicalRecordService.getById(recordId);
@@ -103,7 +114,15 @@ public class ApiPrescriptionController {
         
         try {
             this.prescriptionService.save(prescription);
+            this.prescriptionService.deductStock(prescription.getId());
+            Appointments a = m.getAppointmentId();
+            this.prescriptionReservationService.create(prescription, a.getPatientId(), a.getDoctorId());
+            PrescriptionReservations reservation = this.prescriptionReservationService.getByPrescriptionId(prescription.getId());
+            Users patientUser = a.getPatientId().getUserId();
+            this.notificationService.createPrescriptionCreatedNotification(patientUser, caller.getName(), reservation.getExpiresAt());
         } catch (IllegalArgumentException ex) {
+            return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (RuntimeException ex){
             return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(HttpStatus.CREATED);
@@ -178,6 +197,10 @@ public class ApiPrescriptionController {
         if (prescription.getIsPaid()==true)
             return new ResponseEntity<>("Đơn thuốc này đã được thanh toán", HttpStatus.BAD_REQUEST);
         
+        PrescriptionReservations r = this.prescriptionReservationService.getByPrescriptionId(prescriptionId);
+        if (r != null && Boolean.TRUE.equals(r.getIsExpired()))
+            return new ResponseEntity<>("Đơn thuốc đã hết hạn thanh toán. Vui lòng liên hệ bác sĩ kê đơn mới.", HttpStatus.BAD_REQUEST);
+        
         Payments payment = prescription.getPaymentId();
         
         if(payment == null)
@@ -187,14 +210,63 @@ public class ApiPrescriptionController {
             payment.setStatus(PaymentStatus.COMPLETED.name());
             this.paymentService.save(payment);
             this.prescriptionService.confirmPayment(prescriptionId, payment.getId());
-            this.prescriptionService.deductStock(prescriptionId);
+            this.prescriptionReservationService.confirmPaid(prescriptionId);
             
         }
         catch(RuntimeException ex){
             return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(HttpStatus.OK);
-    } 
+    }
+    
+    
+    @GetMapping("/api/secure/pharmacist/prescriptions")
+    public ResponseEntity<?> getPharmacistPrescriptions(Principal principal){
+        
+        Users u = this.userService.getUserByUserName(principal.getName());
+        
+        if (u == null) 
+            return new ResponseEntity<>("Không tìm thấy người dùng", HttpStatus.UNAUTHORIZED);
+        try {
+            List<PrescriptionReservations> list = this.prescriptionReservationService.getPaidAndNotDispensed();
+            return new ResponseEntity<>(list,HttpStatus.OK);
+        } catch (RuntimeException ex){
+            return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+    
+    @PostMapping("/api/secure/pharmacist/prescriptions/{id}/dispense")
+    public ResponseEntity<?> dispensePrescription(@PathVariable("id") int id,
+            Principal principal){
+        
+        Users u = this.userService.getUserByUserName(principal.getName());
+        
+        if (u == null)
+            return new ResponseEntity<>("Không tìm thấy người dùng", HttpStatus.UNAUTHORIZED);
+        
+        PrescriptionReservations p = this.prescriptionReservationService.getByPrescriptionId(id);
+        if (p == null)
+            return new ResponseEntity<>("Không tìm thấy đơn thuốc", HttpStatus.NOT_FOUND);
+        if (!Boolean.TRUE.equals(p.getIsPaid()))
+            return new ResponseEntity<>("Đơn thuốc chưa được thanh toán", HttpStatus.BAD_REQUEST);
+        if (Boolean.TRUE.equals(p.getIsDispensed()))
+            return new ResponseEntity<>("Đơn thuốc đã được cấp phát trước đó", HttpStatus.BAD_REQUEST);
+        
+        try{
+            this.prescriptionReservationService.confirmDispensed(id);
+            Prescriptions pre = this.prescriptionService.getById(id);
+            pre.setIsDispensed(true);
+            this.prescriptionService.save(pre);
+            Users patientUser = p.getPatientId().getUserId();
+            String doctorName = p.getDoctorId().getUserId().getName();
+            this.notificationService.createPrescriptionDispensedNotification(patientUser, doctorName);
+            
+            
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (RuntimeException ex){
+            return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
     
     private Map<String,Object> createPaymentResponse(Payments payment, Prescriptions prescription){
         Map<String,Object> res = new HashMap<>();

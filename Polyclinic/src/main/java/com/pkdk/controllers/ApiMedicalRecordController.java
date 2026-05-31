@@ -12,6 +12,7 @@ import com.pkdk.service.AppointmentService;
 import com.pkdk.service.MedicalRecordService;
 import com.pkdk.service.UserService;
 import java.security.Principal;
+import java.util.Date;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -69,6 +70,8 @@ public class ApiMedicalRecordController {
         MedicalRecords m = this.medicalRecordService.getByAppointmentId(appointmentId);
         if (m!=null)
             return new ResponseEntity<>("Lịch hẹn này đã tồn tại hồ sơ bệnh án", HttpStatus.BAD_REQUEST);
+        if (record.getFollowUpDate() != null && record.getFollowUpDate().before(new Date()))
+            return new ResponseEntity<>("Ngày tái khám không được ở trong quá khứ", HttpStatus.BAD_REQUEST);
         record.setId(null);
         record.setAppointmentId(a);
         this.medicalRecordService.save(record);
@@ -89,12 +92,14 @@ public class ApiMedicalRecordController {
         if (m==null)
             return new ResponseEntity<>("Không tìm thấy hồ sơ bệnh án",HttpStatus.BAD_REQUEST);
         
+        if (record.getFollowUpDate() != null && record.getFollowUpDate().before(new Date()))
+            return new ResponseEntity<>("Ngày tái khám không được ở trong quá khứ", HttpStatus.BAD_REQUEST);
         m.setChiefComplaint(record.getChiefComplaint());
         m.setDiagnosis(record.getDiagnosis());
         m.setNotes(record.getNotes());
         m.setFollowUpDate(record.getFollowUpDate());
         m.setTreatmentPlan(record.getTreatmentPlan());
-        
+
         this.medicalRecordService.save(m);
         return new ResponseEntity<>(m, HttpStatus.OK);
     }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { authApis, endpoints } from "../../configs/Api";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
@@ -15,6 +15,7 @@ const MedicalHistory = () => {
     const [paymentData, setPaymentData] = useState({});
     const [selectedRecord, setSelectedRecord] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [countdowns, setCountdowns] = useState({});
 
     const formatDateTime = (dateStr) => {
         if (!dateStr) return "-";
@@ -52,6 +53,49 @@ const MedicalHistory = () => {
     useEffect(() => {
         loadHistory();
     }, []);
+
+    useEffect(() => {
+        const timer = setInterval(() => {
+            const now = new Date();
+            const updated = {};
+            const newlyExpired = [];
+            (prescriptions || []).forEach(p => {
+                const res = p.prescriptionReservations;
+                if (res && !res.isExpired && !p.isPaid && res.expiresAt) {
+                    const diff = new Date(res.expiresAt) - now;
+                    if (diff > 0) {
+                        const h = Math.floor(diff / 3600000);
+                        const m = Math.floor((diff % 3600000) / 60000);
+                        const s = Math.floor((diff % 60000) / 1000);
+                        const fmt = (n) => String(n).padStart(2, '0');
+                        updated[p.id] = h > 0
+                            ? `${fmt(h)}:${fmt(m)}:${fmt(s)}`
+                            : `${fmt(m)}:${fmt(s)}`;
+                    } else {
+                        newlyExpired.push(p.id);
+                    }
+                }
+            });
+            setCountdowns(updated);
+
+            if (newlyExpired.length > 0) {
+                setPrescriptions(prev =>
+                    prev.map(p =>
+                        newlyExpired.includes(p.id)
+                            ? {
+                                ...p,
+                                prescriptionReservations: {
+                                    ...p.prescriptionReservations,
+                                    isExpired: true
+                                }
+                            }
+                            : p
+                    )
+                );
+            }
+        }, 1000);
+        return () => clearInterval(timer);
+    }, [prescriptions]);
 
 
     const createPrescriptionPayment = async (prescriptionId) => {
@@ -214,7 +258,16 @@ const MedicalHistory = () => {
                                         <span className="fw-semibold">
                                             Đơn thuốc #{idx + 1} - <Moment format="DD/MM/YYYY">{p.ngayTao}</Moment>
                                         </span>
-                                        {p.isPaid ? <Badge bg="success">Đã thanh toán</Badge> : <Badge bg="warning" text="dark">Chưa thanh toán</Badge>}
+                                        {p.prescriptionReservations?.isExpired
+                                            ? <Badge bg="danger">Đã hết hạn</Badge>
+                                            : p.isPaid && p.isDispensed
+                                                ? <Badge bg="primary">Đã cấp phát</Badge>
+                                                : p.isPaid
+                                                    ? <Badge bg="success">Đã thanh toán — Chờ cấp phát</Badge>
+                                                    : countdowns[p.id]
+                                                        ? <Badge bg="warning" text="dark">Còn {countdowns[p.id]}</Badge>
+                                                        : <Badge bg="warning" text="dark">Chưa thanh toán</Badge>
+                                        }
                                     </div>
 
 
@@ -257,7 +310,7 @@ const MedicalHistory = () => {
                                         </tfoot>
                                     </Table>
 
-                                    {!p.isPaid && (
+                                    {!p.isPaid && !p.prescriptionReservations?.isExpired && (
                                         <div className="mt-2">
                                             {!paymentData[p.id] ? (
                                                 <Button variant="primary" size="sm" onClick={() => createPrescriptionPayment(p.id)}>
@@ -272,6 +325,12 @@ const MedicalHistory = () => {
                                                     </Button>
                                                 </div>
                                             )}
+                                        </div>
+                                    )}
+                                    {p.prescriptionReservations?.isExpired && (
+                                        <div className="mt-2 text-danger small">
+                                            <i className="bi bi-exclamation-circle me-1"></i>
+                                            Đơn thuốc đã hết hạn. Vui lòng liên hệ bác sĩ để kê đơn mới.
                                         </div>
                                     )}
                                 </div>

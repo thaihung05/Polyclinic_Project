@@ -13,6 +13,9 @@ import java.util.List;
  */
 public interface StatsService {
     List<Object[]> patientStats(String fromDate, String toDate);
+    List<Object[]> patientByAgeStats(String fromDate, String toDate);
+    List<Object[]> patientByGenderStats(String fromDate, String toDate);
+    List<Object[]> patientBySpecialtyStats(String fromDate, String toDate);
     List<Object[]> serviceUsageStats(String fromDate, String toDate);
     List<Object[]> commonDiseaseStats(String fromDate, String toDate);
     List<Object[]> revenueSummaryStats(String fromDate, String toDate);

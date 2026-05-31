@@ -116,7 +116,7 @@ const AppointmentList = () => {
                             <tr key={a.id}>
                                 <td>{i + 1}</td>
                                 <td>{a.patientId?.userId?.name}</td>
-                                <td>{a.scheduledAt}</td>
+                                <td>{a.scheduledAt ? new Date(a.scheduledAt).toLocaleString("vi-VN") : "—"}</td>
                                 <td>{a.symptoms}</td>
                                 <td>
                                     {a.status === "CONFIRMED" && a.meetingUrl ? (

@@ -4,7 +4,6 @@
  */
 package com.pkdk.pojo;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Basic;
 import jakarta.persistence.CascadeType;
@@ -19,6 +18,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
@@ -41,21 +41,26 @@ import java.util.Date;
     @NamedQuery(name = "Prescriptions.findByNote", query = "SELECT p FROM Prescriptions p WHERE p.note = :note")})
 public class Prescriptions implements Serializable {
 
+    @Basic(optional = false)
+    @NotNull
+    @Column(name = "ngay_tao")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date ngayTao;
+    @Size(max = 250)
+    @Column(name = "note")
+    private String note;
+    @Column(name = "is_dispensed", columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private Boolean isDispensed = false;
+    @JsonIgnoreProperties({"patientId","doctorId","prescriptionId"})
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "prescriptionId")
+    private PrescriptionReservations prescriptionReservations;
+
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Basic(optional = false)
     @Column(name = "id")
     private Integer id;
-    @Basic(optional = false)
-    @NotNull
-    @Column(name = "ngay_tao")
-    @Temporal(TemporalType.TIMESTAMP)
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Ho_Chi_Minh")
-    private Date ngayTao;
-    @Size(max = 250)
-    @Column(name = "note")
-    private String note;
     @JsonIgnoreProperties({"prescriptionId"})
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "prescriptionId", fetch = FetchType.EAGER)
     private Collection<PrescriptionItems> prescriptionItemsCollection;
@@ -96,13 +101,6 @@ public class Prescriptions implements Serializable {
         this.ngayTao = ngayTao;
     }
 
-    public String getNote() {
-        return note;
-    }
-
-    public void setNote(String note) {
-        this.note = note;
-    }
 
     public Collection<PrescriptionItems> getPrescriptionItemsCollection() {
         return prescriptionItemsCollection;
@@ -159,6 +157,36 @@ public class Prescriptions implements Serializable {
     @Override
     public String toString() {
         return "com.pkdk.pojo.Prescriptions[ id=" + id + " ]";
+    }
+
+    /**
+     * @return the isDispensed
+     */
+    public Boolean getIsDispensed() {
+        return isDispensed;
+    }
+
+    /**
+     * @param isDispensed the isDispensed to set
+     */
+    public void setIsDispensed(Boolean isDispensed) {
+        this.isDispensed = isDispensed;
+    }
+
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
+    }
+
+    public PrescriptionReservations getPrescriptionReservations() {
+        return prescriptionReservations;
+    }
+
+    public void setPrescriptionReservations(PrescriptionReservations prescriptionReservations) {
+        this.prescriptionReservations = prescriptionReservations;
     }
 
 }

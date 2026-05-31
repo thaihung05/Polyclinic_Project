@@ -87,7 +87,7 @@ const AppointmentDetail = () => {
                 chiefComplaint: res.data.chiefComplaint || "",
                 diagnosis: res.data.diagnosis || "",
                 treatmentPlan: res.data.treatmentPlan || "",
-                followUpDate: new Date(res.data.followUpDate).toISOString().slice(0, 16),
+                followUpDate: res.data.followUpDate ? new Date(res.data.followUpDate).toISOString().slice(0, 16) : "",
                 notes: res.data.notes || ""
             });
         } catch {
@@ -282,7 +282,7 @@ const AppointmentDetail = () => {
         try {
             const payload = {
                 ...recordForm,
-                followUpDate: recordForm.followUpDate.replace('T', ' ') + ':00'
+                followUpDate: recordForm.followUpDate ? recordForm.followUpDate.replace('T', ' ') + ':00' : null
             };
             if (record) {
                 const res = await authApis().put(endpoints["update-medical-record"](record.id), payload);
@@ -464,6 +464,7 @@ const AppointmentDetail = () => {
                                                     <Form.Control
                                                         type="datetime-local"
                                                         value={recordForm.followUpDate}
+                                                        min={new Date().toISOString().slice(0, 16)}
                                                         onChange={e => setRecordForm(p => ({ ...p, followUpDate: e.target.value }))}
                                                     />
                                                 </Form.Group>

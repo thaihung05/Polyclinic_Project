@@ -107,5 +107,15 @@ public class MedicineRepositoryImpl implements MedicineRepository{
             s.merge(m);
         }
     }
+
+    @Override
+    public void restoreStock(int medicineId, int quantity) {
+        Session s = this.factory.getObject().getCurrentSession();
+        Medicines m = s.get(Medicines.class, medicineId);
+        if (m != null){
+            m.setStockQuantity(m.getStockQuantity() + quantity);
+            s.merge(m);
+        }
+    }
     
 }

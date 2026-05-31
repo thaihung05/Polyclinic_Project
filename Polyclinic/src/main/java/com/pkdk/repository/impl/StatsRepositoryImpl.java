@@ -73,7 +73,7 @@ public class StatsRepositoryImpl implements StatsRepository {
                 + "FROM Appointments a WHERE a.patientId.dateOfBirth IS NOT NULL ";
 
         if (hasDate(fromDate)) hql += "AND a.scheduledAt >= :fromDate ";
-        if (hasDate(toDate))   hql += "AND a.scheduledAt <= :toDate ";
+        if (hasDate(toDate)) hql += "AND a.scheduledAt <= :toDate ";
         hql += "GROUP BY a.patientId.dateOfBirth, a.patientId.gender, a.doctorId.specialtyId.name";
         
         Query<Object[]> q = s.createQuery(hql, Object[].class);
@@ -90,6 +90,61 @@ public class StatsRepositoryImpl implements StatsRepository {
             map.get(key)[3] = (Long) map.get(key)[3] + (Long) row[3];
         }
         return new ArrayList<>(map.values());
+    }
+
+    @Override
+    public List<Object[]> patientByAgeStats(String fromDate, String toDate) {
+        Session s = this.factory.getObject().getCurrentSession();
+        String hql = "SELECT a.patientId.dateOfBirth, COUNT(DISTINCT a.patientId.id) "
+                + "FROM Appointments a WHERE a.patientId.dateOfBirth IS NOT NULL ";
+        if (hasDate(fromDate)) hql += "AND a.scheduledAt >= :fromDate ";
+        if (hasDate(toDate)) hql += "AND a.scheduledAt <= :toDate ";
+        hql += "GROUP BY a.patientId.dateOfBirth";
+        Query<Object[]> q = s.createQuery(hql, Object[].class);
+        if (hasDate(fromDate)) q.setParameter("fromDate", parseDate(fromDate));
+        if (hasDate(toDate)) q.setParameter("toDate", parseDateEndOfDay(toDate));
+
+        Map<String, Long> map = new LinkedHashMap<>();
+        for (Object[] row : q.getResultList()) {
+            String group = getAgeGroup((Date) row[0]);
+            if (!map.containsKey(group)) {
+                map.put(group, 0L);
+            }
+            map.put(group, map.get(group) + (Long) row[1]);
+        }
+        List<Object[]> result = new ArrayList<>();
+        for (Map.Entry<String, Long> entry : map.entrySet()) {
+            result.add(new Object[]{entry.getKey(), entry.getValue()});
+        }
+        return result;
+    }
+
+    @Override
+    public List<Object[]> patientByGenderStats(String fromDate, String toDate) {
+        Session s = this.factory.getObject().getCurrentSession();
+        String hql = "SELECT a.patientId.gender, COUNT(DISTINCT a.patientId.id) "
+                + "FROM Appointments a WHERE a.patientId.gender IS NOT NULL ";
+        if (hasDate(fromDate)) hql += "AND a.scheduledAt >= :fromDate ";
+        if (hasDate(toDate))   hql += "AND a.scheduledAt <= :toDate ";
+        hql += "GROUP BY a.patientId.gender ORDER BY COUNT(DISTINCT a.patientId.id) DESC";
+        Query<Object[]> q = s.createQuery(hql, Object[].class);
+        if (hasDate(fromDate)) q.setParameter("fromDate", parseDate(fromDate));
+        if (hasDate(toDate))   q.setParameter("toDate", parseDateEndOfDay(toDate));
+        return q.getResultList();
+    }
+
+    @Override
+    public List<Object[]> patientBySpecialtyStats(String fromDate, String toDate) {
+        Session s = this.factory.getObject().getCurrentSession();
+        String hql = "SELECT a.doctorId.specialtyId.name, COUNT(DISTINCT a.patientId.id) "
+                + "FROM Appointments a WHERE 1=1 ";
+        if (hasDate(fromDate)) hql += "AND a.scheduledAt >= :fromDate ";
+        if (hasDate(toDate))   hql += "AND a.scheduledAt <= :toDate ";
+        hql += "GROUP BY a.doctorId.specialtyId.name ORDER BY COUNT(DISTINCT a.patientId.id) DESC";
+        Query<Object[]> q = s.createQuery(hql, Object[].class);
+        if (hasDate(fromDate)) q.setParameter("fromDate", parseDate(fromDate));
+        if (hasDate(toDate))   q.setParameter("toDate", parseDateEndOfDay(toDate));
+        return q.getResultList();
     }
 
     @Override

@@ -109,12 +109,12 @@ public class AdminUserController {
         this.userService.addOrUpdate(u, rawPassword, specialtyId);
         if ("ROLE_DOCTOR".equals(u.getRole())) {
             Doctors d = this.doctorService.getDoctorByUserId(u.getId());
-            if (d != null){
-                if (bio != null) d.setBio(bio);
+            if (d != null) {
+                if (bio != null && !bio.isEmpty()) d.setBio(bio);
                 if (consultationFee != null) d.setConsultationFee(consultationFee);
                 d.setAvailableOnline(availableOnline);
-                d.setGender(gender);
-                d.setAddress(address);
+                if (gender != null && !gender.isEmpty()) d.setGender(gender);
+                if (address != null && !address.isEmpty()) d.setAddress(address);
                 if (dateOfBirthStr != null && !dateOfBirthStr.isEmpty()) {
                     try { d.setDateOfBirth(new SimpleDateFormat("yyyy-MM-dd").parse(dateOfBirthStr)); }
                     catch (ParseException e) { }
@@ -123,9 +123,9 @@ public class AdminUserController {
             }
         } else if ("ROLE_PATIENT".equals(u.getRole())) {
             Patients p = this.patientService.getPatientByUserId(u.getId());
-            if (p != null){
-                p.setGender(gender);
-                p.setAddress(address);
+            if (p != null) {
+                if (gender != null && !gender.isEmpty()) p.setGender(gender);
+                if (address != null && !address.isEmpty()) p.setAddress(address);
                 if (dateOfBirthStr != null && !dateOfBirthStr.isEmpty()) {
                     try { p.setDateOfBirth(new SimpleDateFormat("yyyy-MM-dd").parse(dateOfBirthStr)); }
                     catch (ParseException e) { }

@@ -31,6 +31,9 @@ public class AdminStatsController {
         model.addAttribute("toDate", toDate);
         
         model.addAttribute("patientStats", this.statsService.patientStats(fromDate, toDate));
+        model.addAttribute("patientByAgeStats", this.statsService.patientByAgeStats(fromDate, toDate));
+        model.addAttribute("patientByGenderStats", this.statsService.patientByGenderStats(fromDate, toDate));
+        model.addAttribute("patientBySpecialtyStats", this.statsService.patientBySpecialtyStats(fromDate, toDate));
         model.addAttribute("revenueDetailStats", this.statsService.revenueDetailStats(fromDate, toDate));
         model.addAttribute("serviceUsageStats", this.statsService.serviceUsageStats(fromDate, toDate));
         model.addAttribute("revenueSummaryStats", this.statsService.revenueSummaryStats(fromDate, toDate));

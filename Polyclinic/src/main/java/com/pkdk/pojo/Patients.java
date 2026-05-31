@@ -41,6 +41,16 @@ import java.util.Date;
 
 public class Patients implements Serializable {
 
+    @Size(max = 6)
+    @Column(name = "gender")
+    private String gender;
+    @Size(max = 500)
+    @Column(name = "address")
+    private String address;
+    @JsonIgnore
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "patientId")
+    private Collection<PrescriptionReservations> prescriptionReservationsCollection;
+
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -50,12 +60,6 @@ public class Patients implements Serializable {
     @Column(name = "date_of_birth")
     @Temporal(TemporalType.TIMESTAMP)
     private Date dateOfBirth;
-    @Size(max = 6)
-    @Column(name = "gender")
-    private String gender;
-    @Size(max = 500)
-    @Column(name = "address")
-    private String address;
     @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "patientId")
     private Collection<Appointments> appointmentsCollection;
@@ -86,21 +90,6 @@ public class Patients implements Serializable {
         this.dateOfBirth = dateOfBirth;
     }
 
-    public String getGender() {
-        return gender;
-    }
-
-    public void setGender(String gender) {
-        this.gender = gender;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
 
     public Collection<Appointments> getAppointmentsCollection() {
         return appointmentsCollection;
@@ -141,6 +130,30 @@ public class Patients implements Serializable {
     @Override
     public String toString() {
         return "com.pkdk.pojo.Patients[ id=" + id + " ]";
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public Collection<PrescriptionReservations> getPrescriptionReservationsCollection() {
+        return prescriptionReservationsCollection;
+    }
+
+    public void setPrescriptionReservationsCollection(Collection<PrescriptionReservations> prescriptionReservationsCollection) {
+        this.prescriptionReservationsCollection = prescriptionReservationsCollection;
     }
     
 }

@@ -24,4 +24,7 @@ public interface NotificationService {
     Notifications createCancelNotificationForPatient(Users user, String scheduledAt, String cancelledBy);
     Notifications createCancelNotificationForDoctor(Users doctorUser, String patientName, String scheduledAt);
     void markAsRead(Notifications n);
+    Notifications createPrescriptionDispensedNotification(Users user, String doctorName);
+    Notifications createPrescriptionExpiredNotification(Users user, java.util.Date expiresAt);
+    Notifications createPrescriptionCreatedNotification(Users user, String doctorName, java.util.Date expiresAt);
 }

@@ -59,6 +59,8 @@ export const endpoints = {
     'prescription-payment-create': (id) => `/secure/prescriptions/${id}/payment/create`,
     'prescription-payment-confirm': (id) => `/secure/prescriptions/${id}/payment/confirm`,
 
+    'pharmacist-prescriptions': '/secure/pharmacist/prescriptions',
+    'dispense-prescription': (id) => `/secure/pharmacist/prescriptions/${id}/dispense`,
 };
 
 export default axios.create({

@@ -20,4 +20,5 @@ public interface MedicineService {
     List<Medicines> getLowStock(int threshold);
     List<Medicines> getNearExiry(int days);
     void deductStock(int medicineId, int quantity);
+    void restoreStock(int medicineId, int quantity);
 }

@@ -43,12 +43,6 @@ import java.util.Date;
     @NamedQuery(name = "Doctors.findByRating", query = "SELECT d FROM Doctors d WHERE d.rating = :rating")})
 public class Doctors implements Serializable {
 
-    private static final long serialVersionUID = 1L;
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Basic(optional = false)
-    @Column(name = "id")
-    private Integer id;
     @Size(max = 500)
     @Column(name = "bio")
     private String bio;
@@ -61,6 +55,22 @@ public class Doctors implements Serializable {
     @NotNull
     @Column(name = "available_online")
     private boolean availableOnline;
+    @Size(max = 6)
+    @Column(name = "gender")
+    private String gender;
+    @Size(max = 500)
+    @Column(name = "address")
+    private String address;
+    @JsonIgnore
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "doctorId")
+    private Collection<PrescriptionReservations> prescriptionReservationsCollection;
+
+    private static final long serialVersionUID = 1L;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Basic(optional = false)
+    @Column(name = "id")
+    private Integer id;
     @Column(name = "rating")
     private BigDecimal rating;
     @JsonIgnore
@@ -75,12 +85,6 @@ public class Doctors implements Serializable {
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     @OneToOne(optional = false)
     private Users userId;
-    @Size(max = 6)
-    @Column(name = "gender")
-    private String gender;
-    @Size(max = 500)
-    @Column(name = "address")
-    private String address;
     @Column(name = "date_of_birth")
     @Temporal(TemporalType.TIMESTAMP)
     private Date dateOfBirth;
@@ -106,13 +110,6 @@ public class Doctors implements Serializable {
         this.id = id;
     }
 
-    public String getBio() {
-        return bio;
-    }
-
-    public void setBio(String bio) {
-        this.bio = bio;
-    }
 
     public BigDecimal getConsultationFee() {
         return consultationFee;
@@ -170,21 +167,6 @@ public class Doctors implements Serializable {
         this.userId = userId;
     }
     
-    public String getGender() {
-        return gender;
-    }
-
-    public void setGender(String gender) {
-        this.gender = gender;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
 
     public Date getDateOfBirth() {
         return dateOfBirth;
@@ -217,6 +199,38 @@ public class Doctors implements Serializable {
     @Override
     public String toString() {
         return "com.pkdk.pojo.Doctors[ id=" + id + " ]";
+    }
+
+    public String getBio() {
+        return bio;
+    }
+
+    public void setBio(String bio) {
+        this.bio = bio;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public Collection<PrescriptionReservations> getPrescriptionReservationsCollection() {
+        return prescriptionReservationsCollection;
+    }
+
+    public void setPrescriptionReservationsCollection(Collection<PrescriptionReservations> prescriptionReservationsCollection) {
+        this.prescriptionReservationsCollection = prescriptionReservationsCollection;
     }
     
 }
