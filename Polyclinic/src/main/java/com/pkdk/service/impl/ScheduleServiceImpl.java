@@ -66,5 +66,10 @@ public class ScheduleServiceImpl implements ScheduleService{
         schedules.setIsActive(true);
         this.scheduleRepo.save(schedules);
     }
+
+    @Override
+    public DoctorSchedules getByIdWithLock(int id) {
+        return this.scheduleRepo.getByIdWithLock(id);
+    }
     
 }

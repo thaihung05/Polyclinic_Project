@@ -6,10 +6,13 @@ package com.pkdk.repository.impl;
 
 import com.pkdk.pojo.Appointments;
 import com.pkdk.repository.AppointmentRepository;
+
+import java.util.Calendar;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @PropertySource("classpath:configs.properties")
 public class AppointmentRepositoryImpl implements AppointmentRepository{
-    
+   
     @Autowired
     private LocalSessionFactoryBean factory;
     
@@ -59,12 +62,22 @@ public class AppointmentRepositoryImpl implements AppointmentRepository{
     @Override
     public void save(Appointments appointment) {
         Session s = this.factory.getObject().getCurrentSession();
-        if (appointment.getId()==null)
+        if (appointment.getId() == null) {
             s.persist(appointment);
-        else
+        } else {
             s.merge(appointment);
+        }
     }
 
+    @Override
+    public boolean existsByPatientAndTime(int patientId, Date scheduledAt) {
+        Session s = this.factory.getObject().getCurrentSession();
+        Query q = s.createQuery(
+                "SELECT COUNT(a) FROM Appointments a "
+                + "WHERE a.patientId.id = :patientId "
+                + "AND a.scheduledAt = :scheduledAt "
+                + "AND a.status NOT IN ('CANCELLED', 'NO_SHOW')", // ← lịch đã hủy thì không tính
+                Long.class);
     @Override
     public boolean existsByPatientAndTime(int patientId, Date scheduledAt) {
         Session s = this.factory.getObject().getCurrentSession();
@@ -149,5 +162,37 @@ public class AppointmentRepositoryImpl implements AppointmentRepository{
             q.setParameter("toDate", parseDateEndOfDay(toDate));
         return q.getSingleResult();
     }
-    
+
+    @Override
+    public boolean existsByPatientDoctorAndDate(int patientId, int doctorId, Date date) {
+        Session s = this.factory.getObject().getCurrentSession();
+
+        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("Asia/Ho_Chi_Minh"));
+        cal.setTime(date);
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        Date startOfDay = cal.getTime();
+
+        cal.set(Calendar.HOUR_OF_DAY, 23);
+        cal.set(Calendar.MINUTE, 59);
+        cal.set(Calendar.SECOND, 59);
+        Date endOfDay = cal.getTime();
+
+        Query q = s.createQuery("SELECT COUNT(a) FROM Appointments a WHERE a.patientId.id = :patientId "
+                + "AND a.doctorId.id = :doctorId "
+                + "AND a.scheduledAt >= :startOfDay "
+                + "AND a.scheduledAt <= :endOfDay "
+                + "AND a.status NOT IN ('CANCELLED', 'NO_SHOW')", Long.class);
+
+        q.setParameter("patientId", patientId);
+        q.setParameter("doctorId", doctorId);
+        q.setParameter("startOfDay", startOfDay);
+        q.setParameter("endOfDay", endOfDay);
+
+        return ((Long) q.getSingleResult() > 0);
+
+    }
+
 }

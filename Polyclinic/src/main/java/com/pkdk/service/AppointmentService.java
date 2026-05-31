@@ -5,6 +5,7 @@
 package com.pkdk.service;
 
 import com.pkdk.pojo.Appointments;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -21,4 +22,8 @@ public interface AppointmentService {
     Appointments book(int doctorId, int scheduleId, int patientId, String symptoms);
     boolean existsByPatientAndTime(int patientId, java.util.Date scheduledAt);
     Appointments bookFollowUp(int doctorId, int scheduleId, int patientId, String sysptoms);
+    boolean existsByPatientDoctorAndDate(int patientId, int doctorId, Date date);
+    Appointments cancelAppointments(int appointmentId, String cancelReason, String cancelBy);
+    Appointments finishAppointments(int appointmentId, String newStatus);
+    Appointments addMeetingUrl(int appointmentId, String meetingUrl);
 }

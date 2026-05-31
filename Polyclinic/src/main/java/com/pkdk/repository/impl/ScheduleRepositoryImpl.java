@@ -8,6 +8,7 @@ import com.pkdk.pojo.DoctorSchedules;
 import com.pkdk.repository.ScheduleRepository;
 import java.util.Date;
 import java.util.List;
+import org.hibernate.LockMode;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,5 +90,13 @@ public class ScheduleRepositoryImpl implements ScheduleRepository {
         List<DoctorSchedules> list = q.getResultList();
         return list.isEmpty() ? null : list.get(0);
     }
+
+    @Override
+    public DoctorSchedules getByIdWithLock(int id) {
+        Session s = this.factory.getObject().getCurrentSession();
+        return s.get(DoctorSchedules.class, id, LockMode.PESSIMISTIC_WRITE);
+    }
+    
+    
 
 }
