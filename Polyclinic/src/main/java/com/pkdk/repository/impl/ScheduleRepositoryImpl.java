@@ -8,6 +8,7 @@ import com.pkdk.pojo.DoctorSchedules;
 import com.pkdk.repository.ScheduleRepository;
 import java.util.Date;
 import java.util.List;
+import org.hibernate.LockMode;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,5 +89,13 @@ public class ScheduleRepositoryImpl implements ScheduleRepository {
                 .setMaxResults(1);
         return (DoctorSchedules) q.uniqueResult();
     }
+
+    @Override
+    public DoctorSchedules getByIdWithLock(int id) {
+        Session s = this.factory.getObject().getCurrentSession();
+        return s.get(DoctorSchedules.class, id, LockMode.PESSIMISTIC_WRITE);
+    }
+    
+    
 
 }

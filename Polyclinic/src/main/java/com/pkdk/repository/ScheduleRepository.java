@@ -19,4 +19,5 @@ public interface ScheduleRepository {
     void delete(int id);
     boolean isOverlap(int doctorId, Date start, Date end, Integer excludeId);
     DoctorSchedules getByDoctorAndStartTime(int doctorId, Date startTime);
+    DoctorSchedules getByIdWithLock(int id);
 }

@@ -5,6 +5,7 @@
 package com.pkdk.repository;
 
 import com.pkdk.pojo.Appointments;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -16,7 +17,7 @@ public interface AppointmentRepository {
     List<Appointments> getByPatientId(int patientId);
     Appointments getById(int id);
     void save(Appointments appointment);
-//    void delete(int id);
     boolean existsByPatientAndTime(int patientId, java.util.Date scheduledAt);
+    boolean existsByPatientDoctorAndDate(int patientId, int doctorId, Date date);
 }
 

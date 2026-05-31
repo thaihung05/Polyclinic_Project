@@ -20,4 +20,5 @@ public interface ScheduleService {
     void deactivate(DoctorSchedules schedule);
     void delete(int id);
     DoctorSchedules getByDoctorAndStartTime(int doctorId, Date startTime);
+    DoctorSchedules getByIdWithLock(int id);
 }

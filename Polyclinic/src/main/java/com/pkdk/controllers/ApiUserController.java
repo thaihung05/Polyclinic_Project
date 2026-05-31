@@ -194,14 +194,16 @@ public class ApiUserController {
                 info.put("address", null);
                 info.put("dateOfBirth", null);
             }
-        } else if (UserRole.ROLE_DOCTOR.name().equals(u.getRole())) {
+        }
+        else if(UserRole.ROLE_DOCTOR.name().equals(u.getRole())){
             Doctors d = this.doctorService.getDoctorByUserId(u.getId());
-            if (d != null) {
+            if (d!=null){
                 info.put("gender", d.getGender());
                 info.put("address", d.getAddress());
                 info.put("dateOfBirth", d.getDateOfBirth());
                 info.put("specialty", d.getSpecialtyId() != null ? d.getSpecialtyId().getName() : null);
-            } else {
+            }
+            else{
                 info.put("gender", null);
                 info.put("address", null);
                 info.put("dateOfBirth", null);
@@ -225,7 +227,7 @@ public class ApiUserController {
         phone = phone != null ? phone.trim() : null;
         email = email != null ? email.trim() : null;
 
-        if (phone != null && !phone.isEmpty()) {
+        if (phone != null && !phone.trim().isEmpty()) {
             if (!phone.matches("^\\d{10}$")) {
                 return new ResponseEntity<>("Số điện thoại phải có 10 số", HttpStatus.BAD_REQUEST);
             }
@@ -238,15 +240,12 @@ public class ApiUserController {
             }
             info.put("name", name);
         }
-
-        if (email != null) {
-            if (email.isEmpty()){
-                return new ResponseEntity<>("Email không được để trống", HttpStatus.BAD_REQUEST);
-            }
-            if (!email.matches("^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,}$")) {
-                return new ResponseEntity<>("Email không hợp lệ", HttpStatus.BAD_REQUEST);
-            }
-            info.put("email", email);
+        
+        if (email == null || email.isEmpty()) {
+            return new ResponseEntity<>("Email không được để trống", HttpStatus.BAD_REQUEST);
+        }
+        if (!email.matches("^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,}$")) {
+            return new ResponseEntity<>("Email không hợp lệ", HttpStatus.BAD_REQUEST);
         }
 
         try {
@@ -301,12 +300,13 @@ public class ApiUserController {
 
         return new ResponseEntity<>("Đổi mật khẩu thành công", HttpStatus.OK);
     }
-
-    private void updatePatientProfile() {
-
+    
+    
+    private void updatePatientProfile(){
+        
     }
-
-    private void updateDoctorProfile() {
-
+    
+    private void updateDoctorProfile(){
+        
     }
 }
