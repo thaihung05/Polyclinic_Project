@@ -6,6 +6,7 @@ import Header from "../../../components/Header";
 import Footer from "../../../components/Footer";
 import { MyUserContext } from "../../../configs/Contexts";
 import Moment from "react-moment";
+import MySpinner from "../../../components/MySpinner";
 
 const PAGE_SIZE = 5;
 
@@ -70,6 +71,7 @@ const PatientAppointment = () => {
         if (!isConfirmed) return;
 
         try {
+            setLoading(true);
             await authApis().patch(endpoints["appointment-status"](appointment.id), {
                 status: "CANCELLED",
                 cancelReason: cancelReason || "",
@@ -80,6 +82,9 @@ const PatientAppointment = () => {
         } catch (err) {
             Swal.fire("Lỗi!", err?.response?.data || "Không thể hủy lịch hẹn.", "error");
         }
+        finally{
+            setLoading(false);
+        }
     };
 
     const totalPages = Math.ceil(appointments.length / PAGE_SIZE);
@@ -89,11 +94,9 @@ const PatientAppointment = () => {
         <>
             <Header />
             <main className="container my-4">
-                <h4 className="fw-bold mt-4 text-center">Lịch hẹn của tôi</h4>
+                <h4 className="fw-bold mb-4 text-center">Lịch hẹn của tôi</h4>
                 {loading ? (
-                    <div className="text-center py-5">
-                        <Spinner animation="border" />
-                    </div>
+                    <MySpinner/>
                 ) : appointments.length === 0 ? (
                     <div className="text-center text-muted py-5">
                         Bạn chưa có lịch hẹn nào.

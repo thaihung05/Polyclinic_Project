@@ -120,11 +120,11 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public Notifications createCancelNotificationForPatient(Users user, String scheduledAt, String cancelledBy) {
+    public Notifications createCancelNotificationForPatient(Users user, String scheduledAt) {
         Notifications n = new Notifications();
         n.setUserId(user);
         n.setTitle("Lịch hẹn đã bị hủy");
-        n.setMessage(String.format("Lịch khám vào lúc %s của bạn đã bị hủy bởi %s.",scheduledAt, cancelledBy));
+        n.setMessage(String.format("Lịch khám vào lúc %s của bạn đã bị hủy.",scheduledAt));
         n.setNgayTao(new Date());
         this.save(n);
         this.sendEmailNoti(user, n);

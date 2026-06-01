@@ -217,7 +217,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         
         String scheduledAt = new SimpleDateFormat("HH:mm dd/MM/yyyy").format(appointment.getScheduledAt());
         String patientName = appointment.getPatientId().getUserId().getName();
-        this.notificationService.createCancelNotificationForPatient(appointment.getPatientId().getUserId(), scheduledAt, cancelBy);
+        this.notificationService.createCancelNotificationForPatient(appointment.getPatientId().getUserId(), scheduledAt);
         this.notificationService.createCancelNotificationForDoctor(appointment.getDoctorId().getUserId(), patientName, scheduledAt);
         
         return appointment;

@@ -236,7 +236,7 @@ public class ApiAppointmentController {
                     return new ResponseEntity<>("Bệnh nhân chỉ được quyền hủy lịch hẹn của mình", HttpStatus.FORBIDDEN);
                 }
 
-                a = this.appointmentService.cancelAppointments(id, body.get("cancelReason"), u.getName());
+                a = this.appointmentService.cancelAppointments(id, body.get("cancelReason"), u.getRole());
 
             } else if (UserRole.ROLE_ADMIN.name().equals(role)) {
                 if (body.containsKey("cancelReason")) {
@@ -253,7 +253,7 @@ public class ApiAppointmentController {
                     String cancelledBy = u.getName();
 
                     this.notificationService.createCancelNotificationForPatient(
-                            a.getPatientId().getUserId(), scheduledAt, cancelledBy);
+                            a.getPatientId().getUserId(), scheduledAt);
 
                     this.notificationService.createCancelNotificationForDoctor(
                             a.getDoctorId().getUserId(), patientName, scheduledAt);
