@@ -17,11 +17,13 @@ export const endpoints = {
     'update-profile': '/secure/profile',
     'change-password': '/secure/profile/change-password',
     'doctor-appointments': '/secure/doctor/appointments',
+
     'appointment-status': (id) => `/secure/appointments/${id}/status`,
 
     'doctor-schedules': (doctorId) => `/secure/doctors/${doctorId}/schedules`,
     'doctor-schedule-item': (doctorId, scheduleId) => `/secure/doctors/${doctorId}/schedules/${scheduleId}`,
     'my-doctor': '/secure/doctors/me',
+
 
 
     'medicines': '/medicines',
