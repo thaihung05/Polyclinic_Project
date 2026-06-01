@@ -257,7 +257,6 @@ public class AppointmentServiceImpl implements AppointmentService {
         return appointment;
     }
 
-
     public List<Appointments> getAll(String kw, String status, String fromDate, String toDate, int page) {
         return this.appointmentRepo.getAll(kw, status, fromDate, toDate, page);
     }

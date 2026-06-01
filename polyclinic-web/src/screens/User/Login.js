@@ -9,6 +9,8 @@ import "../../styles/base.css";
 import { MyUserContext } from "../../configs/Contexts";
 import cookies from 'react-cookies';
 import { Alert } from "react-bootstrap";
+import { GoogleLogin } from '@react-oauth/google';
+import MySpinner from "../../components/MySpinner";
 
 const Login = () => {
     const [, dispatch] = useContext(MyUserContext);
@@ -100,6 +102,62 @@ const Login = () => {
 
     };
 
+    const handleGooGleSuccess = async (credentialResponse) => {
+        try {
+            setLoading(true);
+            const res = await Apis.post(endpoints['oauth-google'], {
+                credential: credentialResponse.credential
+            });
+            const token = res.data.token;
+            cookies.save('token', token, { path: '/' });
+
+            const profileRes = await authApis().get(endpoints['profile']);
+            const profile  = profileRes.data;
+
+            if (profile.role === "ROLE_DOCTOR") {
+                const doctorRes = await authApis().get(endpoints['my-doctor']);
+                profile.doctorId = doctorRes.data.doctorId;
+            }
+
+            cookies.save('user', profile, { path: '/' });
+            dispatch({
+                type: "LOGIN",
+                payload: profile
+            });
+
+            Swal.fire({
+                icon: "success",
+                title: "Đăng nhập Google thành công!"
+            });
+
+            if (profile.role === "ROLE_DOCTOR") nav("/doctor/dashboard");
+            else if (profile.role === "ROLE_PHARMACIST") nav("/pharmacist/dashboard");
+            else nav('/');
+
+        } catch (err) {
+            Swal.fire({
+                icon: "error",
+                title: "Đăng nhập Google thất bại!",
+                text: err.response?.data || "Đã xảy ra lỗi"
+            })
+        } finally{
+            setLoading(false);
+        }
+    }
+
+    if (loading) return (
+        <div style={{
+            position: 'fixed', inset: 0,
+            background: 'rgba(255,255,255,0.9)',
+            display: 'flex', flexDirection: 'column',
+            alignItems: 'center', justifyContent: 'center',
+            zIndex: 9999
+        }}>
+            <MySpinner />
+            <p className="text-muted mt-2 fw-semibold">Đang đăng nhập...</p>
+        </div>
+    )
+
     return (
         <>
             <Header />
@@ -137,6 +195,23 @@ const Login = () => {
                             {loading ? "Đang đăng nhập..." : "Đăng nhập"}
                         </button>
                     </form>
+
+                    <div className="my-3 d-flex align-items-center gap-2">
+                        <hr className="flex-grow-1" />
+                        <span className="text-muted small">Hoặc</span>
+                        <hr className="flex-grow-1" />
+                    </div>
+
+                    <div>
+                        <GoogleLogin 
+                            onSuccess={handleGooGleSuccess}
+                            onError={() => Swal.fire({
+                                icon: "error",
+                                title: "Đăng nhập Google thất bại!"
+                            })} 
+                            width="100%"
+                        />
+                    </div>
 
                     <p className="text-center mt-3">
                         Chưa có tài khoản?
