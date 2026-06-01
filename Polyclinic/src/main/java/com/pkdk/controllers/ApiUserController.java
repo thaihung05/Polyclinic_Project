@@ -194,16 +194,14 @@ public class ApiUserController {
                 info.put("address", null);
                 info.put("dateOfBirth", null);
             }
-        }
-        else if(UserRole.ROLE_DOCTOR.name().equals(u.getRole())){
+        } else if (UserRole.ROLE_DOCTOR.name().equals(u.getRole())) {
             Doctors d = this.doctorService.getDoctorByUserId(u.getId());
-            if (d!=null){
+            if (d != null) {
                 info.put("gender", d.getGender());
                 info.put("address", d.getAddress());
                 info.put("dateOfBirth", d.getDateOfBirth());
                 info.put("specialty", d.getSpecialtyId() != null ? d.getSpecialtyId().getName() : null);
-            }
-            else{
+            } else {
                 info.put("gender", null);
                 info.put("address", null);
                 info.put("dateOfBirth", null);
@@ -223,9 +221,11 @@ public class ApiUserController {
         String name = info.get("name");
         String phone = info.get("phone");
         String email = info.get("email");
+        String address = info.get("address");
         name = name != null ? name.trim() : null;
         phone = phone != null ? phone.trim() : null;
         email = email != null ? email.trim() : null;
+        address = address != null ? address.trim() : null;
 
         if (phone != null && !phone.trim().isEmpty()) {
             if (!phone.matches("^\\d{10}$")) {
@@ -240,12 +240,23 @@ public class ApiUserController {
             }
             info.put("name", name);
         }
-        
-        if (email == null || email.isEmpty()) {
-            return new ResponseEntity<>("Email không được để trống", HttpStatus.BAD_REQUEST);
+
+        if (email != null) {
+            if (email.isEmpty()) {
+                return new ResponseEntity<>("Email không được để trống", HttpStatus.BAD_REQUEST);
+            }
+            if (!email.matches("^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,}$")) {
+                return new ResponseEntity<>("Email không hợp lệ", HttpStatus.BAD_REQUEST);
+            }
+            
+            info.put("email", email);
         }
-        if (!email.matches("^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,}$")) {
-            return new ResponseEntity<>("Email không hợp lệ", HttpStatus.BAD_REQUEST);
+
+        if (address != null) {
+            if (address.isEmpty()) {
+                return new ResponseEntity<>("Địa chỉ không được để trống", HttpStatus.BAD_REQUEST);
+            }
+            info.put("address", address);
         }
 
         try {
@@ -299,14 +310,5 @@ public class ApiUserController {
         }
 
         return new ResponseEntity<>("Đổi mật khẩu thành công", HttpStatus.OK);
-    }
-    
-    
-    private void updatePatientProfile(){
-        
-    }
-    
-    private void updateDoctorProfile(){
-        
     }
 }

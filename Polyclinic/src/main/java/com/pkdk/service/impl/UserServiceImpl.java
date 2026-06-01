@@ -28,10 +28,8 @@ import com.pkdk.service.SpecialtyService;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -214,6 +212,8 @@ public class UserServiceImpl implements UserService {
         String name = info.get("name");
         String phone = info.get("phone");
         String email = info.get("email");
+        String gender = info.get("gender");
+        String address = info.get("address");
         if (name != null && !name.isEmpty()) {
             u.setName(name);
         }
@@ -254,12 +254,12 @@ public class UserServiceImpl implements UserService {
                 }
             }
 
-            String gender = info.get("gender");
+            
             if (gender != null && !gender.isEmpty()) {
                 p.setGender(gender);
             }
 
-            String address = info.get("address");
+            
             if (address != null) {
                 p.setAddress(address);
             }
@@ -276,13 +276,11 @@ public class UserServiceImpl implements UserService {
                     throw new RuntimeException("Sai định dạng ngày sinh (dd-MM-yyyy)");
                 }
             }
-
-            String gender = info.get("gender");
+            
             if (gender != null && !gender.isEmpty()) {
                 d.setGender(gender);
             }
 
-            String address = info.get("address");
             if (address != null) {
                 d.setAddress(address);
             }
