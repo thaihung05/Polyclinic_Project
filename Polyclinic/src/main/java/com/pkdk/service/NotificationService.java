@@ -21,7 +21,7 @@ public interface NotificationService {
     Notifications createPaySuccessNotification(Users user, String transactionId, BigDecimal amount);
     Notifications createFollowUpNotification(Users user, String doctorName, String scheduledAt);
     Notifications createNewBookingNotificationForDoctor(Users doctorUser, String patientName, String scheduledAt);
-    Notifications createCancelNotificationForPatient(Users user, String scheduledAt, String cancelledBy);
+    Notifications createCancelNotificationForPatient(Users user, String scheduledAt);
     Notifications createCancelNotificationForDoctor(Users doctorUser, String patientName, String scheduledAt);
     void markAsRead(Notifications n);
     Notifications createPrescriptionDispensedNotification(Users user, String doctorName);
