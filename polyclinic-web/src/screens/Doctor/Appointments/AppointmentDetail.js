@@ -344,7 +344,7 @@ const AppointmentDetail = () => {
                     </Nav.Item>
                     <Nav.Item>
                         <Nav.Link eventKey="record">
-                            Hồ sơ bệnh án {record && <i class="bi bi-bookmark-check-fill"></i>}
+                            Hồ sơ bệnh án {record && <i className="bi bi-bookmark-check-fill"></i>}
                         </Nav.Link>
                     </Nav.Item>
                     <Nav.Item>
