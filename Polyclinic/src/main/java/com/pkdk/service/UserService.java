@@ -22,6 +22,7 @@ public interface UserService extends UserDetailsService {
     void addOrUpdate(Users u, String rawPassword, Integer specialtyId);
     Users addUser(Map<String, String> info, MultipartFile avatar);
     Users getUserByUserName(String username);
+    Users getUserByEmail(String email);
     boolean authenticate(String username, String password);
     Users updateProfile(String username, Map<String, String> info, MultipartFile avatar);
     boolean changePassword(String username, String oldPassword, String newPassword);

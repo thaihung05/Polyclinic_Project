@@ -261,7 +261,7 @@ const Profile = () => {
                 <div className="profile-container">
                     <div className="avatar-wrapper">
                         <div style={{ position: 'relative', display: 'inline-block' }}>
-                            <img src={avatarPreview} alt="avatar" className="profile-avatar" style={loading ? { opacity: 0.5 } : {}} />
+                            <img src={avatarPreview} alt="avatar" className="profile-avatar" referrerPolicy="no-referrer" style={loading ? { opacity: 0.5 } : {}} />
                             {loading && (
                                 <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                     <span className="spinner-border text-primary" />

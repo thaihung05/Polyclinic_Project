@@ -111,6 +111,7 @@ const Header = () => {
                                             <img
                                                 src={user.avatar}
                                                 alt="avatar"
+                                                referrerPolicy="no-referrer"
                                                 style={{ width: 40, height: 40, borderRadius: "50%", objectFit: "cover" }}
                                             />
                                             <span className="fw-bold">{user.name}</span>
