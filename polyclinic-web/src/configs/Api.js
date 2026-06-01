@@ -8,6 +8,7 @@ export const endpoints = {
     
     'login': "/login",
     'register': "/register",
+    'oauth-google': "/auth/google",
 
     'doctors': "/doctors",
     'schedules': (doctorId) => `/doctors/${doctorId}/schedules`,

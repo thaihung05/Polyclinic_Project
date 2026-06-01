@@ -113,4 +113,12 @@ public class UserRepositoryImpl implements UserRepository {
             q.setParameter("kw", "%" + kw.trim().toLowerCase() + "%");
         return q.getSingleResult();
     }
+
+    @Override
+    public Users getUserByEmail(String email) {
+        Session s = this.factory.getObject().getCurrentSession();
+        List<Users> users = s.createQuery("FROM Users u WHERE u.email = :email" ,Users.class)
+                .setParameter("email", email).getResultList();
+        return users.isEmpty() ? null : users.get(0);
+    }
 }
