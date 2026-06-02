@@ -1,10 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { authApis, endpoints } from "../../configs/Api";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
-import { Badge, Button, Modal, Spinner, Tab, Table, Tabs } from "react-bootstrap";
+import { Badge, Button, Modal, Tab, Table, Tabs } from "react-bootstrap";
 import Swal from "sweetalert2";
 import Moment from "react-moment";
+import MySpinner from "../../components/MySpinner";
 
 
 const MedicalHistory = () => {
@@ -151,7 +152,7 @@ const MedicalHistory = () => {
         return (
             <>
                 <Header />
-                <div className="text-center py-5"><Spinner animation="border" /></div>
+                <div className="text-center py-5"><MySpinner /></div>
                 <Footer />
             </>
         );

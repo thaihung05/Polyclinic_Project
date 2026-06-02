@@ -43,7 +43,7 @@ public class ApiDoctorController {
             @RequestParam(name = "specialtyId", required = false) Integer specialtyId) {
 
         if (specialtyId == null) {
-            return new ResponseEntity<>("Thiếu specialtyId", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(this.doctorService.getAllDoctors(), HttpStatus.OK);
         }
 
         if (this.specialtyService.getSpecialtyById(specialtyId) == null) {

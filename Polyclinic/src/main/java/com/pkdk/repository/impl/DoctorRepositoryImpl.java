@@ -102,6 +102,12 @@ public class DoctorRepositoryImpl implements DoctorRepository {
     }
 
     @Override
+    public List<Doctors> getAllDoctors() {
+        Session s = this.factory.getObject().getCurrentSession();
+        return s.createQuery("FROM Doctors d ORDER BY d.rating DESC", Doctors.class).getResultList();
+    }
+
+    @Override
     public long countAll(String kw) {
         Session s = this.factory.getObject().getCurrentSession();
         String hql = "SELECT COUNT(d) FROM Doctors d WHERE 1=1 ";

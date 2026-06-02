@@ -19,4 +19,5 @@ public interface DoctorService {
     void deleteByUserId(int userId);
     List<Doctors> getDoctorsBySpecialtyId(int specialtyId);
     Doctors getDoctorById(int id);
+    List<Doctors> getAllDoctors();
 }
