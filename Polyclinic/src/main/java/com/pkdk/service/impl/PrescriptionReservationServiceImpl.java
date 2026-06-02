@@ -23,7 +23,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class PrescriptionReservationServiceImpl implements PrescriptionReservationService{
 
-    private static final int RESERVATION_MINUTES = 1;
+    private static final int RESERVATION_MINUTES = 30;
     
     @Autowired
     private PrescriptionReservationRepository prescriptionReservationRepo;

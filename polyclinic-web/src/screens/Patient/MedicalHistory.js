@@ -17,6 +17,18 @@ const MedicalHistory = () => {
     const [loading, setLoading] = useState(false);
     const [countdowns, setCountdowns] = useState({});
 
+    const handlePrint = () => {
+        const area = document.getElementById('prescription-print-area');
+        if (!area) return;
+        const win = window.open('','_blank');
+        win.document.write(`<html><head><title>Đơn thuốc</title>
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+            </head><body class="p-4">${area.innerHTML}</body></html>
+        `);
+        win.document.close();
+        win.onload = () => { win.print(); win.close(); };
+    }
+
     const formatDateTime = (dateStr) => {
         if (!dateStr) return "-";
 
@@ -248,7 +260,7 @@ const MedicalHistory = () => {
                         </Modal.Title>
                     </Modal.Header>
 
-                    <Modal.Body>
+                    <Modal.Body id="prescription-print-area">
                         {selectedPrescriptions.length === 0 ? (
                             <p className="text-muted mb-0">Hồ sơ này không có đơn thuốc.</p>
                         ) : (
@@ -340,6 +352,9 @@ const MedicalHistory = () => {
                         )}
                     </Modal.Body>
                     <Modal.Footer>
+                        <Button variant="outline-secondary" onClick={handlePrint}>
+                            <i className="bi bi-printer me-1"></i> In đơn thuốc
+                        </Button>
                         <Button variant="secondary" onClick={() => setSelectedRecord(null)}>Đóng</Button>
                     </Modal.Footer>
                 </Modal>

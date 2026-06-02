@@ -65,6 +65,7 @@ const AppointmentDetail = () => {
         performedAt: ""
     });
     const [savingLab, setSavingLab] = useState(false);
+    const [patientHistory, setPatientHistory] = useState([]);
 
     const fetchAppt = useCallback(async () => {
         try {
@@ -124,11 +125,25 @@ const AppointmentDetail = () => {
         }
     };
 
+    const fetchPatientHistory = async (patientId) => {
+        try {
+            const res = await authApis().get(endpoints['patient-medical-record'](patientId));
+            setPatientHistory(res.data || []);
+        } catch {
+            setPatientHistory([]);
+        }
+    };
+
     useEffect(() => {
         fetchAppt();
         fetchRecord();
         fetchLabResults();
     }, [fetchAppt, fetchRecord, fetchLabResults]);
+
+    useEffect(() => {
+        if (appt?.patientId?.id)
+            fetchPatientHistory(appt.patientId.id);
+    }, [appt]);
 
     useEffect(() => { 
         fetchMedicines(); 
@@ -355,6 +370,11 @@ const AppointmentDetail = () => {
                     <Nav.Item>
                         <Nav.Link eventKey="lab">
                             Kết quả xét nghiệm {labResults.length > 0 && <Badge bg="primary" pill>{labResults.length}</Badge>}
+                        </Nav.Link>
+                    </Nav.Item>
+                    <Nav.Item>
+                        <Nav.Link eventKey="history">
+                            Tiền sử khám bệnh {patientHistory.length > 0 && <Badge bg="secondary" pill>{patientHistory.length}</Badge>}
                         </Nav.Link>
                     </Nav.Item>
                 </Nav>
@@ -779,6 +799,47 @@ const AppointmentDetail = () => {
                                 </Button>
                             </Modal.Footer>
                         </Modal>
+                    </Tab.Pane>
+
+                    <Tab.Pane eventKey="history">
+                        <Card>
+                            <Card.Body>
+                                {patientHistory.length === 0 ? (
+                                    <p className="text-muted">Bệnh nhân chưa có lịch sử khám trước đó.</p>
+                                ) : (
+                                    <Table hover responsive size="sm">
+                                        <thead className="table-light">
+                                            <tr>
+                                                <th>Ngày khám</th>
+                                                <th>Triệu chứng</th>
+                                                <th>Chẩn đoán</th>
+                                                <th>Phương án điều trị</th>
+                                                <th>Tái khám</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {patientHistory.map(h => (
+                                                <tr key={h.id}>
+                                                    <td className="text-nowrap">
+                                                        {h.appointmentId?.scheduledAt
+                                                            ? new Date(h.appointmentId.scheduledAt).toLocaleDateString("vi-VN")
+                                                            : "—"}
+                                                    </td>
+                                                    <td>{h.chiefComplaint || "—"}</td>
+                                                    <td>{h.diagnosis || "—"}</td>
+                                                    <td>{h.treatmentPlan || "—"}</td>
+                                                    <td className="text-nowrap">
+                                                        {h.followUpDate
+                                                            ? new Date(h.followUpDate).toLocaleDateString("vi-VN")
+                                                            : "—"}
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </Table>
+                                )}
+                            </Card.Body>
+                        </Card>
                     </Tab.Pane>
 
                 </Tab.Content>

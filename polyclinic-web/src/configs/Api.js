@@ -44,6 +44,7 @@ export const endpoints = {
     'appointment-medical-record': (appointmentId) => `/appointments/${appointmentId}/medical-record`,
     'create-medical-record': (appointmentId) => `/secure/appointments/${appointmentId}/medical-record`,
     'update-medical-record': (recordId) => `/secure/medical-records/${recordId}`,
+    'patient-medical-record': (patientId) => `/secure/doctor/patients/${patientId}/medical-records`,
 
     'prescriptions-by-record': (recordId) => `/medical-records/${recordId}/prescriptions`,
     'create-prescription':     (recordId) => `/secure/medical-records/${recordId}/prescriptions`,

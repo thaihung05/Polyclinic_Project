@@ -85,7 +85,7 @@ const Appointment = () => {
 
             const res = await Apis.get(endpoints.schedules(doctor.id));
             setSelectedDoctor(doctor);
-            setSchedules(res.data.filter(s => s.isActive));
+            setSchedules(res.data.filter(s => s.isActive && new Date(s.startTime) > new Date()));
             setStep(2);
         }
         catch (err) {
@@ -239,6 +239,17 @@ const Appointment = () => {
                                                             <div className="dc-info">
                                                                 <div className="dc-name">{d.userId?.name}</div>
                                                                 <div className="dc-title">Bác sĩ chuyên khoa {d.specialtyId?.name}</div>
+                                                                {d.consultationFee && (
+                                                                    <div className="text-danger fw-semibold small mt-1">
+                                                                        {Number(d.consultationFee).toLocaleString("vi-VN")} VNĐ
+                                                                    </div>
+                                                                )}
+                                                                {d.rating && (
+                                                                    <div className="small mt-1" style={{ color: "#f59e0b" }}>
+                                                                        <i className="bi bi-star-fill me-1"></i>
+                                                                        {Number(d.rating).toFixed(1)} / 5.0
+                                                                    </div>
+                                                                )}
                                                             </div>
                                                         </div>
                                                     ))}
@@ -356,6 +367,15 @@ const Appointment = () => {
                                         <div className="sc-row">
                                             <div className="sc-label">Triệu chứng</div>
                                             <div className="sc-value">{symptoms || "Chưa nhập"}</div>
+                                        </div>
+
+                                        <div className="sc-row">
+                                            <div className="sc-label">Phí khám</div>
+                                            <div className="sc-value text-danger fw-semibold">
+                                                {selectedDoctor?.consultationFee
+                                                    ? `${Number(selectedDoctor.consultationFee).toLocaleString("vi-VN")} VNĐ`
+                                                    : "—"}
+                                            </div>
                                         </div>
                                     </div>
 

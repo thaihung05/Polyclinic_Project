@@ -46,4 +46,14 @@ public class MedicalRecordRepositoryImpl implements MedicalRecordRepository{
         else
             s.merge(record);
     }
+
+    @Override
+    public List<MedicalRecords> getByPatientId(int patientId) {
+        Session s = this.factory.getObject().getCurrentSession();
+        return s.createQuery(
+                "FROM MedicalRecords m WHERE m.appointmentId.patientId.id = :id ORDER BY m.appointmentId.scheduledAt DESC",
+                MedicalRecords.class)
+                .setParameter("id", patientId)
+                .getResultList();
+    }
 }
