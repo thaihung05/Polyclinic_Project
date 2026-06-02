@@ -40,14 +40,15 @@ const Home = () => {
 
     const handleSelectSpecialty = (specialty) => {
         setSearchTerm(specialty.name);
-        setShowSuggestions(false);
         goToAppointment({ specialty });
     };
 
     const handleSelectDoctor = (doctor) => {
         setSearchTerm(doctor.userId?.name);
-        setShowSuggestions(false);
-        goToAppointment({ doctor, specialty: doctor.specialtyId });
+        goToAppointment({ state: { 
+            doctor: doctor, 
+            specialty: doctor.specialtyId } 
+        });
     };
 
     const handleSearch = (e) => {

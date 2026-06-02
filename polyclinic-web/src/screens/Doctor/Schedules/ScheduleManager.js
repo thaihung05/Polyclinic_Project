@@ -8,7 +8,12 @@ import Swal from "sweetalert2";
 const parseDate = (date) => (date ? date.slice(0, 10) : "");
 const parseTime = (date) => (date ? date.slice(11, 16) : "");
 const today = () => new Date().toISOString().slice(0, 10);
-const emptyForm = { date: today(), startTime: "08:00", endTime: "10:00", isActive: true };
+const emptyForm = { 
+    date: today(), 
+    startTime: "08:00", 
+    endTime: "10:00", 
+    isActive: true
+};
 
 const TABS = [
     { key: "ALL", label: "Tất cả" },
@@ -100,8 +105,8 @@ const ScheduleManager = () => {
     };
 
     const buildBody = () => ({
-        startTime: `${form.date}T${form.startTime}:00`,
-        endTime: `${form.date}T${form.endTime}:00`,
+        startTime: `${form.date} ${form.startTime}:00`,
+        endTime: `${form.date} ${form.endTime}:00`,
         isActive: form.isActive
     });
 
@@ -110,11 +115,20 @@ const ScheduleManager = () => {
         try {
             setSaving(true);
             await authApis().post(endpoints['doctor-schedules'](doctorId), buildBody());
-            Swal.fire({ icon: "success", title: "Thêm ca thành công!", showConfirmButton: false, timer: 1000 });
+            Swal.fire({ 
+                icon: "success", 
+                title: "Thêm ca thành công!", 
+                showConfirmButton: false, 
+                timer: 1000
+            });
             setShowModal(false);
             loadSchedules();
         } catch (ex) {
-            Swal.fire({ icon: "error", title: "Thêm thất bại!", text: ex.response?.data || "Đã xảy ra lỗi!" });
+            Swal.fire({ 
+                icon: "error", 
+                title: "Thêm thất bại!", 
+                text: ex.response?.data || "Đã xảy ra lỗi!"
+            });
         } finally {
             setSaving(false);
         }
@@ -125,11 +139,20 @@ const ScheduleManager = () => {
         try {
             setSaving(true);
             await authApis().put(endpoints['doctor-schedule-item'](doctorId, editItem.id), buildBody());
-            Swal.fire({ icon: "success", title: "Cập nhật thành công!", showConfirmButton: false, timer: 1000 });
+            Swal.fire({ 
+                icon: "success", 
+                title: "Cập nhật thành công!", 
+                showConfirmButton: false, 
+                timer: 1000
+            });
             setShowModal(false);
             loadSchedules();
         } catch (ex) {
-            Swal.fire({ icon: "error", title: "Cập nhật thất bại!", text: ex.response?.data || "Đã xảy ra lỗi!" });
+            Swal.fire({ 
+                icon: "error", 
+                title: "Cập nhật thất bại!", 
+                text: ex.response?.data?.message || "Đã xảy ra lỗi!" 
+            });
         } finally {
             setSaving(false);
         }
@@ -148,10 +171,19 @@ const ScheduleManager = () => {
         if (!confirm.isConfirmed) return;
         try {
             await authApis().delete(endpoints['doctor-schedule-item'](doctorId, scheduleId));
-            Swal.fire({ icon: "success", title: "Xóa thành công!", showConfirmButton: false, timer: 1000 });
+            Swal.fire({ 
+                icon: "success", 
+                title: "Xóa thành công!", 
+                showConfirmButton: false, 
+                timer: 1000 
+            });
             loadSchedules();
         } catch (ex) {
-            Swal.fire({ icon: "error", title: "Đã xảy ra lỗi!", text: ex.response?.data || "Không thể xóa ca làm việc!" });
+            Swal.fire({ 
+                icon: "error", 
+                title: "Đã xảy ra lỗi!", 
+                text: ex.response?.data || "Không thể xóa ca làm việc!" 
+            });
         }
     };
 
@@ -260,7 +292,7 @@ const ScheduleManager = () => {
             )}
 
             <Modal show={showModal} onHide={() => setShowModal(false)} backdrop="static">
-                <Modal.Header closeButton>
+                <Modal.Header>
                     <Modal.Title>
                         <i className={`bi ${editItem ? "bi-pencil-square" : "bi-plus-circle"} me-2`}></i>
                         {editItem ? "Cập nhật ca làm việc" : "Thêm ca mới"}
@@ -277,12 +309,16 @@ const ScheduleManager = () => {
                                 min={today()} />
                         </div>
                         <div className="col-6">
-                            <Form.Label className="small fw-semibold">Giờ bắt đầu <span className="text-danger">*</span></Form.Label>
+                            <Form.Label className="small fw-semibold">
+                                Giờ bắt đầu <span className="text-danger">*</span>
+                            </Form.Label>
                             <Form.Control type="time" size="sm" name="startTime"
                                 value={form.startTime} onChange={change} />
                         </div>
                         <div className="col-6">
-                            <Form.Label className="small fw-semibold">Giờ kết thúc <span className="text-danger">*</span></Form.Label>
+                            <Form.Label className="small fw-semibold">
+                                Giờ kết thúc <span className="text-danger">*</span>
+                            </Form.Label>
                             <Form.Control type="time" size="sm" name="endTime"
                                 value={form.endTime} onChange={change} />
                         </div>
@@ -298,9 +334,7 @@ const ScheduleManager = () => {
 
                 <Modal.Footer>
                     <Button variant="secondary" size="sm" onClick={() => setShowModal(false)} disabled={saving}>Hủy</Button>
-                    <Button variant="primary" size="sm"
-                        onClick={editItem ? updateSchedule : addSchedule}
-                        disabled={saving}>
+                    <Button variant="primary" size="sm" onClick={editItem ? updateSchedule : addSchedule} disabled={saving}>
                         {saving ? <><span className="spinner-border spinner-border-sm me-1"></span>Đang lưu...</>
                                 : <><i className={`bi ${editItem ? "bi-check-lg" : "bi-plus-lg"} me-1`}></i>{editItem ? "Cập nhật" : "Thêm ca"}</>
                         }

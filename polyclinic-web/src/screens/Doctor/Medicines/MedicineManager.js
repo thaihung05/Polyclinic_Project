@@ -190,7 +190,7 @@ const MedicineManager = () => {
         ...form,
         stockQuantity: Number(form.stockQuantity),
         price: Number(form.price),
-        expiryDate: form.expiryDate ? form.expiryDate + "T00:00:00" : null
+        expiryDate: form.expiryDate ? form.expiryDate + " 00:00:00" : null
     });
 
     const addMedicine = async () => {
@@ -398,7 +398,7 @@ const MedicineManager = () => {
                                                             <Button size="sm" variant="outline-primary" onClick={() => openEdit(m)}>
                                                                 <i className="bi bi-pencil"></i>
                                                             </Button>
-                                                            <Button size="sm" variant="outline-danger" onClick={() => deleteMedicines(m)}>
+                                                            <Button size="sm" variant="outline-danger" onClick={() => deleteMedicines(m)} disabled={!m.isActive}>
                                                                 <i className="bi bi-trash"></i>
                                                             </Button>
                                                         </div>
@@ -478,8 +478,6 @@ const MedicineManager = () => {
                         )}
                     </>
                 )}
-
-
 
                 <Modal show={showModal}
                     onHide={() => { setShowModal(false) }}

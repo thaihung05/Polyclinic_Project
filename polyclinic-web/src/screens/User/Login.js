@@ -154,12 +154,11 @@ const Login = () => {
                     {error && <Alert variant="danger">{error}</Alert>}
                     <form onSubmit={login}>
                         <div className="mb-3">
-                            <label className="form-label">Tên đăng nhập</label>
+                            <label className="form-label">Tên đăng nhập:</label>
                             <input
                                 type="text"
                                 name="username"
                                 className="form-control input-custom"
-                                placeholder="Nhập username"
                                 value={user.username}
                                 onChange={change}
                                 disabled={loading}
@@ -167,19 +166,18 @@ const Login = () => {
                         </div>
 
                         <div className="mb-3">
-                            <label className="form-label">Mật khẩu</label>
+                            <label className="form-label">Mật khẩu:</label>
                             <input
                                 type="password"
                                 name="password"
                                 className="form-control input-custom"
-                                placeholder="Nhập mật khẩu"
                                 value={user.password}
                                 onChange={change}
                                 disabled={loading}
                             />
                         </div>
 
-                        <button className="btn btn-login w-100" disabled={loading}>
+                        <button className="btn btn-login w-100 text-white" disabled={loading}>
                             {loading
                                 ? <><span className="spinner-border spinner-border-sm me-2"></span>Đang đăng nhập...</>
                                 : "Đăng nhập"
@@ -202,6 +200,20 @@ const Login = () => {
                             })} 
                             width="100%"
                         />
+                    </div>
+                    <div className="mt-2">
+                        <button className="btn btn-primary w-100 position-relative">
+                            <i
+                                className="bi bi-facebook position-absolute"
+                                style={{ left: "11px", top: "50%",
+                                    transform: "translateY(-50%)",
+                                    fontSize: "20px"
+                                }}
+                            ></i>
+                            <span style={{ marginLeft: "20px"}}>
+                                Đăng nhập bằng Facebook
+                            </span>
+                        </button>
                     </div>
 
                     <p className="text-center mt-3">

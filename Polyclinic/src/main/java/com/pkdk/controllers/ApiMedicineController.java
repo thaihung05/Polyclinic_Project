@@ -90,6 +90,7 @@ public class ApiMedicineController {
         m.setManufacturer(medicine.getManufacturer());
         m.setStockQuantity(medicine.getStockQuantity());
         m.setPrice(medicine.getPrice());
+        m.setIsActive(medicine.getIsActive());
         
         this.medicineService.save(m);
         return new ResponseEntity<>(m, HttpStatus.OK);
