@@ -37,6 +37,7 @@ const Notification = () => {
         try {
             await authApis().get(endpoints['read-notifications'](id));
             setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: true } : n));
+            window.dispatchEvent(new Event('notifications-updated'));
         }
         catch (err) {
             setError('Lỗi! Đọc thông báo thất bại!');
@@ -54,7 +55,8 @@ const Notification = () => {
                 );
                 setNotifications(
                     prev => prev.map(n => ({ ...n, isRead: true }))
-                )
+                );
+                window.dispatchEvent(new Event('notifications-updated'));
             }
             catch (err) {
                 setError('Lỗi! Đọc thông báo thất bại!');

@@ -352,7 +352,7 @@ const MedicalHistory = () => {
                         )}
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button variant="outline-secondary" onClick={handlePrint}>
+                        <Button variant="outline-primary" onClick={handlePrint}>
                             <i className="bi bi-printer me-1"></i> In đơn thuốc
                         </Button>
                         <Button variant="secondary" onClick={() => setSelectedRecord(null)}>Đóng</Button>
