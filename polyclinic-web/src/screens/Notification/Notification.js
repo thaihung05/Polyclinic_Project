@@ -24,7 +24,6 @@ const Notification = () => {
         try {
             await authApis().get(endpoints['read-notifications'](id));
             notificationDispatch({ type: "MARK_READ", payload: id });
-            window.dispatchEvent(new Event('notifications-updated'));
         }
         catch (err) {
             notificationDispatch({ type: "SET_ERROR", payload: "Lỗi! Đọc thông báo thất bại" });
@@ -41,7 +40,6 @@ const Notification = () => {
                 unread.map(n => authApis().get(endpoints['read-notifications'](n.id)))
             );
             notificationDispatch({ type: "MARK_ALL_READ" });
-            window.dispatchEvent(new Event('notifications-updated'));
         }
         catch (err) {
             notificationDispatch({ type: "SET_ERROR", payload: "Lỗi! Đọc tất cả thông báo thất bại" });

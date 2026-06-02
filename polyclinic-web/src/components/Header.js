@@ -3,7 +3,7 @@ import Swal from "sweetalert2";
 import { useContext, useEffect, useRef, useState } from "react";
 import { MyNotificationContext, MyUserContext } from "../configs/Contexts";
 import { authApis, endpoints } from "../configs/Api";
-import { Alert, Badge, Button } from "react-bootstrap";
+import { Badge, Button } from "react-bootstrap";
 
 const Header = () => {
 
@@ -39,6 +39,7 @@ const Header = () => {
 
     useEffect(() => {
         if (!user) {
+            notificationDispatch({type:"CLEAR"});
             return;
         }
         fetchNotifications();

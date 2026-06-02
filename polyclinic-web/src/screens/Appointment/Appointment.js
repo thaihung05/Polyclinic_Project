@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
@@ -9,6 +9,7 @@ import Swal from "sweetalert2";
 import MySpinner from "../../components/MySpinner";
 import { Button, Form, Modal, Spinner } from "react-bootstrap";
 import Moment from "react-moment";
+import { SpecialtyContext } from "../../configs/Contexts";
 
 
 const BANK_CONFIG = {
@@ -18,7 +19,8 @@ const BANK_CONFIG = {
 const ACCOUNT_NAME = "PHONG KHAM TH VL";
 
 const Appointment = () => {
-    const [specialties, setSpecialties] = useState([]);
+    const [specialtyState, specialtyDispatch] = useContext(SpecialtyContext);
+    const {specialties} = specialtyState;
     const [doctors, setDoctors] = useState([]);
     const [schedules, setSchedules] = useState([]);
     const [selectedSpecialty, setSelectedSpecialty] = useState(null);
@@ -43,7 +45,7 @@ const Appointment = () => {
         try {
             setLoading(true);
             const res = await Apis.get(endpoints['specialties']);
-            setSpecialties(res.data);
+            specialtyDispatch({type:"LOAD_SPECIALTIES", payload: res.data});
         } catch (err) {
             Swal.fire("Lỗi", "Không tải được các chuyên khoa", "error");
         }
@@ -53,6 +55,7 @@ const Appointment = () => {
     };
 
     useEffect(() => {
+        if (specialties.length>0) return;
         loadSpecialties();
     }, []);
 

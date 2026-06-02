@@ -24,8 +24,8 @@ import org.springframework.web.bind.annotation.RestController;
  * @author vanlong
  */
 @RestController
-@CrossOrigin
 @RequestMapping("/api")
+@CrossOrigin
 public class ApiNotificationController {
     @Autowired
     private NotificationService notificationService;
