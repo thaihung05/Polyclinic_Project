@@ -1,33 +1,31 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import Swal from "sweetalert2";
 import { useContext, useEffect, useRef, useState } from "react";
-import { MyUserContext } from "../configs/Contexts";
+import { MyNotificationContext, MyUserContext } from "../configs/Contexts";
 import { authApis, endpoints } from "../configs/Api";
 import { Alert, Badge, Button } from "react-bootstrap";
 
 const Header = () => {
 
     const [user, dispatch] = useContext(MyUserContext);
-    const nav = useNavigate();
+    const [notificationState, notificationDispatch] = useContext(MyNotificationContext);
     const [showDropdown, setShowDropdown] = useState(false);
     const dropdownRef = useRef(null);
-    const [loading, setLoading] = useState(false);
-    const [unreadCount, setUnreadCount] = useState(0);
-    const [error, setError] = useState('');
-    const location = useLocation();
+    const nav = useNavigate();
+    const unreadCount = notificationState.notifications.filter(n => !n.isRead).length;
 
-    const fetchUnread = async () => {
+
+    const fetchNotifications = async () => {
         try {
-            setLoading(true);
+            notificationDispatch({ type: "SET_LOADING", payload: true });
             const res = await authApis().get(endpoints['notifications']);
-            setUnreadCount(res.data.filter(n => !n.isRead).length);
+            const sorted = [...res.data].sort((a, b) => new Date(b.ngayTao) - new Date(a.ngayTao));
+            notificationDispatch({ type: "LOAD", payload: sorted });
         }
         catch (err) {
-            setError('Lỗi hệ thống! Không thể tải thông báo!');
+            notificationDispatch({ type: "SET_ERROR", payload: "Tải thông báo thất bại!" });
         }
-        finally {
-            setLoading(false);
-        }
+
     };
 
     useEffect(() => {
@@ -41,22 +39,22 @@ const Header = () => {
 
     useEffect(() => {
         if (!user) {
-            setUnreadCount(0);
             return;
         }
-        fetchUnread();
-    }, [user, location.pathname]);
-
-    useEffect(() => {
-        const handler = () => fetchUnread();
-        window.addEventListener('notifications-updated', handler);
-        return () => window.removeEventListener('notifications-updated', handler);
-    }, []);
+        fetchNotifications();
+    }, [user]);
 
     useEffect(() => {
         if (!user) return;
-        const interval = setInterval(() => {
-            fetchUnread();
+        const interval = setInterval(async() => {
+            try {
+                const res = await authApis().get(endpoints['notifications']);
+                const sorted = [...res.data].sort((a, b) => new Date(b.ngayTao) - new Date(a.ngayTao));
+                notificationDispatch({ type: "LOAD", payload: sorted });
+            }
+            catch (err) {
+                notificationDispatch({ type: "SET_ERROR", payload: "Tải thông báo thất bại!" });
+            }
         }, 5000);
         return () => clearInterval(interval);
     }, [user]);
@@ -155,10 +153,20 @@ const Header = () => {
                                                     </>
                                                 )}
 
-                                                {user.role === "ROLE_DOCTOR" && (
+                                                {user.role === "ROLE_DOCTOR"  && (
                                                     <>
                                                         <li>
                                                             <Link className="dropdown-item" to="/doctor/dashboard">
+                                                                <i className="bi bi-speedometer2 me-2"></i>Dashboard
+                                                            </Link>
+                                                        </li>
+                                                    </>
+                                                )}
+
+                                                {user.role === "ROLE_PHARMACIST"  && (
+                                                    <>
+                                                        <li>
+                                                            <Link className="dropdown-item" to="/pharmacist/dashboard">
                                                                 <i className="bi bi-speedometer2 me-2"></i>Dashboard
                                                             </Link>
                                                         </li>

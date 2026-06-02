@@ -1,70 +1,55 @@
 import { useContext, useEffect, useState } from "react";
-import { MyUserContext } from "../../configs/Contexts";
+import { MyNotificationContext, MyUserContext } from "../../configs/Contexts";
 import { authApis, endpoints } from "../../configs/Api";
 import Header from "../../components/Header";
 import { Badge, Button, Pagination, Spinner } from "react-bootstrap";
 import Moment from "react-moment";
 import Footer from "../../components/Footer";
 import MySpinner from "../../components/MySpinner";
+
+const PAGE_SIZE = 5;
+
 const Notification = () => {
-    const [user] = useContext(MyUserContext);
-    const [notifications, setNotifications] = useState([]);
-    const [loading, setLoading] = useState(false);
+
+    const [notificationState, notificationDispatch] = useContext(MyNotificationContext);
+    const { notifications, loading, error } = notificationState;
     const [markingAll, setMarkingAll] = useState(false);
-    const [error, setError] = useState('');
     const [page, setPage] = useState(1);
 
-    const PAGE_SIZE = 5;
-
-    const loadNotifications = async () => {
-        try {
-            setLoading(true);
-            const res = await authApis().get(endpoints['notifications']);
-            const sorted = [...res.data].sort((a, b) => new Date(b.ngayTao) - new Date(a.ngayTao));
-            setNotifications(sorted);
-            setPage(1);
-        } catch (err) {
-            console.error(err);
-        }
-        finally {
-            setLoading(false);
-        }
-    }
-
-    useEffect(() => { loadNotifications(); }, []);
+    const unreadCount = notifications.filter(n => !n.isRead).length;
+    const totalPages = Math.ceil(notifications.length / PAGE_SIZE);
+    const visibleNotifications = notifications.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
     const markAsRead = async (id) => {
         try {
             await authApis().get(endpoints['read-notifications'](id));
-            setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: true } : n));
+            notificationDispatch({ type: "MARK_READ", payload: id });
             window.dispatchEvent(new Event('notifications-updated'));
         }
         catch (err) {
-            setError('Lỗi! Đọc thông báo thất bại!');
+            notificationDispatch({ type: "SET_ERROR", payload: "Lỗi! Đọc thông báo thất bại" });
         }
     }
 
 
     const markAllAsRead = async () => {
         const unread = notifications.filter(n => !n.isRead);
-        if (unread.length > 0) {
-            try {
-                setMarkingAll(true);
-                await Promise.all(
-                    unread.map(n => authApis().get(endpoints['read-notifications'](n.id)))
-                );
-                setNotifications(
-                    prev => prev.map(n => ({ ...n, isRead: true }))
-                );
-                window.dispatchEvent(new Event('notifications-updated'));
-            }
-            catch (err) {
-                setError('Lỗi! Đọc thông báo thất bại!');
-            }
-            finally {
-                setMarkingAll(false);
-            }
+        if (unread.length === 0) return;
+        try {
+            setMarkingAll(true);
+            await Promise.all(
+                unread.map(n => authApis().get(endpoints['read-notifications'](n.id)))
+            );
+            notificationDispatch({ type: "MARK_ALL_READ" });
+            window.dispatchEvent(new Event('notifications-updated'));
         }
+        catch (err) {
+            notificationDispatch({ type: "SET_ERROR", payload: "Lỗi! Đọc tất cả thông báo thất bại" });
+        }
+        finally {
+            setMarkingAll(false);
+        }
+
     };
 
     const getIconForTitle = (title) => {
@@ -89,9 +74,8 @@ const Notification = () => {
         return "#6c757d";
     };
 
-    const totalPages = Math.ceil(notifications.length / PAGE_SIZE);
-    const visibleNotifications = notifications.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
-    const unreadCount = notifications.filter(n => !n.isRead).length;
+
+
 
     return (
         <>
@@ -132,7 +116,7 @@ const Notification = () => {
 
                 {loading ? (
                     <div className="text-center py-5">
-                        <MySpinner/>
+                        <MySpinner />
                         <p className="mt-2 text-muted">Đang tải thông báo...</p>
                     </div>
 
@@ -198,7 +182,7 @@ const Notification = () => {
                     </div>
                 )}
             </div>
-            <Footer/>
+            <Footer />
         </>
     );
 };
