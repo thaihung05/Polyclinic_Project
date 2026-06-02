@@ -112,7 +112,7 @@ const Notification = () => {
                             disabled={markingAll}
                         >
                             {markingAll ?
-                                <><Spinner animation="border" size="sm" className="me-1">Đang xử lý</Spinner></>
+                                <><Spinner animation="border" size="sm" className="me-1" />Đang xử lý</>
                                 : <><i className="bi bi-check2-all me-1"></i>Đánh dấu tất cả đã đọc</>
                             }
                         </Button>
