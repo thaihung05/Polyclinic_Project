@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { authApis, endpoints } from "../../../configs/Api";
 import Swal from "sweetalert2";
-import { Badge, Button, Pagination, Spinner, Table } from "react-bootstrap";
+import { Badge, Button, Pagination, Table } from "react-bootstrap";
 import Header from "../../../components/Header";
 import Footer from "../../../components/Footer";
 import { MyUserContext } from "../../../configs/Contexts";

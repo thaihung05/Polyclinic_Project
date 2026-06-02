@@ -10,7 +10,7 @@ import { MyUserContext } from "../../configs/Contexts";
 import cookies from 'react-cookies';
 import { Alert } from "react-bootstrap";
 import { GoogleLogin } from '@react-oauth/google';
-import MySpinner from "../../components/MySpinner";
+
 
 const Login = () => {
     const [, dispatch] = useContext(MyUserContext);

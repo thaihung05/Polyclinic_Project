@@ -3,7 +3,7 @@ const SpecialtyReducer = (current, action) =>{
         case "SET_LOADING":
             return ({...current, loading: action.payload});
         case "SET_ERROR":
-            return ({...current, error:action.payload});
+            return ({...current, error:action.payload, loading:false});
         case "LOAD_SPECIALTIES":
             return ({...current, specialties:action.payload, loading:false, error:''});
         case "LOAD_DOCTORS":
