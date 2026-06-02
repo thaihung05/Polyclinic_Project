@@ -51,8 +51,10 @@ const Home = () => {
 
     const handleSearch = (e) => {
         e.preventDefault();
-        if (suggestedSpecialties.length > 0) handleSelectSpecialty(suggestedSpecialties[0]);
-        else if (suggestedDoctors.length > 0) handleSelectDoctor(suggestedDoctors[0]);
+        if (suggestedSpecialties.length > 0) 
+            handleSelectSpecialty(suggestedSpecialties[0]);
+        else if (suggestedDoctors.length > 0) 
+            handleSelectDoctor(suggestedDoctors[0]);
         else goToAppointment({});
     };
 
@@ -72,7 +74,7 @@ const Home = () => {
         try {
             setLoading(true);
             const res = await Apis.get(endpoints['doctors']);
-            const sorted = [...res.data].sort((a, b) => (b.rating || 0) - (a.rating || 0));
+            const sorted = [...res.data].sort((a, b) => (b.rating) - (a.rating));
             setAllDoctors(sorted);
             setDoctors(sorted.slice(0, 4));
         } catch (err) {
@@ -108,11 +110,20 @@ const Home = () => {
                                         type="text"
                                         placeholder="Tìm theo chuyên khoa hoặc tên bác sĩ..."
                                         value={searchTerm}
-                                        onChange={e => { setSearchTerm(e.target.value); setShowSuggestions(true); }}
-                                        onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+                                        onChange={e => setSearchTerm(e.target.value)}
                                         onFocus={() => setShowSuggestions(true)}
                                         autoComplete="off"
                                     />
+                                    {searchTerm && (
+                                        <i
+                                            className="bi bi-x"
+                                            style={{ cursor: "pointer", color: "#aaa", fontSize: "1.2rem", padding: "0 6px" }}
+                                            onMouseDown={() => { 
+                                                setSearchTerm(""); 
+                                                setShowSuggestions(false); 
+                                            }}
+                                        ></i>
+                                    )}
                                     <button type="submit">Tìm kiếm</button>
                                 </form>
                                 {showSuggestions && (suggestedSpecialties.length > 0 || suggestedDoctors.length > 0) && (
@@ -121,7 +132,7 @@ const Home = () => {
                                             <>
                                                 <li className="hero-suggestions-header">Chuyên khoa</li>
                                                 {suggestedSpecialties.map(s => (
-                                                    <li key={`spec-${s.id}`} onMouseDown={() => handleSelectSpecialty(s)}>
+                                                    <li key={s.id} onMouseDown={() => handleSelectSpecialty(s)}>
                                                         <i className="bi bi-hospital me-2 text-muted"></i>{s.name}
                                                     </li>
                                                 ))}
@@ -131,23 +142,16 @@ const Home = () => {
                                             <>
                                                 <li className="hero-suggestions-header">Bác sĩ</li>
                                                 {suggestedDoctors.slice(0, 5).map(d => (
-                                                    <li key={`doc-${d.id}`} onMouseDown={() => handleSelectDoctor(d)}>
+                                                    <li key={d.id} onMouseDown={() => handleSelectDoctor(d)}>
                                                         <i className="bi bi-person-circle me-2 text-muted"></i>
                                                         {d.userId?.name}
-                                                        <span className="text-muted ms-1" style={{ fontSize: ".8rem" }}>— {d.specialtyId?.name}</span>
+                                                        <span className="text-muted ms-1">-- {d.specialtyId?.name}</span>
                                                     </li>
                                                 ))}
                                             </>
                                         )}
                                     </ul>
                                 )}
-                            </div>
-                            <div className="hero-quick-links mt-3">
-                                {specialties.slice(0, 4).map(s => (
-                                    <button key={s.id} className="hero-quick-tag" onClick={() => handleSelectSpecialty(s)}>
-                                        {s.name}
-                                    </button>
-                                ))}
                             </div>
                         </div>
                     </div>
@@ -181,8 +185,8 @@ const Home = () => {
                 <div className="container">
                     <div className="section-title">
                         <span className="badge-line"></span>
-                        <span style={{ color: "#1a8ccc", fontWeight: 700, fontSize: ".85rem", textTransform: "uppercase", letterSpacing: ".08em" }}>
-                            Chuyên Khoa
+                        <span style={{ color: "#1a8ccc", fontWeight: 700, fontSize: ".85rem", letterSpacing: ".08em" }}>
+                            CHUYÊN KHOA
                         </span>
                         <span className="badge-line"></span>
                         <h2>Dịch Vụ Y Tế Nổi Bật</h2>
@@ -197,7 +201,9 @@ const Home = () => {
                                 {specialties.slice(0, 6).map(c => (
                                     <div className="col-xl-2 col-lg-4 col-md-4 col-sm-6" key={c.id}>
                                         <div className="service-card">
-                                            <div className="service-icon"><i className={`bi ${SPECIALTY_ICONS[c.name.toLowerCase()] || "bi-hospital"}`}></i></div>
+                                            <div className="service-icon">
+                                                <i className={`bi ${SPECIALTY_ICONS[c.name.toLowerCase()] || "bi-hospital"}`}></i>
+                                            </div>
                                             <h5>{c.name}</h5>
                                             <p>{c.description}</p>
                                         </div>
@@ -218,8 +224,8 @@ const Home = () => {
                 <div className="container">
                     <div className="section-title">
                         <span className="badge-line"></span>
-                        <span style={{ color: "#1a8ccc", fontWeight: 700, fontSize: ".85rem", textTransform: "uppercase", letterSpacing: ".08em" }}>
-                            Đội ngũ y tế
+                        <span style={{ color: "#1a8ccc", fontWeight: 700, fontSize: ".85rem", letterSpacing: ".08em" }}>
+                            ĐỘI NGŨ Y TẾ 
                         </span>
                         <span className="badge-line"></span>
                         <h2>Bác Sĩ Nổi Bật</h2>
@@ -234,9 +240,8 @@ const Home = () => {
                                     <div className="featured-doctor-card">
                                         <div className="featured-doctor-avatar-wrap">
                                             <img
-                                                src={d.userId?.avatar || "https://via.placeholder.com/120?text=BS"}
+                                                src={d.userId?.avatar}
                                                 alt={d.userId?.name}
-                                                referrerPolicy="no-referrer"
                                                 className="featured-doctor-avatar"
                                             />
                                         </div>
@@ -248,10 +253,14 @@ const Home = () => {
                                             </div>
                                             {d.rating && (
                                                 <div className="featured-doctor-rating">
-                                                    {[1, 2, 3, 4, 5].map(star => (
-                                                        <i key={star} className={`bi ${star <= Math.round(d.rating) ? "bi-star-fill" : "bi-star"}`}></i>
-                                                    ))}
-                                                    <span className="ms-1">{Number(d.rating).toFixed(1)}</span>
+                                                    <div className="featured-doctor-rating">
+                                                        <i className="bi bi-star-fill me-1"></i>
+                                                        <i className="bi bi-star-fill me-1"></i>
+                                                        <i className="bi bi-star-fill me-1"></i>
+                                                        <i className="bi bi-star-fill me-1"></i>
+                                                        <i className="bi bi-star-fill me-1"></i>
+                                                        {Number(d.rating)}
+                                                    </div>
                                                 </div>
                                             )}
                                             {d.consultationFee && (
