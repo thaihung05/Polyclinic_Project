@@ -6,19 +6,19 @@ import MySpinner from "../../../components/MySpinner";
 import { MyUserContext } from "../../../configs/Contexts";
 
 const statusLable = (s) => {
-    if (s==="PENDING") return "Chờ xác nhận";
     if (s==="CONFIRMED") return "Đã xác nhận";
     if (s==="COMPLETED") return "Hoàn thành";
     if (s==="CANCELLED") return "Đã hủy";
-    return s; 
+    if (s==="NO_SHOW") return "Không đến";
+    return s;
 }
 
 const statusBg = (s) => {
-    if (s==="PENDING") return "warning";
     if (s==="CONFIRMED") return "primary";
     if (s==="COMPLETED") return "success";
     if (s==="CANCELLED") return "danger";
-    return s;
+    if (s==="NO_SHOW") return "secondary";
+    return "secondary";
 }
 
 const DoctorHome = () =>{
@@ -34,7 +34,6 @@ const DoctorHome = () =>{
             setLoading(true);
             const res = await authApis().get(endpoints['doctor-appointments']);
             setAppoiments(res.data || []);
-            console.log(res.data);
         } catch(ex){
             console.error(ex);
         } finally{
@@ -47,32 +46,28 @@ const DoctorHome = () =>{
     }, [loadAppointments]);
 
     const today = new Date().toISOString().slice(0,10);
-    const todayAppointments = appointments.filter(a=>{
-        if (!a.scheduledAt) return false;
 
-        const appointmentDate = new Date(a.scheduledAt)
-            .toISOString()
-            .slice(0, 10);
+    const todayAppointments = appointments.filter(a => {
+        const t = new Date(a.scheduledAt);
+        return t.toISOString().slice(0,10) === today && t >= new Date();
+    }).sort((a, b) => new Date(a.scheduledAt) - new Date(b.scheduledAt));
 
-        return appointmentDate === today;
-    });
-
-    const peding = appointments.filter(a=>
-        a.status === "PENDING"
-    ).length;
     const confirmed = appointments.filter(a=>
         a.status === "CONFIRMED"
     ).length;
     const completed = appointments.filter(a=>
         a.status === "COMPLETED"
     ).length;
-
+    const noShow = appointments.filter(a=>
+        a.status === "NO_SHOW"
+    ).length;
 
     const card = [
-        {label: "Tổng lịch hẹn", value: appointments.length, bg:"#e8f4f8"},
-        {label: "Chờ xác nhận", value: peding, bg:"#e8f4f8"},
-        {label: "Đã xác nhận", value: confirmed, bg:"#e8f4f8"},
-        {label: "Hoàn thành", value: completed, bg:"#e8f4f8"}
+        {label: "Tổng lịch hẹn", value: appointments.length, bg:"#e8f4f8", icon:"bi-calendar2-week", color:"#0ea5e9"},
+        {label: "Hôm nay", value: todayAppointments.length, bg:"#fff8e1", icon:"bi-calendar-day", color:"#f59e0b"},
+        {label: "Đã xác nhận", value: confirmed, bg:"#e3f2fd", icon:"bi-check-circle", color:"#3b82f6"},
+        {label: "Hoàn thành", value: completed, bg:"#e8f5e9", icon:"bi-check2-all", color:"#22c55e"},
+        {label: "Không đến", value: noShow, bg:"#f5f5f5", icon:"bi-person-x", color:"#9ca3af"},
     ]
 
     return(
@@ -88,11 +83,10 @@ const DoctorHome = () =>{
 
             <div className="row g-3 mb-4">
                 {card.map((c,i) => (
-                    <div className="col-6 col-md-3" key={i}>
+                    <div className="col-6 col-md" key={i}>
                         <div className="card border-0 shadow-sm h-100" style={{ background: c.bg }}>
                             <div className="card-body d-flex align-items-center gap-3">
-                                <div className="rounded-circel d-flex align-item-center justify-content-center">
-                                </div>
+                                <i className={`bi ${c.icon} fs-2`} style={{ color: c.color }}></i>
                                 <div>
                                     <div className="fs-4 fw-bold">{c.value}</div>
                                     <div className="small text-muted">{c.label}</div>
@@ -113,8 +107,7 @@ const DoctorHome = () =>{
                         Xem tất cả
                     </button>
                 </div>
-            </div>
-            <div>
+                <div className="card-body p-0">
                 {loading && <div className="p-3"><MySpinner /></div>}
                 {!loading && todayAppointments.length === 0 && (
                     <Alert variant="light" className="m-3 text-muted">
@@ -128,6 +121,7 @@ const DoctorHome = () =>{
                                 <tr>
                                     <th>Giờ hẹn</th>
                                     <th>Bệnh nhân</th>
+                                    <th>SĐT</th>
                                     <th>Triệu chứng</th>
                                     <th>Trạng thái</th>
                                     <th>Thao tác</th>
@@ -143,6 +137,7 @@ const DoctorHome = () =>{
                                             })}
                                         </td>
                                         <td>{a.patientId.userId.name}</td>
+                                        <td className="text-muted">{a.patientId.userId.phone || "-"}</td>
                                         <td className="text-muted">{a.symptoms || "-"}</td>
                                         <td>
                                             <Badge bg={statusBg(a.status)}>{statusLable(a.status)}</Badge>
@@ -160,6 +155,7 @@ const DoctorHome = () =>{
                         </Table>
                     </div>
                 )}
+                </div>
             </div>
         </div>
     )

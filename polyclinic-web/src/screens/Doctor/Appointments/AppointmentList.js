@@ -142,12 +142,12 @@ const AppointmentList = () => {
                                             value={a.status}
                                             onChange={e => updateStatus(a.id, e.target.value)}
                                         >
-                                            <option value="">-- Chọn --</option>
+                                            <option value="CONFIRMED">-- Chọn --</option>
                                             <option value="COMPLETED">Hoàn thành</option>
                                             <option value="NO_SHOW">Vắng khám</option>
                                         </select>
                                     ) : (
-                                        <span className="text-muted fst-italic">Không đổi được trạng thái</span>
+                                        <span className="text-muted fst-italic">-</span>
                                     )}
                                 </td>
                                 <td>

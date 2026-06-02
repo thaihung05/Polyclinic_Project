@@ -5,6 +5,7 @@
 package com.pkdk.repository;
 
 import com.pkdk.pojo.MedicalRecords;
+import java.util.List;
 
 /**
  *
@@ -14,4 +15,5 @@ public interface MedicalRecordRepository {
     MedicalRecords getByAppointmentId(int appointmentId);
     MedicalRecords getById(int id);
     void save(MedicalRecords record);
+    List<MedicalRecords> getByPatientId(int patientId);
 }

@@ -7,6 +7,7 @@ package com.pkdk.service.impl;
 import com.pkdk.pojo.MedicalRecords;
 import com.pkdk.repository.MedicalRecordRepository;
 import com.pkdk.service.MedicalRecordService;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -33,6 +34,11 @@ public class MedicalRecordServiceImpl implements MedicalRecordService{
     @Override
     public void save(MedicalRecords record) {
         this.medicalRecordRepo.save(record);
+    }
+
+    @Override
+    public List<MedicalRecords> getPatientById(int patientId) {
+        return this.medicalRecordRepo.getByPatientId(patientId);
     }
     
 }

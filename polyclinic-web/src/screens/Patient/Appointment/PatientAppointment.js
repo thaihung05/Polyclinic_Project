@@ -111,7 +111,7 @@ const PatientAppointment = () => {
                                     <th>Chuyên khoa</th>
                                     <th>Thời gian</th>
                                     <th>Triệu chứng</th>
-                                    <th>Ghi chú</th>
+                                    <th>Lý do hủy</th>
                                     <th>Link khám online</th>
                                     <th>Trạng thái</th>
                                     <th>Hành động</th>
@@ -127,7 +127,7 @@ const PatientAppointment = () => {
                                             <Moment format="DD/MM/YYYY - HH:mm">{appointment.scheduledAt}</Moment>
                                         </td>
                                         <td>{appointment.symptoms || ""}</td>
-                                        <td>{appointment.cancelReason || ""}</td>
+                                        <td>{appointment.status === "CANCELLED" ? (appointment.cancelReason || "Không có lý do") : "—"}</td>
                                         <td>
                                             {appointment.meetingUrl && appointment.status === "CONFIRMED"
                                                 ? <a href={appointment.meetingUrl} target="_blank" rel="noreferrer"

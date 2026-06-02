@@ -13,6 +13,7 @@ import com.pkdk.service.MedicalRecordService;
 import com.pkdk.service.UserService;
 import java.security.Principal;
 import java.util.Date;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -76,6 +77,19 @@ public class ApiMedicalRecordController {
         record.setAppointmentId(a);
         this.medicalRecordService.save(record);
         return new ResponseEntity<>(record, HttpStatus.CREATED);
+    }
+    
+    @GetMapping("/api/secure/doctor/patients/{patientId}/medical-records")
+    public ResponseEntity<?> getPatientHistory(@PathVariable("patientId") int patientId,
+            Principal principal){
+        Users caller = this.userService.getUserByUserName(principal.getName());
+        if (caller == null || !UserRole.ROLE_DOCTOR.name().equals(caller.getRole())){
+            return new ResponseEntity<>("Chỉ bác sĩ mới có quyền xem tiền sử bệnh nhân", HttpStatus.FORBIDDEN);
+        }
+        
+        List<MedicalRecords> records = this.medicalRecordService.getPatientById(patientId);
+        
+        return new ResponseEntity<>(records, HttpStatus.OK);
     }
     
     @PutMapping("/api/secure/medical-records/{id}")
