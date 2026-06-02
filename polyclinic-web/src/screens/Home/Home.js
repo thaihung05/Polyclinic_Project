@@ -9,6 +9,7 @@ import { MyUserContext } from "../../configs/Contexts";
 
 const Home = () => {
     const [specialties, setSpecialties] = useState([]);
+    const [doctors, setDoctors] = useState([]);
     const [user,] = useContext(MyUserContext);
     useEffect(() => {
         const loadSpecialties = async () => {

@@ -145,19 +145,6 @@ const Login = () => {
         }
     }
 
-    if (loading) return (
-        <div style={{
-            position: 'fixed', inset: 0,
-            background: 'rgba(255,255,255,0.9)',
-            display: 'flex', flexDirection: 'column',
-            alignItems: 'center', justifyContent: 'center',
-            zIndex: 9999
-        }}>
-            <MySpinner />
-            <p className="text-muted mt-2 fw-semibold">Đang đăng nhập...</p>
-        </div>
-    )
-
     return (
         <>
             <Header />
@@ -175,7 +162,7 @@ const Login = () => {
                                 placeholder="Nhập username"
                                 value={user.username}
                                 onChange={change}
-                                
+                                disabled={loading}
                             />
                         </div>
 
@@ -188,11 +175,15 @@ const Login = () => {
                                 placeholder="Nhập mật khẩu"
                                 value={user.password}
                                 onChange={change}
+                                disabled={loading}
                             />
                         </div>
 
                         <button className="btn btn-login w-100" disabled={loading}>
-                            {loading ? "Đang đăng nhập..." : "Đăng nhập"}
+                            {loading
+                                ? <><span className="spinner-border spinner-border-sm me-2"></span>Đang đăng nhập...</>
+                                : "Đăng nhập"
+                            }
                         </button>
                     </form>
 

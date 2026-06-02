@@ -47,6 +47,20 @@ const Header = () => {
         fetchUnread();
     }, [user, location.pathname]);
 
+    useEffect(() => {
+        const handler = () => fetchUnread();
+        window.addEventListener('notifications-updated', handler);
+        return () => window.removeEventListener('notifications-updated', handler);
+    }, []);
+
+    useEffect(() => {
+        if (!user) return;
+        const interval = setInterval(() => {
+            fetchUnread();
+        }, 5000);
+        return () => clearInterval(interval);
+    }, [user]);
+
     const logout = () => {
         Swal.fire({
             title: "Đăng xuất?",
