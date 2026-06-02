@@ -5,8 +5,9 @@ import Footer from "../../components/Footer";
 import Apis, { endpoints } from "../../configs/Api";
 import "./home.css";
 import "../../styles/base.css";
-import { MyUserContext } from "../../configs/Contexts";
+import { MyUserContext, SpecialtyContext } from "../../configs/Contexts";
 import MySpinner from "../../components/MySpinner";
+import { Button, Form } from "react-bootstrap";
 
 const SPECIALTY_ICONS = {
     "nội tổng quát": "bi-clipboard2-pulse",
@@ -19,9 +20,9 @@ const SPECIALTY_ICONS = {
 
 
 const Home = () => {
-    const [specialties, setSpecialties] = useState([]);
-    const [allDoctors, setAllDoctors] = useState([]);
-    const [doctors, setDoctors] = useState([]);
+    const [specialtiesState, specialtiesDispatch] = useContext(SpecialtyContext);
+    const {specialties, doctors: allDoctors} = specialtiesState;
+    const doctors = allDoctors.slice(0,4);
     const [loading, setLoading] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [showSuggestions, setShowSuggestions] = useState(false);
@@ -58,35 +59,33 @@ const Home = () => {
         else goToAppointment({});
     };
 
-    const loadSpecialties = async () => {
-        try {
+    const load = async() =>{
+        try{
             setLoading(true);
-            const res = await Apis.get(endpoints['specialties']);
-            setSpecialties(res.data);
-        } catch (err) {
-            console.error(err);
-        } finally {
+            specialtiesDispatch({type:"SET_LOADING", payload: true});
+            const [specialtyRes, doctorRes] = await Promise.all(
+                [
+                    Apis.get(endpoints['specialties']),
+                    Apis.get(endpoints['doctors'])
+                ]
+            )
+            specialtiesDispatch({type:"LOAD_SPECIALTIES", payload:specialtyRes.data});
+            const sorted = [...doctorRes.data].sort((a,b) => (b.rating)-(a.rating));
+            specialtiesDispatch({type:"LOAD_DOCTORS", payload: sorted});
+        }
+        catch(err){
+            specialtiesDispatch({ type: 'SET_ERROR', payload: 'Không thể tải dữ liệu!' });
+        }
+        finally{
             setLoading(false);
         }
-    };
+    }
 
-    const loadDoctors = async () => {
-        try {
-            setLoading(true);
-            const res = await Apis.get(endpoints['doctors']);
-            const sorted = [...res.data].sort((a, b) => (b.rating) - (a.rating));
-            setAllDoctors(sorted);
-            setDoctors(sorted.slice(0, 4));
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setLoading(false);
-        }
-    };
+   
 
     useEffect(() => {
-        loadSpecialties();
-        loadDoctors();
+        if(specialties.length > 0 && allDoctors.length >0) return;
+        load();
     }, []);
 
     return (
@@ -104,7 +103,7 @@ const Home = () => {
                                 Kết nối với hơn 50 bác sĩ chuyên khoa — đặt lịch, thanh toán và khám trực tuyến chỉ trong vài bước.
                             </p>
                             <div className="hero-search-wrap">
-                                <form className="hero-search" onSubmit={handleSearch}>
+                                <Form className="hero-search" onSubmit={handleSearch}>
                                     <i className="bi bi-search hero-search-icon"></i>
                                     <input
                                         type="text"
@@ -124,8 +123,8 @@ const Home = () => {
                                             }}
                                         ></i>
                                     )}
-                                    <button type="submit">Tìm kiếm</button>
-                                </form>
+                                    <Button type="submit">Tìm kiếm</Button>
+                                </Form>
                                 {showSuggestions && (suggestedSpecialties.length > 0 || suggestedDoctors.length > 0) && (
                                     <ul className="hero-suggestions">
                                         {suggestedSpecialties.length > 0 && (
