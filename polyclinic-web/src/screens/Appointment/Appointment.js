@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import Apis, { authApis, endpoints } from "../../configs/Api";
@@ -36,6 +37,7 @@ const Appointment = () => {
     const [loading, setLoading] = useState(false);
     const slideRefs = useRef([]);
     const [wrapperHeight, setWrapperHeight] = useState("auto");
+    const location = useLocation();
 
     const loadSpecialties = async () => {
         try {
@@ -53,6 +55,16 @@ const Appointment = () => {
     useEffect(() => {
         loadSpecialties();
     }, []);
+
+    useEffect(() => {
+        if (location.state?.doctor) {
+            const { doctor, specialty } = location.state;
+            setSelectedSpecialty(specialty);
+            chooseDoctor(doctor);
+        } else if (location.state?.specialty) {
+            chooseSpecialty(location.state.specialty);
+        }
+    }, [specialties]);
 
 
     useEffect(() => {

@@ -50,4 +50,9 @@ public class DoctorServiceImpl implements DoctorService{
     public long countAll(String kw) {
         return this.doctorRepo.countAll(kw);
     }
+
+    @Override
+    public List<Doctors> getAllDoctors() {
+        return this.doctorRepo.getAllDoctors();
+    }
 }
