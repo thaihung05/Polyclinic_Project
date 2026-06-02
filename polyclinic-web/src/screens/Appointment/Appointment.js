@@ -7,7 +7,7 @@ import "../../styles/base.css";
 import "./appointment.css";
 import Swal from "sweetalert2";
 import MySpinner from "../../components/MySpinner";
-import { Button, Form, Modal } from "react-bootstrap";
+import { Button, Form, Modal, Spinner } from "react-bootstrap";
 import Moment from "react-moment";
 
 
@@ -152,7 +152,7 @@ const Appointment = () => {
 
     const confirmPayment = async () => {
         try {
-            setLoading(true);
+            setPaymentConfirming(true);
             const appointmentRes = await authApis().post(endpoints['book-appointment'], {
                 doctorId: selectedDoctor.id,
                 scheduleId: selectedSchedule.id,
@@ -175,7 +175,6 @@ const Appointment = () => {
             Swal.fire("Lỗi", err?.response?.data || "Thanh toán thất bại", "error");
         } finally {
             setPaymentConfirming(false);
-            setLoading(false);
         }
     };
 
@@ -442,7 +441,7 @@ const Appointment = () => {
                             Đóng
                         </Button>
                         <Button variant="success" onClick={confirmPayment} disabled={paymentConfirming}>
-                            {paymentConfirming ? <MySpinner /> : "Xác nhận thanh toán"}
+                            {paymentConfirming ? <><Spinner animation="border" size="sm" className="me-2"/>Đang thanh toán</> : "Xác nhận thanh toán"}
                         </Button>
                     </Modal.Footer>
                 </Modal>
