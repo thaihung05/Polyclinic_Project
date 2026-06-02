@@ -6,7 +6,6 @@ import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 
 const statusLabel = (s) => {
-    if (s === "PENDING") return "Chờ xác nhận";
     if (s === "CONFIRMED") return "Đã xác nhận";
     if (s === "COMPLETED") return "Hoàn thành";
     if (s === "CANCELLED") return "Đã hủy";
@@ -15,7 +14,6 @@ const statusLabel = (s) => {
 };
 
 const statusBg = (s) => {
-    if (s === "PENDING") return "warning";
     if (s === "CONFIRMED") return "primary";
     if (s === "COMPLETED") return "success";
     if (s === "CANCELLED") return "danger";
@@ -67,7 +65,7 @@ const AppointmentList = () => {
     }
 
 
-    let tabs = ["", "PENDING", "CONFIRMED", "COMPLETED", "CANCELLED", "NO_SHOW"];
+    let tabs = ["", "CONFIRMED", "COMPLETED", "CANCELLED", "NO_SHOW"];
     let statusCount = {};
     for (let i = 0; i < appointments.length; i++) {
         let a = appointments[i];
