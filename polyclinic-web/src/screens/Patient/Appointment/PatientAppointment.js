@@ -45,19 +45,8 @@ const PatientAppointment = () => {
             return <Badge bg="secondary">Hoàn thành</Badge>
     };
 
-    const formatDateTime = (dateStr) => {
-        if (!dateStr) return "—";
-        const date = new Date(dateStr);
-        const day = String(date.getDate()).padStart(2, "0");
-        const month = String(date.getMonth() + 1).padStart(2, "0");
-        const year = date.getFullYear();
-        const hours = String(date.getHours()).padStart(2, "0");
-        const minutes = String(date.getMinutes()).padStart(2, "0");
-        return `${day}-${month}-${year} ${hours}:${minutes}`;
-    };
-
     const cancelAppointment = async (appointment) => {
-        const { value: cancelReason, isConfirmed } = await Swal.fire({
+        const result = await Swal.fire({
             title: "Hủy lịch hẹn",
             input: "textarea",
             inputLabel: "Lý do hủy",
@@ -66,25 +55,37 @@ const PatientAppointment = () => {
             confirmButtonText: "Xác nhận hủy",
             cancelButtonText: "Đóng",
             confirmButtonColor: "#d33",
+            allowOutsideClick: () => !Swal.isLoading(),
+            preConfirm: async (cancelReason) => {
+                const btn = Swal.getConfirmButton();
+                btn.style.minWidth = btn.offsetWidth + 'px';
+                btn.style.whiteSpace = 'nowrap';
+                btn.disabled=true;
+                btn.innerHTML=`<span class="spinner-border spinner-border-sm me-2" role="status"></span> Đang hủy`;
+                try {
+                    await authApis().patch(endpoints["appointment-status"](appointment.id), {
+                        status: "CANCELLED",
+                        cancelReason: cancelReason || "",
+                        cancelledBy: user?.role,
+                    });
+
+                } catch (err) {
+                    btn.disabled = false;
+                    btn.style.minWidth = '';
+                    btn.style.whiteSpace = '';
+                    btn.innerHTML = "Xác nhận hủy";
+                    Swal.showValidationMessage(err?.response?.data || "Không thể hủy lịch hẹn.");
+                }
+            }
         });
-
-        if (!isConfirmed) return;
-
-        try {
-            setLoading(true);
-            await authApis().patch(endpoints["appointment-status"](appointment.id), {
-                status: "CANCELLED",
-                cancelReason: cancelReason || "",
-                cancelledBy: user?.role,
-            });
+        if (result.isConfirmed) {
             await Swal.fire("Đã hủy!", "Lịch hẹn đã được hủy thành công.", "success");
             loadAppointments();
-        } catch (err) {
-            Swal.fire("Lỗi!", err?.response?.data || "Không thể hủy lịch hẹn.", "error");
         }
-        finally{
-            setLoading(false);
-        }
+
+
+
+
     };
 
     const totalPages = Math.ceil(appointments.length / PAGE_SIZE);
@@ -96,7 +97,7 @@ const PatientAppointment = () => {
             <main className="container my-4">
                 <h4 className="fw-bold mb-4 text-center">Lịch hẹn của tôi</h4>
                 {loading ? (
-                    <MySpinner/>
+                    <MySpinner />
                 ) : appointments.length === 0 ? (
                     <div className="text-center text-muted py-5">
                         Bạn chưa có lịch hẹn nào.
@@ -131,9 +132,9 @@ const PatientAppointment = () => {
                                         <td>
                                             {appointment.meetingUrl && appointment.status === "CONFIRMED"
                                                 ? <a href={appointment.meetingUrl} target="_blank" rel="noreferrer"
-                                                     className="btn btn-success btn-sm">
+                                                    className="btn btn-success btn-sm">
                                                     <i className="bi bi-camera-video-fill me-1"></i>Vào phòng khám
-                                                  </a>
+                                                </a>
                                                 : ""}
                                         </td>
                                         <td>{renderStatus(appointment.status)}</td>
