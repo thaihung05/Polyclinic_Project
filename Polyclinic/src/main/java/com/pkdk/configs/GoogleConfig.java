@@ -14,6 +14,7 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.CalendarScopes;
+import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Collections;
@@ -41,17 +42,15 @@ public class GoogleConfig {
                         JacksonFactory.getDefaultInstance(),
                         clientSecrets,
                         Collections.singleton(CalendarScopes.CALENDAR))
-                        .setDataStoreFactory(new FileDataStoreFactory(new java.io.File("tokens")))
+                        .setDataStoreFactory(new FileDataStoreFactory(new File("tokens")))
                         .setAccessType("offline")
                         .build();
-        System.out.println(new java.io.File("tokens").getAbsolutePath());
         Credential credential = new AuthorizationCodeInstalledApp(
                 flow,
                 new LocalServerReceiver())
                 .authorize("user");
 
-        return new Calendar.Builder(HTTP_TRANSPORT,JacksonFactory.getDefaultInstance(),
-                credential)
+        return new Calendar.Builder(HTTP_TRANSPORT,JacksonFactory.getDefaultInstance(),credential)
                 .setApplicationName(APPLICATION_NAME)
                 .build();
     }
