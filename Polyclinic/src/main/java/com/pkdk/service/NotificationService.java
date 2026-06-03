@@ -7,6 +7,7 @@ package com.pkdk.service;
 import com.pkdk.pojo.Notifications;
 import com.pkdk.pojo.Users;
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -26,4 +27,6 @@ public interface NotificationService {
     Notifications createPrescriptionDispensedNotification(Users user, String doctorName);
     Notifications createPrescriptionExpiredNotification(Users user, java.util.Date expiresAt);
     Notifications createPrescriptionCreatedNotification(Users user, String doctorName, java.util.Date expiresAt);
+    Notifications createMedicineLowStockNotification(Users pharmacist, String medicineName, int medicineStock);
+    Notifications createMedicineNearExpiryNotification(Users pharmacist, String medicineName, Date expiryDate);
 }

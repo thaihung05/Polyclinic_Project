@@ -27,4 +27,5 @@ public interface UserService extends UserDetailsService {
     Users updateProfile(String username, Map<String, String> info, MultipartFile avatar);
     boolean changePassword(String username, String oldPassword, String newPassword);
     void saveOrUpdate(Users u);
+    List<Users> getUsersByRole(String role);
 }
