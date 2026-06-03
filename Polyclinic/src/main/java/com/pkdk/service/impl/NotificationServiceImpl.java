@@ -190,4 +190,32 @@ public class NotificationServiceImpl implements NotificationService {
         return n;
     }
 
+    @Override
+    public Notifications createMedicineLowStockNotification(Users pharmacist, String medicineName, int medicineStock) {
+        Notifications n = new Notifications();
+        n.setUserId(pharmacist);
+        n.setTitle("Cảnh báo: thuốc sắp hết số lượng");
+        n.setMessage(
+                String.format("Thuốc %s chỉ còn %d đơn vị trong kho. Vui lòng nhập thêm để đảm bảo đủ cung cấp."
+                , medicineName, medicineStock));
+        n.setNgayTao(new Date());
+        this.save(n);
+        this.sendEmailNoti(pharmacist, n);
+        return n;
+    }
+
+    @Override
+    public Notifications createMedicineNearExpiryNotification(Users pharmacist, String medicineName, Date expiryDate) {
+        Notifications n = new Notifications();
+        n.setUserId(pharmacist);
+        n.setTitle("Cảnh báo: thuốc sắp hết hạn");
+        SimpleDateFormat formatDate = new SimpleDateFormat("dd/MM/yyyy");
+        n.setMessage(String.format("Thuốc %s sẽ hết hạn vào ngày %s. Vui lòng kiểm tra và xử lý kịp thời.", 
+                medicineName, formatDate.format(expiryDate)));
+        n.setNgayTao(new Date());
+        this.save(n);
+        this.sendEmailNoti(pharmacist, n);
+        return n;
+    }
+
 }

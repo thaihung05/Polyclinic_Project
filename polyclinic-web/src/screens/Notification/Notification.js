@@ -58,6 +58,8 @@ const Notification = () => {
             return "bi-credit-card-fill";
         if (title.includes("tái khám") || title.includes("Tái khám"))
             return "bi-arrow-repeat";
+        if (title.includes("Cảnh báo") || title.includes("cảnh báo"))
+            return "bi-exclamation-triangle-fill";
         return "bi-bell-fill";
     };
 
@@ -69,6 +71,8 @@ const Notification = () => {
             return "#198754";
         if (title.includes("tái khám") || title.includes("Tái khám"))
             return "#fd7e14";
+        if (title.includes("Cảnh báo") || title.includes("cảnh báo"))
+            return "#dc3545";
         return "#6c757d";
     };
 
