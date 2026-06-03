@@ -45,7 +45,7 @@ public class UserRepositoryImpl implements UserRepository {
         
         if (kw != null && !kw.trim().isEmpty())
             hql += "AND (LOWER(u.name) LIKE :kw OR LOWER(u.username) LIKE :kw) ";
-        hql += "ORDER BY u.id DESC";
+        hql += "ORDER BY u.id ASC";
         
         Query q = s.createQuery(hql, Users.class);
         if (!kw.trim().isEmpty())

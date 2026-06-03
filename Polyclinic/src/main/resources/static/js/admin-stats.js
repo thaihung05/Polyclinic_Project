@@ -114,9 +114,9 @@ function buildRevenueDetailChart() {
 }
 
 const tabBuilders = {
-    'patient-tab':         function() { buildPatientAgeChart(); buildPatientGenderChart(); buildPatientSpecialtyChart(); },
-    'service-tab':         buildServiceChart,
-    'disease-tab':         buildDiseaseChart,
+    'patient-tab': function() { buildPatientAgeChart(); buildPatientGenderChart(); buildPatientSpecialtyChart(); },
+    'service-tab': buildServiceChart,
+    'disease-tab': buildDiseaseChart,
     'revenue-summary-tab': buildRevenueSummaryChart,
     'revenue-detail-tab':  buildRevenueDetailChart,
 };
