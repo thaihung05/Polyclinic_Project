@@ -20,7 +20,6 @@ public interface NotificationService {
     Notifications getById(int id);
     Notifications createAppointmentNotification(Users user, String doctorName, String date);
     Notifications createPaySuccessNotification(Users user, String transactionId, BigDecimal amount);
-    Notifications createFollowUpNotification(Users user, String doctorName, String scheduledAt);
     Notifications createNewBookingNotificationForDoctor(Users doctorUser, String patientName, String scheduledAt);
     Notifications createCancelNotificationForPatient(Users user, String scheduledAt);
     Notifications createCancelNotificationForDoctor(Users doctorUser, String patientName, String scheduledAt);

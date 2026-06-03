@@ -41,8 +41,7 @@ public class ReservationExpiryJob {
             }
             this.prescriptionReservationService.confirmExpired(r);
             this.notificationService.createPrescriptionExpiredNotification(
-                r.getPatientId().getUserId(),
-                r.getExpiresAt()
+                r.getPatientId().getUserId(), r.getExpiresAt()
             );
         }
     }

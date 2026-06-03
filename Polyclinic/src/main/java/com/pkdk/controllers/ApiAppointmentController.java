@@ -147,43 +147,6 @@ public class ApiAppointmentController {
 
     }
 
-    @PostMapping("/secure/doctor/appointments/follow-up")
-    public ResponseEntity<?> bookAppointmentForPatient(@RequestBody Map<String, Object> body,
-            Principal principal) {
-
-        Users u = this.userService.getUserByUserName(principal.getName());
-        if (u == null) {
-            return new ResponseEntity<>("Không tìm thấy thông tin người dùng!", HttpStatus.UNAUTHORIZED);
-        }
-
-        if (!UserRole.ROLE_DOCTOR.name().equals(u.getRole())) {
-            return new ResponseEntity<>("Chỉ bác sĩ mới có quyền tạo lịch tái khám!", HttpStatus.FORBIDDEN);
-        }
-
-        Doctors doctor = this.doctorService.getDoctorByUserId(u.getId());
-        if (doctor == null) {
-            return new ResponseEntity<>("Không tìm thấy thông tin bác sĩ!", HttpStatus.BAD_REQUEST);
-        }
-
-        Integer patientId = (Integer) body.get("patientId");
-        Integer scheduleId = (Integer) body.get("scheduleId");
-        String symptoms = (String) body.get("symptoms");
-
-        if (patientId == null) {
-            return new ResponseEntity<>("Thiếu thông tin patientId", HttpStatus.BAD_REQUEST);
-        }
-        if (scheduleId == null) {
-            return new ResponseEntity<>("Thiếu thông tin scheduleId", HttpStatus.BAD_REQUEST);
-        }
-
-        try {
-            Appointments appt = this.appointmentService.bookFollowUp(doctor.getId(), scheduleId, patientId, symptoms);
-            return new ResponseEntity<>(appt, HttpStatus.CREATED);
-        } catch (RuntimeException ex) {
-            return new ResponseEntity<>("Lỗi tạo tái khám: " + ex.getMessage(), HttpStatus.BAD_REQUEST);
-        }
-    }
-
     @GetMapping("/{id}")
     public ResponseEntity<?> getDetail(@PathVariable("id") int id) {
         Appointments a = this.appointmentService.getById(id);

@@ -57,7 +57,18 @@ const MedicineManager = () => {
 
     const [alerts, setAlerts] = useState([]);
     const [editItem, setEditItem] = useState(null);
-    const [form, setForm] = useState({ code: "", name: "", genericName: "", category: "", unit: "", concentration: "", manufacturer: "", stockQuantity: 0, expiryDate: "", price: "", isActive: true });
+    const [form, setForm] = useState({ 
+        code: "", 
+        name: "", 
+        genericName: "", 
+        category: "", 
+        unit: "", 
+        concentration: "", 
+        manufacturer: "", 
+        stockQuantity: 0, 
+        expiryDate: "", 
+        price: "", 
+        isActive: true });
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState("");
 
