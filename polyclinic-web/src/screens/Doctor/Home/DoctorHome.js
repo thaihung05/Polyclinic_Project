@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { authApis, endpoints } from "../../../configs/Api";
 import { Alert, Badge, Table } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
@@ -29,7 +29,7 @@ const DoctorHome = () =>{
     const [loading, setLoading] = useState(false);
 
 
-    const loadAppointments = useCallback(async () => {
+    const loadAppointments = async () => {
         try{
             setLoading(true);
             const res = await authApis().get(endpoints['doctor-appointments']);
@@ -39,11 +39,11 @@ const DoctorHome = () =>{
         } finally{
             setLoading(false);
         }
-    },[]);
+    };
 
     useEffect(() => {
         loadAppointments();
-    }, [loadAppointments]);
+    }, []);
 
     const today = new Date().toISOString().slice(0,10);
 

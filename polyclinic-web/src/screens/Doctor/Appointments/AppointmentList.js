@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { authApis, endpoints } from "../../../configs/Api";
 import { Alert, Badge, Button, Table } from "react-bootstrap";
 import MySpinner from "../../../components/MySpinner";
@@ -27,7 +27,7 @@ const AppointmentList = () => {
     const [tab, setTab] = useState("");
     const navigate = useNavigate();
 
-    const loadAppointments = useCallback(async () => {
+    const loadAppointments = async () => {
         try {
             setLoading(true);
             let res = await authApis().get(endpoints['doctor-appointments']);
@@ -37,14 +37,16 @@ const AppointmentList = () => {
         } finally {
             setLoading(false);
         }
-    }, []);
+    };
 
     useEffect(() => {
         loadAppointments();
-    }, [loadAppointments])
+    }, [])
 
     const updateStatus = async (id, newStatus) => {
-        let body = { status: newStatus };
+        let body = { 
+            status: newStatus 
+        };
         let confirm = await Swal.fire({
             title: "Xác nhận",
             text: `Cập nhật trạng thái sang "${statusLabel(newStatus)}"?`,
@@ -60,7 +62,11 @@ const AppointmentList = () => {
             Swal.fire({ icon: "success", title: "Cập nhật thành công!", showConfirmButton: false, timer: 1000 });
             loadAppointments();
         } catch (ex) {
-            Swal.fire({ icon: "error", title: "Đã xảy ra lỗi!", text: "Không thể thay đổi trạng thái!" });
+            Swal.fire({ 
+                icon: "error", 
+                title: "Đã xảy ra lỗi!", 
+                text: "Không thể thay đổi trạng thái!" 
+            });
         }
     }
 
@@ -117,7 +123,7 @@ const AppointmentList = () => {
                                 <td>{a.scheduledAt ? new Date(a.scheduledAt).toLocaleString("vi-VN") : "—"}</td>
                                 <td>{a.symptoms}</td>
                                 <td>
-                                    {a.status === "CONFIRMED" && a.meetingUrl ? (
+                                    {a.status === "CONFIRMED" && a.meetingUrl && (
                                         <a
                                             href={a.meetingUrl}
                                             target="_blank"
@@ -126,9 +132,7 @@ const AppointmentList = () => {
                                         >
                                             Vào khám
                                         </a>
-                                    ) : a.status === "CONFIRMED" ? (
-                                        <span className="text-muted fst-italic small">Chưa có link</span>
-                                    ) : null}
+                                    )}
                                 </td>
                                 <td>
                                     <Badge bg={statusBg(a.status)}>{statusLabel(a.status)}</Badge>
@@ -149,9 +153,7 @@ const AppointmentList = () => {
                                     )}
                                 </td>
                                 <td>
-                                    <Button
-                                        variant="outline-primary"
-                                        size="sm"
+                                    <Button variant="outline-primary" size="sm"
                                         onClick={() => navigate(`/doctor/dashboard/appointments/${a.id}`)}
                                     >
                                         Chi tiết

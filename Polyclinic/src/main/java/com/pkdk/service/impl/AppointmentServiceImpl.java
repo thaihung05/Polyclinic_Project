@@ -133,57 +133,6 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
-    @Transactional
-    public Appointments bookFollowUp(int doctorId, int scheduleId, int patientId, String sysptoms) {
-        Doctors doctor = this.doctorService.getDoctorById(doctorId);
-        if (doctor == null) {
-            throw new RuntimeException("Không tìm thấy bác sĩ!");
-        }
-        DoctorSchedules ds = this.scheduleService.getByIdWithLock(scheduleId);
-        if (ds == null) {
-            throw new RuntimeException("Lịch không hợp lệ!");
-        }
-        if (!ds.getIsActive()) {
-            throw new RuntimeException("Lịch hẹn đã ngừng hoạt động!");
-        }
-        if (!ds.getDoctorId().getId().equals(doctorId)) {
-            throw new RuntimeException("Lịch không thuôc về bác sĩ đang thao tác!");
-        }
-        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("Asia/Ho_Chi_Minh"));
-        Date now = cal.getTime();
-
-        if (ds.getStartTime().before(now)) {
-            throw new RuntimeException("Lịch đã qua, vui lòng chọn lịch khác!");
-        }
-        Patients p = this.patientService.getPatientById(patientId);
-        if (p == null) {
-            throw new RuntimeException("Không tìm thấy bệnh nhân!");
-        }
-        if (this.existsByPatientAndTime(patientId, ds.getStartTime())) {
-            throw new RuntimeException("Bệnh nhân đã có lịch hẹn vào khung giờ này rồi!");
-        }
-        if (this.existsByPatientDoctorAndDate(patientId, doctorId, ds.getStartTime())) {
-            throw new RuntimeException("Bạn đã có lịch hẹn với bác sĩ này trong hôm nay rồi!");
-        }
-        Appointments a = new Appointments();
-        a.setDoctorId(doctor);
-        a.setPatientId(p);
-        a.setScheduledAt(ds.getStartTime());
-        a.setSymptoms(sysptoms);
-        a.setStatus(AppointmentStatus.PENDING.toString());
-        a.setNgayTao(new Date());
-
-        this.save(a);
-        this.scheduleService.deactivate(ds);
-
-        String doctorName = doctor.getUserId().getName();
-        String scheduledAt = new SimpleDateFormat("HH:mm dd/MM/yyyy").format(a.getScheduledAt());
-        this.notificationService.createFollowUpNotification(p.getUserId(), doctorName, scheduledAt);
-
-        return a;
-    }
-
-    @Override
     public boolean existsByPatientDoctorAndDate(int patientId, int doctorId, Date date) {
         return this.appointmentRepo.existsByPatientDoctorAndDate(patientId, doctorId, date);
     }

@@ -92,20 +92,6 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public Notifications createFollowUpNotification(Users user, String doctorName, String scheduledAt) {
-        Notifications n = new Notifications();
-        n.setUserId(user);
-        n.setTitle("Lịch tái khám mới!");
-        n.setMessage(String.format(
-                "Bác sĩ %s đã đặt lịch tái khám cho bạn vào lúc %s. Vui lòng chuẩn bị kết quả xét nghiệm.",
-                doctorName, scheduledAt));
-        n.setNgayTao(new Date());
-        this.save(n);
-        this.sendEmailNoti(user, n);
-        return n;
-    }
-
-    @Override
     public Notifications createNewBookingNotificationForDoctor(Users doctorUser, String patientName, String scheduledAt) {
         Notifications n = new Notifications();
         n.setUserId(doctorUser);

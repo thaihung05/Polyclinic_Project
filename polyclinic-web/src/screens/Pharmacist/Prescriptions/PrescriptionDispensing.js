@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Badge, Button, Spinner, Table } from "react-bootstrap";
 import Swal from "sweetalert2";
 import Moment from "react-moment";
@@ -13,7 +13,7 @@ const PrescriptionDispensing = () => {
     const [dispensing, setDispensing] = useState(null);
     const [page, setPage] = useState(1);
 
-    const loadReservations = useCallback(async () => {
+    const loadReservations = async () => {
         try {
             setLoading(true);
             const res = await authApis().get(endpoints['pharmacist-prescriptions']);
@@ -23,9 +23,11 @@ const PrescriptionDispensing = () => {
         } finally {
             setLoading(false);
         }
-    }, []);
+    };
 
-    useEffect(() => { loadReservations(); }, [loadReservations]);
+    useEffect(() => { 
+        loadReservations(); 
+    }, []);
 
     const dispense = async (prescriptionId) => {
         const confirm = await Swal.fire({

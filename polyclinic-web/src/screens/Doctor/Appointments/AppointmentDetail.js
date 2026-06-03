@@ -1,11 +1,11 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Alert, Badge, Button, Card, Col, Container, Form, Modal, Nav, Row, Spinner, Tab, Table } from "react-bootstrap";
 import Swal from "sweetalert2";
 import Apis, { authApis, endpoints } from "../../../configs/Api";
+import MySpinner from "../../../components/MySpinner";
 
 const statusVariant = (s) => ({
-    PENDING: "warning",
     CONFIRMED: "primary",
     COMPLETED: "success",
     CANCELLED: "danger",
@@ -13,7 +13,6 @@ const statusVariant = (s) => ({
 }[s]);
 
 const statusLabel = (s) => ({
-    PENDING: "Chờ xác nhận",
     CONFIRMED: "Đã xác nhận",
     COMPLETED: "Hoàn thành",
     CANCELLED: "Đã hủy",
@@ -46,7 +45,8 @@ const AppointmentDetail = () => {
     const [prescItems, setPrescItems] = useState([
         { 
             medicineId: "", 
-            quantity: 1, dosage: "", 
+            quantity: 1, 
+            dosage: "", 
             durationDays: 1, 
             instructions: "", 
             unitPrice: 0 }
@@ -67,7 +67,7 @@ const AppointmentDetail = () => {
     const [savingLab, setSavingLab] = useState(false);
     const [patientHistory, setPatientHistory] = useState([]);
 
-    const fetchAppt = useCallback(async () => {
+    const fetchAppt =async () => {
         try {
             setLoading(true);
             const res = await Apis.get(endpoints["appointment-detail"](appointmentId));
@@ -77,9 +77,9 @@ const AppointmentDetail = () => {
         } finally {
             setLoading(false);
         }
-    }, [appointmentId]);
+    };
 
-    const fetchRecord = useCallback(async () => {
+    const fetchRecord = async () => {
         try {
             setRecordLoading(true);
             const res = await Apis.get(endpoints["appointment-medical-record"](appointmentId));
@@ -96,16 +96,16 @@ const AppointmentDetail = () => {
         } finally {
             setRecordLoading(false);
         }
-    }, [appointmentId]);
+    };
 
-    const fetchLabResults = useCallback(async () => {
+    const fetchLabResults = async () => {
         try {
             const res = await Apis.get(endpoints["lab-results-by-appointment"](appointmentId));
             setLabResults(res.data);
         } catch {
             setLabResults([]);
         }
-    }, [appointmentId]);
+    };
 
     const fetchMedicines = async () => {
         try {
@@ -138,7 +138,7 @@ const AppointmentDetail = () => {
         fetchAppt();
         fetchRecord();
         fetchLabResults();
-    }, [fetchAppt, fetchRecord, fetchLabResults]);
+    }, [appointmentId]);
 
     useEffect(() => {
         if (appt?.patientId?.id)
@@ -218,22 +218,23 @@ const AppointmentDetail = () => {
             dosage: "", 
             durationDays: 1, 
             instructions: "", 
-            unitPrice: 0 }
+            unitPrice: 0 
+        }
     ]);
 
-    const removePrescItem = (idx) => setPrescItems(prev => prev.filter((_, i) => i !== idx));
+    const removePrescItem = (idx) =>
+        setPrescItems(prev => prev.filter((_, i) => i !== idx));
 
-    const updatePrescItem = (idx, field, value) => {
-        setPrescItems(prev => {
-            const updated = [...prev];
-            updated[idx] = { ...updated[idx], [field]: value };
+    const updatePrescItem = (idx, field, value) =>
+        setPrescItems(prev => prev.map((item, i) => {
+            if (i !== idx) return item;
+            const updated = { ...item, [field]: value };
             if (field === "medicineId") {
                 const med = medicines.find(m => String(m.id) === String(value));
-                if (med) updated[idx].unitPrice = med.price || 0;
+                updated.unitPrice = med?.price || 0;
             }
             return updated;
-        });
-    };
+        }));
 
     const handleSavePresc = async () => {
         if (!record) {
@@ -326,7 +327,7 @@ const AppointmentDetail = () => {
 
     if (loading) return (
         <div className="text-center mt-5">
-            <Spinner animation="border" variant="primary" />
+            <MySpinner />
             <p className="mt-2">Đang tải...</p>
         </div>
     );
@@ -433,9 +434,7 @@ const AppointmentDetail = () => {
                             </Card.Header>
                             <Card.Body>
                                 {recordLoading ? (
-                                    <div className="text-center py-3">
-                                        <Spinner animation="border" size="sm" /> Đang tải hồ sơ...
-                                    </div>
+                                    <MySpinner />
                                 ) : (
                                     <Form onSubmit={handleSaveRecord}>
                                         <Row>
@@ -446,9 +445,8 @@ const AppointmentDetail = () => {
                                                         as="textarea" 
                                                         rows={3}
                                                         value={recordForm.chiefComplaint}
-                                                        onChange={e => 
-                                                            setRecordForm(p => ({ 
-                                                                ...p, 
+                                                        onChange={e => setRecordForm(p => ({ 
+                                                                ...p,
                                                                 chiefComplaint: e.target.value 
                                                             }))
                                                         }
@@ -474,7 +472,6 @@ const AppointmentDetail = () => {
                                                         as="textarea" rows={2}
                                                         value={recordForm.treatmentPlan}
                                                         onChange={e => setRecordForm(p => ({ ...p, treatmentPlan: e.target.value }))}
-                                                        placeholder="Hướng điều trị, thuốc sử dụng..."
                                                     />
                                                 </Form.Group>
                                             </Col>
@@ -482,7 +479,7 @@ const AppointmentDetail = () => {
                                                 <Form.Group className="mb-3">
                                                     <Form.Label>Ngày tái khám</Form.Label>
                                                     <Form.Control
-                                                        type="datetime-local"
+                                                        type="date"
                                                         value={recordForm.followUpDate}
                                                         min={new Date().toISOString().slice(0, 16)}
                                                         onChange={e => setRecordForm(p => ({ ...p, followUpDate: e.target.value }))}

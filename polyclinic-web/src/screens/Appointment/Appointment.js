@@ -248,7 +248,7 @@ const Appointment = () => {
                                                         <div key={d.id} onClick={() => chooseDoctor(d)}
                                                             className={`doctor-card ${selectedDoctor?.id === d.id ? "selected" : ""}`}>
                                                             <div className="dc-avatar">
-                                                                <img src={d.userId?.avatar} alt={d.userId?.name} />
+                                                                <img src={d.userId?.avatar} alt={d.userId?.name} referrerPolicy="no-referrer" />
                                                             </div>
                                                             <div className="dc-info">
                                                                 <div className="dc-name">{d.userId?.name}</div>

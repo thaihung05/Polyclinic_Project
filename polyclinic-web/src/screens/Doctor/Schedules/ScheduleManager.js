@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { authApis, endpoints } from "../../../configs/Api";
 import { MyUserContext } from "../../../configs/Contexts";
 import { Alert, Badge, Button, Form, Modal, Table } from "react-bootstrap";
@@ -37,7 +37,7 @@ const ScheduleManager = () => {
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState("");
 
-    const loadSchedules = useCallback(async () => {
+    const loadSchedules = async () => {
         if (!doctorId) return;
         try {
             setLoading(true);
@@ -51,11 +51,11 @@ const ScheduleManager = () => {
         } finally {
             setLoading(false);
         }
-    }, [doctorId]);
+    };
 
     useEffect(() => {
         loadSchedules();
-    }, [loadSchedules]);
+    }, [doctorId]);
 
     useEffect(() => {
         setPage(1);

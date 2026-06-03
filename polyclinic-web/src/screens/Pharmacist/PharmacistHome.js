@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { authApis, endpoints } from "../../configs/Api";
 import { Alert, Badge } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
@@ -14,7 +14,7 @@ const PharmacistHome = () => {
     const [nearExpiry, setNearExpiry] = useState([]);
     const [loading, setLoading] = useState(false);
 
-    const loadData = useCallback(async () => {
+    const loadData = async () => {
         try {
             setLoading(true);
             const [medRes, lowRes, expiryRes] = await Promise.all([
@@ -30,11 +30,11 @@ const PharmacistHome = () => {
         } finally {
             setLoading(false);
         }
-    }, []);
+    };
 
     useEffect(() => {
         loadData();
-    }, [loadData]);
+    }, []);
 
     const cards = [
         { label: "Tổng số thuốc", value: medicines.length, icon: "bi bi-capsule", bg: "#e8f4f8" },
