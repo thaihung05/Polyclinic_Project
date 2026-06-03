@@ -28,7 +28,6 @@ const AppointmentDetail = () => {
     const [error, setError] = useState(null);
 
     const [record, setRecord] = useState(null);
-    const [recordLoading, setRecordLoading] = useState(true);
     const [recordForm, setRecordForm] = useState({
         chiefComplaint: "", 
         diagnosis: "", 
@@ -81,7 +80,6 @@ const AppointmentDetail = () => {
 
     const fetchRecord = async () => {
         try {
-            setRecordLoading(true);
             const res = await Apis.get(endpoints["appointment-medical-record"](appointmentId));
             setRecord(res.data);
             setRecordForm({
@@ -92,9 +90,6 @@ const AppointmentDetail = () => {
                 notes: res.data.notes || ""
             });
         } catch {
-
-        } finally {
-            setRecordLoading(false);
         }
     };
 
@@ -318,7 +313,6 @@ const AppointmentDetail = () => {
                     showConfirmButton: false });
             }
         } catch (err) {
-            console.error(err);
             Swal.fire("Lỗi", err.response?.data || "Không thể lưu hồ sơ bệnh án", "error");
         } finally {
             setSavingRecord(false);
@@ -408,7 +402,7 @@ const AppointmentDetail = () => {
                                         <p>{appt.symptoms || "—"}</p>
                                     </Col>
                                     {appt.meetingUrl && (
-                                        <Col md={12}>
+                                        <Col md={6}>
                                             <p className="mb-1 text-muted small">Khám online</p>
                                             <a href={appt.meetingUrl} target="_blank" rel="noreferrer"
                                                className="btn btn-success btn-sm">
@@ -417,7 +411,7 @@ const AppointmentDetail = () => {
                                         </Col>
                                     )}
                                     {appt.cancelReason && (
-                                        <Col md={12}>
+                                        <Col md={6}>
                                             <p className="mb-1 text-muted small">Lý do hủy</p>
                                             <p className="text-danger">{appt.cancelReason}</p>
                                         </Col>
@@ -433,7 +427,7 @@ const AppointmentDetail = () => {
                                 {record ? "Cập nhật hồ sơ bệnh án" : "Tạo hồ sơ bệnh án"}
                             </Card.Header>
                             <Card.Body>
-                                {recordLoading ? (
+                                {loading ? (
                                     <MySpinner />
                                 ) : (
                                     <Form onSubmit={handleSaveRecord}>
@@ -445,12 +439,7 @@ const AppointmentDetail = () => {
                                                         as="textarea" 
                                                         rows={3}
                                                         value={recordForm.chiefComplaint}
-                                                        onChange={e => setRecordForm(p => ({ 
-                                                                ...p,
-                                                                chiefComplaint: e.target.value 
-                                                            }))
-                                                        }
-                                                        placeholder="Bệnh nhân đến khám vì..."
+                                                        onChange={e => setRecordForm(p => ({ ...p, chiefComplaint: e.target.value }))}
                                                     />
                                                 </Form.Group>
                                             </Col>
@@ -461,7 +450,6 @@ const AppointmentDetail = () => {
                                                         as="textarea" rows={3}
                                                         value={recordForm.diagnosis}
                                                         onChange={e => setRecordForm(p => ({ ...p, diagnosis: e.target.value }))}
-                                                        placeholder="Kết quả chẩn đoán..."
                                                     />
                                                 </Form.Group>
                                             </Col>
@@ -493,7 +481,6 @@ const AppointmentDetail = () => {
                                                         as="textarea" rows={2}
                                                         value={recordForm.notes}
                                                         onChange={e => setRecordForm(p => ({ ...p, notes: e.target.value }))}
-                                                        placeholder="Lưu ý đặc biệt..."
                                                     />
                                                 </Form.Group>
                                             </Col>
@@ -512,7 +499,7 @@ const AppointmentDetail = () => {
                             <Card.Header className="d-flex justify-content-between align-items-center">
                                 <span className="fw-semibold">Danh sách đơn thuốc</span>
                                 <Button size="sm" variant="success" onClick={() => setShowPrescModal(true)}>
-                                    + Kê đơn mới
+                                    Kê đơn mới
                                 </Button>
                             </Card.Header>
                             <Card.Body>
@@ -529,28 +516,32 @@ const AppointmentDetail = () => {
                                                 <strong>Đơn #{pi + 1}</strong>
                                                 {presc.ngayTao && (
                                                     <span className="text-muted ms-2 small">
-                                                        — {new Date(presc.ngayTao).toLocaleString("vi-VN")}
+                                                        - {new Date(presc.ngayTao).toLocaleString("vi-VN")}
                                                     </span>
                                                 )}
-                                                {presc.note && <span className="ms-2 fst-italic text-muted">({presc.note})</span>}
                                             </Card.Header>
                                             <Table size="sm" responsive className="mb-0">
                                                 <thead className="table-light">
                                                     <tr>
-                                                        <th>#</th><th>Tên thuốc</th><th>Liều dùng</th>
-                                                        <th>Số ngày</th><th>Số lượng</th><th>Hướng dẫn</th><th>Đơn giá</th>
+                                                        <th>#</th>
+                                                        <th>Tên thuốc</th>
+                                                        <th>Liều dùng</th>
+                                                        <th>Số ngày</th>
+                                                        <th>Số lượng</th>
+                                                        <th>Hướng dẫn</th>
+                                                        <th>Đơn giá</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    {(presc.prescriptionItemsCollection || []).map((item, ii) => (
-                                                        <tr key={item.id || ii}>
-                                                            <td>{ii + 1}</td>
+                                                    {(presc.prescriptionItemsCollection || []).map((item, i) => (
+                                                        <tr key={item.id}>
+                                                            <td>{i + 1}</td>
                                                             <td>{item.medicineId?.name || "—"}</td>
                                                             <td>{item.dosage}</td>
                                                             <td>{item.durationDays} ngày</td>
                                                             <td>{item.quantity} {item.medicineId?.unit || ""}</td>
                                                             <td>{item.instructions || "—"}</td>
-                                                            <td>{Number(item.unitPrice || 0).toLocaleString("vi-VN")}đ</td>
+                                                            <td>{Number(item.unitPrice || 0).toLocaleString("vi-VN")}VNĐ</td>
                                                         </tr>
                                                     ))}
                                                 </tbody>
@@ -572,7 +563,6 @@ const AppointmentDetail = () => {
                                         as="textarea" rows={1}
                                         value={prescNote}
                                         onChange={e => setPrescNote(e.target.value)}
-                                        placeholder="VD: Uống đúng giờ, tái khám sau 1 tuần..."
                                     />
                                 </Form.Group>
                                 <Table bordered responsive size="sm">
@@ -606,7 +596,6 @@ const AppointmentDetail = () => {
                                                 </td>
                                                 <td>
                                                     <Form.Control
-                                                        placeholder="VD: 1 viên x 2 lần/ngày"
                                                         value={item.dosage}
                                                         onChange={e => updatePrescItem(idx, "dosage", e.target.value)}
                                                     />
@@ -630,7 +619,6 @@ const AppointmentDetail = () => {
                                                 </td>
                                                 <td>
                                                     <Form.Control
-                                                        placeholder="VD: Uống sau ăn"
                                                         value={item.instructions}
                                                         onChange={e => updatePrescItem(idx, "instructions", e.target.value)}
                                                     />
@@ -733,7 +721,6 @@ const AppointmentDetail = () => {
                                     <Form.Control
                                         value={labForm.testName}
                                         onChange={e => setLabForm(p => ({ ...p, testName: e.target.value }))}
-                                        placeholder="VD: Xét nghiệm máu tổng quát"
                                     />
                                 </Form.Group>
                                 <Row>
@@ -743,7 +730,6 @@ const AppointmentDetail = () => {
                                             <Form.Control
                                                 value={labForm.testCode}
                                                 onChange={e => setLabForm(p => ({ ...p, testCode: e.target.value }))}
-                                                placeholder="VD: CBC"
                                             />
                                         </Form.Group>
                                     </Col>
@@ -753,7 +739,6 @@ const AppointmentDetail = () => {
                                             <Form.Control
                                                 value={labForm.unit}
                                                 onChange={e => setLabForm(p => ({ ...p, unit: e.target.value }))}
-                                                placeholder="VD: mg/dL"
                                             />
                                         </Form.Group>
                                     </Col>
@@ -764,7 +749,6 @@ const AppointmentDetail = () => {
                                         as="textarea" rows={2}
                                         value={labForm.result}
                                         onChange={e => setLabForm(p => ({ ...p, result: e.target.value }))}
-                                        placeholder="Nhập kết quả xét nghiệm..."
                                     />
                                 </Form.Group>
                                 <Row>
