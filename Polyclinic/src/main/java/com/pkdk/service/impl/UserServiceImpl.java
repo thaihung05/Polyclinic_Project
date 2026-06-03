@@ -192,7 +192,7 @@ public class UserServiceImpl implements UserService {
             u.setAvatar("https://res.cloudinary.com/dx4i4a03w/image/upload/v1767614792/restaurant/avatars/uvp1wsa1gsqmcmpnfcev.jpg");
         }
 
-        this.saveOrUpdate(u);
+        this.userRepo.saveOrUpdate(u);
         this.createNewPatient(u, info);
         return u;
     }
@@ -235,7 +235,7 @@ public class UserServiceImpl implements UserService {
             }
         }
 
-        this.saveOrUpdate(u);
+        this.userRepo.saveOrUpdate(u);
 
         if (UserRole.ROLE_PATIENT.toString().equals(u.getRole())) {
             Patients p = this.patientService.getPatientByUserId(u.getId());
@@ -304,7 +304,7 @@ public class UserServiceImpl implements UserService {
         }
 
         u.setPassword(this.passwordEncoder.encode(newPassword));
-        this.saveOrUpdate(u);
+        this.userRepo.saveOrUpdate(u);
         return true;
     }
 

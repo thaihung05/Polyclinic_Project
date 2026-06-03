@@ -52,7 +52,7 @@ public class NotificationServiceImpl implements NotificationService {
                 "Bạn có lịch khám với bác sĩ %s vào lúc %s. Vui lòng có mặt đúng giờ.",
                 doctorName, date));
         n.setNgayTao(new Date());
-        this.save(n);
+        this.notificationRepo.save(n);
         this.sendEmailNoti(user, n);
         return n;
     }
@@ -66,7 +66,7 @@ public class NotificationServiceImpl implements NotificationService {
                 "Bạn đã thanh toán thành công %s VND. Mã giao dịch: %s.",
                 amount, transactionId));
         n.setNgayTao(new Date());
-        this.save(n);
+        this.notificationRepo.save(n);
         this.sendEmailNoti(user, n);
         return n;
     }
@@ -74,7 +74,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void markAsRead(Notifications n) {
         n.setIsRead(true);
-        this.save(n);
+        this.notificationRepo.save(n);
     }
 
     private void sendEmailNoti(Users u, Notifications n) {
@@ -100,7 +100,7 @@ public class NotificationServiceImpl implements NotificationService {
                 "Bệnh nhân %s vừa đặt lịch khám với bạn vào lúc %s.",
                 patientName, scheduledAt));
         n.setNgayTao(new Date());
-        this.save(n);
+        this.notificationRepo.save(n);
         this.sendEmailNoti(doctorUser, n);
         return n;
     }
@@ -112,7 +112,7 @@ public class NotificationServiceImpl implements NotificationService {
         n.setTitle("Lịch hẹn đã bị hủy");
         n.setMessage(String.format("Lịch khám vào lúc %s của bạn đã bị hủy.",scheduledAt));
         n.setNgayTao(new Date());
-        this.save(n);
+        this.notificationRepo.save(n);
         this.sendEmailNoti(user, n);
         return n;
         
@@ -127,7 +127,7 @@ public class NotificationServiceImpl implements NotificationService {
                 "Bệnh nhân %s đã hủy lịch khám vào lúc %s.",
                 patientName, scheduledAt));
         n.setNgayTao(new Date());
-        this.save(n);
+        this.notificationRepo.save(n);
         this.sendEmailNoti(doctorUser, n);
         return n;
     }
@@ -139,7 +139,7 @@ public class NotificationServiceImpl implements NotificationService {
         n.setTitle("Đơn thuốc đã sẵn sàng!");
         n.setMessage(String.format("Đơn thuốc của bạn do bác sĩ %s kê, đã được dược sĩ cấp nhận cấp phát. Vui lòng đến quầy thuốc để nhận thuốc.", doctorName));
         n.setNgayTao(new Date());
-        this.save(n);
+        this.notificationRepo.save(n);
         this.sendEmailNoti(user, n);
         return n;
     }
@@ -155,7 +155,7 @@ public class NotificationServiceImpl implements NotificationService {
             "Bác sĩ %s vừa kê đơn thuốc cho bạn. Vui lòng vào mục Lịch sử khám bệnh để xem và thanh toán trước %s để tránh bị hủy đơn.",
             doctorName, deadline));
         n.setNgayTao(new Date());
-        this.save(n);
+        this.notificationRepo.save(n);
         this.sendEmailNoti(user, n);
         return n;
     }
@@ -171,7 +171,7 @@ public class NotificationServiceImpl implements NotificationService {
             "Đơn thuốc của bạn đã hết thời hạn thanh toán lúc %s và bị hủy. Vui lòng liên hệ bác sĩ để được kê đơn lại.",
             expiredTime));
         n.setNgayTao(new Date());
-        this.save(n);
+        this.notificationRepo.save(n);
         this.sendEmailNoti(user, n);
         return n;
     }
@@ -185,7 +185,7 @@ public class NotificationServiceImpl implements NotificationService {
                 String.format("Thuốc %s chỉ còn %d đơn vị trong kho. Vui lòng nhập thêm để đảm bảo đủ cung cấp."
                 , medicineName, medicineStock));
         n.setNgayTao(new Date());
-        this.save(n);
+        this.notificationRepo.save(n);
         this.sendEmailNoti(pharmacist, n);
         return n;
     }
@@ -199,7 +199,7 @@ public class NotificationServiceImpl implements NotificationService {
         n.setMessage(String.format("Thuốc %s sẽ hết hạn vào ngày %s. Vui lòng kiểm tra và xử lý kịp thời.", 
                 medicineName, formatDate.format(expiryDate)));
         n.setNgayTao(new Date());
-        this.save(n);
+        this.notificationRepo.save(n);
         this.sendEmailNoti(pharmacist, n);
         return n;
     }

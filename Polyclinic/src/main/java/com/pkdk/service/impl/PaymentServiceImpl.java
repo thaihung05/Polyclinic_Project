@@ -74,7 +74,7 @@ public class PaymentServiceImpl implements PaymentService {
         payment.setDescription(description);
         payment.setNgayTao(new Date());
         payment.setQrUrl(qrUrl);
-        this.save(payment);
+        this.paymentRepo.save(payment);
 
         appointment.setPaymentId(payment);
         this.appointmentService.save(appointment);
@@ -99,7 +99,7 @@ public class PaymentServiceImpl implements PaymentService {
         }
 
         payment.setStatus(PaymentStatus.COMPLETED.toString());
-        this.save(payment);
+        this.paymentRepo.save(payment);
 
         appointment.setStatus(AppointmentStatus.CONFIRMED.toString());
         

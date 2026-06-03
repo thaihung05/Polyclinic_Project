@@ -62,10 +62,6 @@ public class AppointmentServiceImpl implements AppointmentService {
             throw new RuntimeException("Lịch không thuộc về bác sĩ này");
         }
 
-        //Bị lỗi vì new Date() lấy giờ hệ thống server, nếu server chạy timezone UTC thì 2026-04-25 08:00:00 có thể bị hiểu là UTC, trong khi thực tế giờ VN là UTC+7.
-//        if (schedule.getStartTime().before(new Date())) {
-//            throw new RuntimeException("Lịch đã qua, Vui lòng chọn lịch khác");
-//        }
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("Asia/Ho_Chi_Minh"));
         Date nowVN = cal.getTime();
 
@@ -92,7 +88,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointment.setSymptoms(symptoms);
         appointment.setStatus(AppointmentStatus.PENDING.toString());
         appointment.setNgayTao(new Date());
-        this.save(appointment);
+        this.appointmentRepo.save(appointment);
 
         this.scheduleService.deactivate(schedule);
 
@@ -141,34 +137,34 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Transactional
     public Appointments cancelAppointments(int appointmentId, String cancelReason, String cancelBy) {
         Appointments appointment = this.getById(appointmentId);
-        if(appointment == null){
+        if (appointment == null) {
             throw new RuntimeException("Không tìm thấy cuộc hẹn");
         }
-        if(appointment.getStatus().equals(AppointmentStatus.CANCELLED.name())){
+        if (appointment.getStatus().equals(AppointmentStatus.CANCELLED.name())) {
             throw new RuntimeException("Lịch hẹn này đã được hủy");
         }
-        
+
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("Asia/Ho_Chi_Minh"));
-        if (appointment.getScheduledAt() != null && appointment.getScheduledAt().after(cal.getTime())){
-            DoctorSchedules slot = 
-                    this.scheduleService.getByDoctorAndStartTime(appointment.getDoctorId().getId(), appointment.getScheduledAt());
-            
-            if(slot!=null && !slot.getIsActive()){
+        if (appointment.getScheduledAt() != null && appointment.getScheduledAt().after(cal.getTime())) {
+            DoctorSchedules slot
+                    = this.scheduleService.getByDoctorAndStartTime(appointment.getDoctorId().getId(), appointment.getScheduledAt());
+
+            if (slot != null && !slot.getIsActive()) {
                 this.scheduleService.reactivate(slot);
             }
         }
-        
+
         appointment.setStatus(AppointmentStatus.CANCELLED.name());
         appointment.setCancelledBy(cancelBy);
         appointment.setCancelReason(cancelReason);
-        
-        this.save(appointment);
-        
+
+        this.appointmentRepo.save(appointment);
+
         String scheduledAt = new SimpleDateFormat("HH:mm dd/MM/yyyy").format(appointment.getScheduledAt());
         String patientName = appointment.getPatientId().getUserId().getName();
         this.notificationService.createCancelNotificationForPatient(appointment.getPatientId().getUserId(), scheduledAt);
         this.notificationService.createCancelNotificationForDoctor(appointment.getDoctorId().getUserId(), patientName, scheduledAt);
-        
+
         return appointment;
     }
 
@@ -176,16 +172,16 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Transactional
     public Appointments finishAppointments(int appointmentId, String newStatus) {
         Appointments appointment = this.getById(appointmentId);
-        if(appointment == null){
+        if (appointment == null) {
             throw new RuntimeException("Không tìm thấy cuộc hẹn");
         }
-        if(!appointment.getStatus().equals(AppointmentStatus.CONFIRMED.name())){
+        if (!appointment.getStatus().equals(AppointmentStatus.CONFIRMED.name())) {
             throw new RuntimeException("Chỉ được cập nhật lịch hẹn đã xác nhận");
         }
-        
+
         appointment.setStatus(newStatus);
-        this.save(appointment);
-        
+        this.appointmentRepo.save(appointment);
+
         return appointment;
     }
 
@@ -193,16 +189,16 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Transactional
     public Appointments addMeetingUrl(int appointmentId, String meetingUrl) {
         Appointments appointment = this.getById(appointmentId);
-        if(appointment == null){
+        if (appointment == null) {
             throw new RuntimeException("Không tìm thấy cuộc hẹn");
         }
-        if(appointment.getMeetingUrl() != null){
+        if (appointment.getMeetingUrl() != null) {
             throw new RuntimeException("Đã có meeting url cho lịch hẹn này");
         }
-        
+
         appointment.setMeetingUrl(meetingUrl);
-        this.save(appointment);
-        
+        this.appointmentRepo.save(appointment);
+
         return appointment;
     }
 
@@ -216,4 +212,3 @@ public class AppointmentServiceImpl implements AppointmentService {
         return this.appointmentRepo.countAll(kw, status, fromDate, toDate);
     }
 }
-
