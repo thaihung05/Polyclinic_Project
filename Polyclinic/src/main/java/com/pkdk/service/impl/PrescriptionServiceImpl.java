@@ -4,6 +4,8 @@
  */
 package com.pkdk.service.impl;
 
+import com.pkdk.enums.PayMethodEnum;
+import com.pkdk.enums.PaymentStatus;
 import com.pkdk.pojo.Medicines;
 import com.pkdk.pojo.Payments;
 import com.pkdk.pojo.PrescriptionItems;
@@ -12,7 +14,11 @@ import com.pkdk.repository.PrescriptionRepository;
 import com.pkdk.service.MedicineService;
 import com.pkdk.service.PaymentService;
 import com.pkdk.service.PrescriptionService;
+import com.pkdk.service.QrService;
+import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,6 +37,9 @@ public class PrescriptionServiceImpl implements PrescriptionService{
 
     @Autowired
     private PaymentService paymentService;
+    @Autowired
+    private QrService qrService;
+    
     @Override
     public List<Prescriptions> getByMedicalRecordId(int medicalRecordId) {
         return this.prescriptionRepo.getByMedicalRecordId(medicalRecordId);
@@ -85,6 +94,36 @@ public class PrescriptionServiceImpl implements PrescriptionService{
         for(PrescriptionItems item: prescription.getPrescriptionItemsCollection()){
             this.medicineService.deductStock(item.getMedicineId().getId(), item.getQuantity());
         }
+    }
+
+    @Override
+    public Payments createPayment(int prescriptionId) {
+        Prescriptions prescription = this.prescriptionRepo.getById(prescriptionId);
+        if (prescription==null){
+            throw new RuntimeException("Không tìm thấy đơn thuốc");
+        }
+        
+        BigDecimal totalAmount = prescription.getPrescriptionItemsCollection()
+                .stream().map(item -> item.getUnitPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        
+        String transactionId = "MEDICINE-"+UUID.randomUUID().toString().substring(0,8).toUpperCase();
+        String description = "Thanh toán đơn thuốc #" + prescriptionId;
+        String qrUrl = this.qrService.generateBankingQR(totalAmount.toPlainString(), description);
+        
+        Payments payment = new Payments();
+        payment.setAmount(totalAmount);
+        payment.setMethod(PayMethodEnum.BANKING.toString());
+        payment.setStatus(PaymentStatus.PENDING.toString());
+        payment.setTransactionId(transactionId);
+        payment.setDescription(description);
+        payment.setNgayTao(new Date());
+        payment.setQrUrl(qrUrl);
+        
+        this.paymentService.save(payment);
+        prescription.setPaymentId(payment);
+        this.prescriptionRepo.save(prescription);
+        return payment;
     }
     
 }

@@ -9,6 +9,6 @@ package com.pkdk.service;
  * @author vanlong
  */
 public interface QrService {
-    String generateMomoQR(String transactionId, String amount, String description);
-    String generateBankingQR(String transactionId, String amount, String description);
+    String generateMomoQR(String amount, String description);
+    String generateBankingQR(String amount, String description);
 }

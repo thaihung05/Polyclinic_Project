@@ -16,23 +16,23 @@ import org.springframework.stereotype.Service;
 @Service
 public class QrServiceImpl implements QrService {
 
-    private static final String MOMO_BANK_CODE = "MOMO";          // ngân hàng techcombank
-    private static final String MOMO_ACCOUNT = "0123456789";  // số TK Momo giả
-    private static final String BANKING_BANK_CODE = "TCB";         // Techcombank
-    private static final String BANKING_ACCOUNT = "1234567890";  // số TK ngân hàng giả
+    private static final String MOMO_BANK_CODE = "MOMO";          
+    private static final String MOMO_ACCOUNT = "0123456789";  
+    private static final String BANKING_BANK_CODE = "TCB";
+    private static final String BANKING_ACCOUNT = "1234567890";
     private static final String ACCOUNT_NAME = "PHONG KHAM TH VL";
 
     @Override
-    public String generateMomoQR(String transactionId, String amount, String description) {
-        return buildVietQRUrl(MOMO_BANK_CODE, MOMO_ACCOUNT, transactionId, amount, description);
+    public String generateMomoQR(String amount, String description) {
+        return buildVietQRUrl(MOMO_BANK_CODE, MOMO_ACCOUNT, amount, description);
     }
 
     @Override
-    public String generateBankingQR(String transactionId, String amount, String description) {
-        return buildVietQRUrl(BANKING_BANK_CODE, BANKING_ACCOUNT, transactionId, amount, description);
+    public String generateBankingQR(String amount, String description) {
+        return buildVietQRUrl(BANKING_BANK_CODE, BANKING_ACCOUNT, amount, description);
     }
 
-    private String buildVietQRUrl(String bankCode, String accountNo, String transactionId, String amount, String description) {
+    private String buildVietQRUrl(String bankCode, String accountNo, String amount, String description) {
         try {
             String encodedName = URLEncoder.encode(ACCOUNT_NAME, "UTF-8");
             String encodedDesc = URLEncoder.encode(description, "UTF-8");
