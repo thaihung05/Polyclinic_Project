@@ -121,4 +121,13 @@ public class UserRepositoryImpl implements UserRepository {
                 .setParameter("email", email).getResultList();
         return users.isEmpty() ? null : users.get(0);
     }
+
+    @Override
+    public List<Users> getUsersByRole(String role) {
+        Session s = this.factory.getObject().getCurrentSession();
+        List<Users> users = s.createQuery("FROM Users u WHERE u.role = :role AND u.isActive = true" ,Users.class)
+                .setParameter("role", role).getResultList();
+        
+        return users;
+    }
 }
