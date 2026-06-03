@@ -155,6 +155,7 @@ const AppointmentList = () => {
                                 <td>
                                     <Button variant="outline-primary" size="sm"
                                         onClick={() => navigate(`/doctor/dashboard/appointments/${a.id}`)}
+                                        disabled={a.status === "COMPLETED" || a.status === 'CANCELLED'}
                                     >
                                         Chi tiết
                                     </Button>

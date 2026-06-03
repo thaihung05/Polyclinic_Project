@@ -4,6 +4,7 @@
  */
 package com.pkdk.controllers;
 
+import com.pkdk.enums.AppointmentStatus;
 import com.pkdk.enums.UserRole;
 import com.pkdk.pojo.Appointments;
 import com.pkdk.pojo.MedicalRecords;
@@ -32,82 +33,101 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @CrossOrigin
 public class ApiMedicalRecordController {
-    
+
     @Autowired
     private AppointmentService appointmentService;
-    
+
     @Autowired
     private MedicalRecordService medicalRecordService;
-    
+
     @Autowired
     private UserService userService;
-    
+
     @GetMapping("/api/appointments/{appointmentId}/medical-record")
-    public ResponseEntity<?> getByAppointment(@PathVariable("appointmentId") int appointmentId, Principal principal){
+    public ResponseEntity<?> getByAppointment(@PathVariable("appointmentId") int appointmentId, Principal principal) {
         Appointments a = this.appointmentService.getById(appointmentId);
-        if (a==null)
+        if (a == null) {
             return new ResponseEntity<>("Không tìm thấy lịch hẹn", HttpStatus.NOT_FOUND);
-        
+        }
+
         MedicalRecords m = this.medicalRecordService.getByAppointmentId(appointmentId);
-        if (m==null)
+        if (m == null) {
             return new ResponseEntity<>("Không tìm thấy hồ sơ bệnh án", HttpStatus.NOT_FOUND);
+        }
         return new ResponseEntity<>(m, HttpStatus.OK);
     }
-    
+
     @PostMapping("/api/secure/appointments/{appointmentId}/medical-record")
-    public ResponseEntity<?> createRecord(@PathVariable("appointmentId") int appointmentId
-            ,@RequestBody MedicalRecords record, Principal principal){
-        
+    public ResponseEntity<?> createRecord(@PathVariable("appointmentId") int appointmentId,
+            @RequestBody MedicalRecords record, Principal principal) {
+
         Users caller = this.userService.getUserByUserName(principal.getName());
-        if (caller == null)
+        if (caller == null) {
             return new ResponseEntity<>("Không tìm thấy người dùng", HttpStatus.UNAUTHORIZED);
-        if (!UserRole.ROLE_DOCTOR.name().equals(caller.getRole()))
-            return new ResponseEntity<>("Chỉ bác sĩ mới có quyền tạo hồ sơ bệnh án",HttpStatus.FORBIDDEN);
-        
+        }
+        if (!UserRole.ROLE_DOCTOR.name().equals(caller.getRole())) {
+            return new ResponseEntity<>("Chỉ bác sĩ mới có quyền tạo hồ sơ bệnh án", HttpStatus.FORBIDDEN);
+        }
+
         Appointments a = this.appointmentService.getById(appointmentId);
-        if (a==null)
+        if (a == null) {
             return new ResponseEntity<>("Không tìm thấy lịch hẹn", HttpStatus.NOT_FOUND);
-        
+        }
+
+        if (a.getStatus().equals(AppointmentStatus.COMPLETED.name())) {
+            return new ResponseEntity<>("Không thể tạo hồ sơ bệnh án khi lịch hẹn đã hoàn thành", HttpStatus.FORBIDDEN);
+        }
+
         MedicalRecords m = this.medicalRecordService.getByAppointmentId(appointmentId);
-        if (m!=null)
+        if (m != null) {
             return new ResponseEntity<>("Lịch hẹn này đã tồn tại hồ sơ bệnh án", HttpStatus.BAD_REQUEST);
-        if (record.getFollowUpDate() != null && record.getFollowUpDate().before(new Date()))
+        }
+        if (record.getFollowUpDate() != null && record.getFollowUpDate().before(new Date())) {
             return new ResponseEntity<>("Ngày tái khám không được ở trong quá khứ", HttpStatus.BAD_REQUEST);
+        }
         record.setId(null);
         record.setAppointmentId(a);
         this.medicalRecordService.save(record);
         return new ResponseEntity<>(record, HttpStatus.CREATED);
     }
-    
+
     @GetMapping("/api/secure/doctor/patients/{patientId}/medical-records")
     public ResponseEntity<?> getPatientHistory(@PathVariable("patientId") int patientId,
-            Principal principal){
+            Principal principal) {
         Users caller = this.userService.getUserByUserName(principal.getName());
-        if (caller == null || !UserRole.ROLE_DOCTOR.name().equals(caller.getRole())){
+        if (caller == null || !UserRole.ROLE_DOCTOR.name().equals(caller.getRole())) {
             return new ResponseEntity<>("Chỉ bác sĩ mới có quyền xem tiền sử bệnh nhân", HttpStatus.FORBIDDEN);
         }
-        
+
         List<MedicalRecords> records = this.medicalRecordService.getPatientById(patientId);
-        
+
         return new ResponseEntity<>(records, HttpStatus.OK);
     }
-    
+
     @PutMapping("/api/secure/medical-records/{id}")
-    public ResponseEntity<?> updateRecord(@PathVariable("id")int id,
-            @RequestBody MedicalRecords record, Principal principal){
-        
+    public ResponseEntity<?> updateRecord(@PathVariable("id") int id,
+            @RequestBody MedicalRecords record, Principal principal) {
+
         Users caller = this.userService.getUserByUserName(principal.getName());
-        if (caller == null)
+        if (caller == null) {
             return new ResponseEntity<>("Không tìm thấy người dùng", HttpStatus.UNAUTHORIZED);
-        if (!UserRole.ROLE_DOCTOR.name().equals(caller.getRole()))
-            return new ResponseEntity<>("Chỉ bác sĩ mới có quyền sửa hồ sơ bệnh án",HttpStatus.FORBIDDEN);
-        
+        }
+        if (!UserRole.ROLE_DOCTOR.name().equals(caller.getRole())) {
+            return new ResponseEntity<>("Chỉ bác sĩ mới có quyền sửa hồ sơ bệnh án", HttpStatus.FORBIDDEN);
+        }
+
         MedicalRecords m = this.medicalRecordService.getById(id);
-        if (m==null)
-            return new ResponseEntity<>("Không tìm thấy hồ sơ bệnh án",HttpStatus.BAD_REQUEST);
-        
-        if (record.getFollowUpDate() != null && record.getFollowUpDate().before(new Date()))
+        if (m == null) {
+            return new ResponseEntity<>("Không tìm thấy hồ sơ bệnh án", HttpStatus.BAD_REQUEST);
+        }
+
+        if (AppointmentStatus.COMPLETED.name().equals(m.getAppointmentId().getStatus())) {
+            return new ResponseEntity<>("Không thể chỉnh sửa hồ sơ bệnh án khi lịch hẹn đã hoàn thành", HttpStatus.FORBIDDEN);
+        }
+
+        if (record.getFollowUpDate() != null && record.getFollowUpDate().before(new Date())) {
             return new ResponseEntity<>("Ngày tái khám không được ở trong quá khứ", HttpStatus.BAD_REQUEST);
+        }
         m.setChiefComplaint(record.getChiefComplaint());
         m.setDiagnosis(record.getDiagnosis());
         m.setNotes(record.getNotes());

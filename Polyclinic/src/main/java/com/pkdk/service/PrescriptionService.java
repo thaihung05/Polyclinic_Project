@@ -4,6 +4,7 @@
  */
 package com.pkdk.service;
 
+import com.pkdk.pojo.Payments;
 import com.pkdk.pojo.Prescriptions;
 import java.util.List;
 
@@ -18,4 +19,5 @@ public interface PrescriptionService {
     List<Prescriptions> getByPatientId(int id);
     void confirmPayment(int prescriptionId, int paymentId);
     void deductStock(int prescriptionId);
+    Payments createPayment(int prescriptionId);
 }

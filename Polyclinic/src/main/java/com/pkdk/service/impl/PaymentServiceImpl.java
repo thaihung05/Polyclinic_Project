@@ -10,7 +10,6 @@ import com.pkdk.enums.PaymentStatus;
 import com.pkdk.pojo.Appointments;
 import com.pkdk.pojo.Payments;
 import com.pkdk.pojo.Users;
-import com.pkdk.repository.AppointmentRepository;
 import com.pkdk.repository.PaymentRepository;
 import com.pkdk.service.AppointmentService;
 import com.pkdk.service.GoogleMeetingService;
@@ -62,9 +61,9 @@ public class PaymentServiceImpl implements PaymentService {
 
         String qrUrl = "";
         if (method.equals(PayMethodEnum.MOMO.toString())) {
-            qrUrl = this.qrService.generateMomoQR(transactionId, amount.toPlainString(), description);
+            qrUrl = this.qrService.generateMomoQR(amount.toPlainString(), description);
         } else {
-            qrUrl = this.qrService.generateBankingQR(transactionId, amount.toPlainString(), description);
+            qrUrl = this.qrService.generateBankingQR(amount.toPlainString(), description);
         }
 
         Payments payment = new Payments();
